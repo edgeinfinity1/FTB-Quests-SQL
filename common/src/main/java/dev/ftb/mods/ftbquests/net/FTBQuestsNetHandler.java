@@ -70,6 +70,7 @@ public interface FTBQuestsNetHandler {
 	MessageType OPEN_QUEST_BOOK = NET.registerS2C("open_quest_book", OpenQuestBookMessage::new);
 	MessageType CLEAR_DISPLAY_CACHE = NET.registerS2C("clear_display_cache", ClearDisplayCacheMessage::new);
 	MessageType REORDER_ITEM_RESPONSE = NET.registerS2C("reorder_item_response", ReorderItemResponseMessage::new);
+	MessageType CLEAR_REPEAT_COOLDOWN = NET.registerS2C("clear_repeat_cooldown", ClearRepeatCooldownMessage::new);
 
 	static void init() {
 	}

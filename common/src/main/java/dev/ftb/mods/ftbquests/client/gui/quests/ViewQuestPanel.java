@@ -814,6 +814,9 @@ public class ViewQuestPanel extends ModalPanel {
 			int iconSize = Math.min(16, titleField.height + 2);
 			icon.draw(graphics, x + 4, y + 4, iconSize, iconSize);
 			ThemeProperties.QUEST_VIEW_BORDER.get().draw(graphics, x + 1, panelContent.getY(), w - 2, 1);
+			if (questScreen.file.selfTeamData.getMilliSecondsUntilRepeatable(quest) > 0L) {
+				Icons.TIME.draw(graphics,x + 6 + iconSize, y + 4, iconSize, iconSize);
+			}
 		}
 	}
 
