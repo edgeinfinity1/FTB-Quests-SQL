@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftbquests.net.CustomToastMessage;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import net.minecraft.core.HolderLookup;
@@ -51,7 +52,7 @@ public class ToastReward extends Reward {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addString("description", description, v -> description = v, "");
 	}

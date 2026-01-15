@@ -1,8 +1,8 @@
 package dev.ftb.mods.ftbquests.client;
 
+import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
-import dev.ftb.mods.ftblibrary.ui.GuiHelper;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.TeamData;

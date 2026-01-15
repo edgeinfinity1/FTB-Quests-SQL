@@ -1,38 +1,5 @@
 package dev.ftb.mods.ftbquests.client;
 
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.serialization.Lifecycle;
-import dev.architectury.event.events.client.ClientLifecycleEvent;
-import dev.architectury.event.events.common.LifecycleEvent;
-import dev.architectury.networking.NetworkManager;
-import dev.architectury.platform.Platform;
-import dev.architectury.registry.ReloadListenerRegistry;
-import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
-import dev.architectury.registry.client.rendering.RenderTypeRegistry;
-import dev.architectury.registry.registries.RegistrarManager;
-import dev.ftb.mods.ftblibrary.FTBLibrary;
-import dev.ftb.mods.ftblibrary.config.EntityFaceConfig;
-import dev.ftb.mods.ftblibrary.config.ImageResourceConfig;
-import dev.ftb.mods.ftblibrary.config.ResourceConfigValue;
-import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
-import dev.ftb.mods.ftblibrary.config.ui.EditConfigScreen;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.block.entity.BaseBarrierBlockEntity;
-import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
-import dev.ftb.mods.ftbquests.client.gui.RewardToast;
-import dev.ftb.mods.ftbquests.client.gui.ToastQuestObject;
-import dev.ftb.mods.ftbquests.item.CustomIconItem;
-import dev.ftb.mods.ftbquests.net.SetCustomImageMessage;
-import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
-import dev.ftb.mods.ftbquests.quest.QuestObject;
-import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
-import dev.ftb.mods.ftbquests.quest.TeamData;
-import dev.ftb.mods.ftbquests.quest.theme.ThemeLoader;
-import dev.ftb.mods.ftbquests.registry.ModBlocks;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -56,13 +23,46 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.blaze3d.platform.InputConstants;
+
+import dev.architectury.event.events.client.ClientLifecycleEvent;
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.platform.Platform;
+import dev.architectury.registry.ReloadListenerRegistry;
+import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
+import dev.architectury.registry.client.rendering.RenderTypeRegistry;
+import dev.architectury.registry.registries.RegistrarManager;
+
+import dev.ftb.mods.ftblibrary.FTBLibrary;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableEntityFace;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableResource;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditConfigScreen;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
+import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftbquests.FTBQuests;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.block.entity.BaseBarrierBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
+import dev.ftb.mods.ftbquests.client.gui.RewardToast;
+import dev.ftb.mods.ftbquests.client.gui.ToastQuestObject;
+import dev.ftb.mods.ftbquests.item.CustomIconItem;
+import dev.ftb.mods.ftbquests.net.SetCustomImageMessage;
+import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
+import dev.ftb.mods.ftbquests.quest.QuestObject;
+import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
+import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbquests.quest.theme.ThemeLoader;
+import dev.ftb.mods.ftbquests.registry.ModBlocks;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 public class FTBQuestsClient {
 	public static KeyMapping KEY_QUESTS;
@@ -142,15 +142,15 @@ public class FTBQuestsClient {
 	}
 
 	public static void openCustomIconGui(Player player, InteractionHand hand) {
-		ResourceConfigValue<?> config = Minecraft.getInstance().hasShiftDown() ? new EntityFaceConfig() : new ImageResourceConfig();
-		config.onClicked(null, MouseButton.LEFT, accepted -> {
+		EditableResource<?> editable = Minecraft.getInstance().hasShiftDown() ? new EditableEntityFace() : new EditableImageResource();
+		editable.onClicked(null, MouseButton.LEFT, accepted -> {
 			if (accepted) {
 				// TODO minor code smell here
-				if (config.getValue() instanceof Identifier rl) {
-					CustomIconItem.setIcon(player.getItemInHand(hand), config.isEmpty() ? null : rl);
+				if (editable.getValue() instanceof Identifier rl) {
+					CustomIconItem.setIcon(player.getItemInHand(hand), editable.isEmpty() ? null : rl);
 					NetworkManager.sendToServer(new SetCustomImageMessage(hand, false, rl));
-				} else if (config.getValue() instanceof EntityType<?> et) {
-					CustomIconItem.setFaceIcon(player.getItemInHand(hand), config.isEmpty() ? null : et);
+				} else if (editable.getValue() instanceof EntityType<?> et) {
+					CustomIconItem.setFaceIcon(player.getItemInHand(hand), editable.isEmpty() ? null : et);
 					NetworkManager.sendToServer(new SetCustomImageMessage(hand, true, RegistrarManager.getId(et, Registries.ENTITY_TYPE)));
 				}
 			}

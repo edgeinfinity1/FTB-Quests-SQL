@@ -2,11 +2,12 @@ package dev.ftb.mods.ftbquests.quest.reward;
 
 import dev.architectury.hooks.item.ItemStackHooks;
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
+import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.net.NotifyItemRewardMessage;
 import dev.ftb.mods.ftbquests.quest.Quest;
@@ -128,7 +129,7 @@ public class ItemReward extends Reward {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 
 		config.addItemStack("item", item, v -> item = v, ItemStack.EMPTY, true, false).setNameKey("ftbquests.reward.ftbquests.item");

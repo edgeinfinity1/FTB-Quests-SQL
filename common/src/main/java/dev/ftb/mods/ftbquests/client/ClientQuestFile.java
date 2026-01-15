@@ -3,9 +3,10 @@ package dev.ftb.mods.ftbquests.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.utils.Env;
+
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.client.gui.CustomToast;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;

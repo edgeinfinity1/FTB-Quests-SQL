@@ -1,16 +1,17 @@
 package dev.ftb.mods.ftbquests.quest;
 
 import dev.ftb.mods.ftblibrary.client.icon.IconRenderer;
-import dev.ftb.mods.ftblibrary.config.NameMap;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.ImageIcon;
 import dev.ftb.mods.ftblibrary.math.PixelBuffer;
+import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.QuestShapeRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -28,6 +29,7 @@ public final class QuestShape extends Icon<QuestShape> {
 	private final String id;
 	private final ImageIcon background, outline, shape;
 	private final boolean shouldDraw;
+	@Nullable
 	private PixelBuffer shapePixels;
 
 	public QuestShape(String id) {
@@ -81,7 +83,6 @@ public final class QuestShape extends Icon<QuestShape> {
 	public @NonNull IconRenderer<QuestShape> getRenderer() {
 		return QuestShapeRenderer.INSTANCE;
 	}
-
 
 	public PixelBuffer getShapePixels() {
 		if (shapePixels == null) {

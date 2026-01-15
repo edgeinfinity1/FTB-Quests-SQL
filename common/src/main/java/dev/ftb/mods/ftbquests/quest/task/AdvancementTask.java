@@ -1,10 +1,10 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.NameMap;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
 import dev.ftb.mods.ftblibrary.util.KnownServerRegistries;
+import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.util.TextUtils;
@@ -61,7 +61,7 @@ public class AdvancementTask extends AbstractBooleanTask {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 
 		if (KnownServerRegistries.client != null && !KnownServerRegistries.client.advancements().isEmpty()) {

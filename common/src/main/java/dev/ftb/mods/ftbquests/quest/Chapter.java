@@ -1,8 +1,8 @@
 package dev.ftb.mods.ftbquests.quest;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.StringConfig;
-import dev.ftb.mods.ftblibrary.config.Tristate;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.Tristate;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
 import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.math.Bits;
@@ -419,17 +419,17 @@ public final class Chapter extends QuestObject {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 
-		config.addList("subtitle", getRawSubtitle(), new StringConfig(), this::setRawSubtitle, "");
+		config.addList("subtitle", getRawSubtitle(), new EditableString(), this::setRawSubtitle, "");
 
-		ConfigGroup appearance = config.getOrCreateSubgroup("appearance").setNameKey("ftbquests.quest.appearance");
+		EditableConfigGroup appearance = config.getOrCreateSubgroup("appearance").setNameKey("ftbquests.quest.appearance");
 		appearance.addEnum("default_quest_shape", defaultQuestShape.isEmpty() ? "default" : defaultQuestShape, v -> defaultQuestShape = v.equals("default") ? "" : v, QuestShape.idMapWithDefault);
 		appearance.addDouble("default_quest_size", defaultQuestSize, v -> defaultQuestSize = v, 1, 0.0625D, 8D);
 		appearance.addInt("default_min_width", defaultMinWidth, v -> defaultMinWidth = v, 0, 0, 3000);
 
-		ConfigGroup visibility = config.getOrCreateSubgroup("visibility").setNameKey("ftbquests.quest.visibility");
+		EditableConfigGroup visibility = config.getOrCreateSubgroup("visibility").setNameKey("ftbquests.quest.visibility");
 		visibility.addBool("always_invisible", alwaysInvisible, v -> alwaysInvisible = v, false);
 		visibility.addBool("default_hide_dependency_lines", defaultHideDependencyLines, v -> defaultHideDependencyLines = v, false);
 		visibility.addBool("hide_quest_details_until_startable", hideQuestDetailsUntilStartable, v -> hideQuestDetailsUntilStartable = v, false);
@@ -437,7 +437,7 @@ public final class Chapter extends QuestObject {
 		visibility.addBool("hide_quest_until_deps_complete", hideQuestUntilDepsComplete, v -> hideQuestUntilDepsComplete = v, false);
 		visibility.addBool("hide_text_until_complete", hideTextUntilComplete, v -> hideTextUntilComplete = v, false);
 
-		ConfigGroup misc = config.getOrCreateSubgroup("misc").setNameKey("ftbquests.quest.misc");
+		EditableConfigGroup misc = config.getOrCreateSubgroup("misc").setNameKey("ftbquests.quest.misc");
 		misc.addString("autofocus_id", autoFocusId, v -> autoFocusId = v, "", HEX_STRING);
 		misc.addEnum("progression_mode", progressionMode, v -> progressionMode = v, ProgressionMode.NAME_MAP);
 		misc.addBool("default_repeatable", defaultRepeatable, v -> defaultRepeatable = v, false);

@@ -1,7 +1,19 @@
 package dev.ftb.mods.ftbquests.quest;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import com.mojang.util.UndashedUuid;
+
 import dev.architectury.networking.NetworkManager;
+
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
 import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
 import dev.ftb.mods.ftbquests.FTBQuests;
@@ -17,28 +29,29 @@ import dev.ftb.mods.ftbquests.util.FTBQuestsInventoryListener;
 import dev.ftb.mods.ftbquests.util.QuestKey;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import it.unimi.dsi.fastutil.longs.*;
-import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.util.Util;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import it.unimi.dsi.fastutil.objects.Object2ByteMap;
+import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class TeamData {
 	public static final int VERSION = 1;
@@ -51,18 +64,13 @@ public class TeamData {
 	private static final Comparator<Long2LongMap.Entry> LONG2LONG_COMPARATOR = (e1, e2) -> Long.compareUnsigned(e1.getLongValue(), e2.getLongValue());
 	private static final Comparator<Object2LongMap.Entry<QuestKey>> OBJECT2LONG_COMPARATOR = (e1, e2) -> Long.compareUnsigned(e1.getLongValue(), e2.getLongValue());
 
-	public static final StreamCodec<FriendlyByteBuf,TeamData> STREAM_CODEC = new StreamCodec<>() {
-		@Override
-		public TeamData decode(FriendlyByteBuf buf) {
-			return Util.make(new TeamData(buf.readUUID(), ClientQuestFile.INSTANCE), d -> d.readNetData(buf));
-		}
-
-		@Override
-		public void encode(FriendlyByteBuf buf, TeamData data) {
-			buf.writeUUID(data.getTeamId());
-			data.writeNetData(buf);
-		}
-	};
+	public static final StreamCodec<FriendlyByteBuf,TeamData> STREAM_CODEC = StreamCodec.of(
+            (buf, data) -> {
+                buf.writeUUID(data.getTeamId());
+                data.writeNetData(buf);
+            },
+			buf -> Util.make(new TeamData(buf.readUUID(), ClientQuestFile.INSTANCE), data -> data.readNetData(buf))
+    );
 
 	private final UUID teamId;
 	private final BaseQuestFile file;

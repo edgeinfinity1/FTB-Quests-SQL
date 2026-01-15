@@ -7,7 +7,6 @@ import dev.ftb.mods.ftbquests.block.fabric.FabricLootCrateOpenerBlockEntity;
 import dev.ftb.mods.ftbquests.block.fabric.FabricTaskScreenAuxBlockEntity;
 import dev.ftb.mods.ftbquests.block.fabric.FabricTaskScreenBlockEntity;
 import dev.ftb.mods.ftbquests.command.ChangeProgressArgument;
-import dev.ftb.mods.ftbquests.command.QuestObjectArgument;
 import dev.ftb.mods.ftbquests.quest.task.TaskTypes;
 import dev.ftb.mods.ftbquests.quest.task.TechRebornEnergyTask;
 import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
@@ -25,7 +24,6 @@ public class FTBQuestsFabric implements ModInitializer {
 		new FTBQuests().setup();
 
 		ArgumentTypeRegistry.registerArgumentType(FTBQuestsAPI.id("change_progress"), ChangeProgressArgument.class, SingletonArgumentInfo.contextFree(ChangeProgressArgument::changeProgress));
-		ArgumentTypeRegistry.registerArgumentType(FTBQuestsAPI.id("quest_object"), QuestObjectArgument.class, SingletonArgumentInfo.contextFree(QuestObjectArgument::new));
 
 		TechRebornEnergyTask.TYPE = TaskTypes.register(FTBQuestsAPI.id("tech_reborn_energy"), TechRebornEnergyTask::new, () -> Icon.getIcon(TechRebornEnergyTask.EMPTY_TEXTURE.toString()).combineWith(Icon.getIcon(TechRebornEnergyTask.FULL_TEXTURE.toString())));
 

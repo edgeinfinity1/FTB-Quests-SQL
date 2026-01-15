@@ -1,12 +1,22 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
+import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.Widget;
 import dev.ftb.mods.ftblibrary.util.StringUtils;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
-import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
@@ -22,15 +32,6 @@ import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.QuestObjectType;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.util.ProgressChange;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -193,7 +194,7 @@ public abstract class Task extends QuestObject {
 	}
 
 	@Override
-	public final ConfigGroup createSubGroup(ConfigGroup group) {
+	public final EditableConfigGroup createSubGroup(EditableConfigGroup group) {
 		TaskType type = getType();
 		return group.getOrCreateSubgroup(getObjectType().getId())
 				.getOrCreateSubgroup(type.getTypeId().getNamespace())
@@ -316,7 +317,7 @@ public abstract class Task extends QuestObject {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 
 		config.addBool("optional_task", optionalTask, v -> optionalTask = v, false).setNameKey("ftbquests.quest.misc.optional_task");

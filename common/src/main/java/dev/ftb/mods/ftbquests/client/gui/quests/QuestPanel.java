@@ -1,22 +1,23 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
 import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
+import dev.ftb.mods.ftblibrary.client.config.gui.resource.SelectImageResourceScreen;
+import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
+import dev.ftb.mods.ftblibrary.client.gui.input.Key;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.ImageResourceConfig;
-import dev.ftb.mods.ftblibrary.config.ui.resource.SelectImageResourceScreen;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.ImageIcon;
 import dev.ftb.mods.ftblibrary.math.MathUtils;
-import dev.ftb.mods.ftblibrary.ui.Button;
-import dev.ftb.mods.ftblibrary.ui.ContextMenuItem;
-import dev.ftb.mods.ftblibrary.ui.GuiHelper;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.ui.Theme;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.ui.input.Key;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
 import dev.ftb.mods.ftbquests.net.CopyChapterImageMessage;
@@ -43,9 +44,10 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
+
 import org.jetbrains.annotations.UnknownNullability;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class QuestPanel extends Panel {
 	protected double questY = 0;
 	double centerQuestX = 0;
 	double centerQuestY = 0;
+	@Nullable
 	QuestButton mouseOverQuest = null;
 	private double questMinX, questMinY, questMaxX, questMaxY;
 
@@ -547,7 +550,7 @@ public class QuestPanel extends Panel {
 	}
 
 	private void showImageCreationScreen(double qx, double qy) {
-		ImageResourceConfig imageConfig = new ImageResourceConfig();
+		EditableImageResource imageConfig = new EditableImageResource();
 		new SelectImageResourceScreen(imageConfig, accepted -> {
 			if (accepted) {
 				playClickSound();

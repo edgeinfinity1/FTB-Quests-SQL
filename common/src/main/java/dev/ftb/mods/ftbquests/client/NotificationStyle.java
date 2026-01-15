@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbquests.client;
 
-import dev.ftb.mods.ftblibrary.config.NameMap;
 import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
 import dev.ftb.mods.ftbquests.quest.Chapter;
 import dev.ftb.mods.ftbquests.quest.QuestObject;
@@ -30,9 +30,9 @@ public enum NotificationStyle {
 
     private final String id;
     private final Consumer<QuestObject> onComplete;
-    private final BiConsumer<Component,Icon> onReward;
+    private final BiConsumer<Component,Icon<?>> onReward;
 
-    NotificationStyle(String id, Consumer<QuestObject> onComplete, BiConsumer<Component,Icon> onReward) {
+    NotificationStyle(String id, Consumer<QuestObject> onComplete, BiConsumer<Component,Icon<?>> onReward) {
         this.id = id;
         this.onComplete = onComplete;
         this.onReward = onReward;
@@ -46,7 +46,7 @@ public enum NotificationStyle {
         return false;
     }
 
-    public void notifyReward(Component text, Icon icon) {
+    public void notifyReward(Component text, Icon<?> icon) {
         onReward.accept(text, icon);
     }
 
@@ -54,7 +54,7 @@ public enum NotificationStyle {
         FTBQuestsClient.showCompletionToast(qo);
     }
 
-    private static void rewardToast(Component text, Icon icon) {
+    private static void rewardToast(Component text, Icon<?> icon) {
         FTBQuestsClient.showRewardToast(text, icon);
     }
 
@@ -62,7 +62,7 @@ public enum NotificationStyle {
         chatMsg(qo, false);
     }
 
-    private static void rewardChat(Component component, Icon icon) {
+    private static void rewardChat(Component component, Icon<?> icon) {
         FTBQuestsClient.getClientPlayer().displayClientMessage(formatRewardMsg(component),false);
     }
 
@@ -70,14 +70,14 @@ public enum NotificationStyle {
         chatMsg(qo, true);
     }
 
-    private static void rewardActionBar(Component component, Icon icon) {
+    private static void rewardActionBar(Component component, Icon<?> icon) {
         FTBQuestsClient.getClientPlayer().displayClientMessage(formatRewardMsg(component), true);
     }
 
     private static void completionNone(QuestObject qo) {
     }
 
-    private static void rewardNone(Component text, Icon icon) {
+    private static void rewardNone(Component text, Icon<?> icon) {
     }
 
     private static Component formatRewardMsg(Component msg) {

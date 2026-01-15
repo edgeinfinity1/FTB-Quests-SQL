@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import dev.ftb.mods.ftblibrary.client.gui.SimpleToast;
 import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.misc.SimpleToast;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
 import dev.ftb.mods.ftbquests.client.NotificationStyle;
 import dev.ftb.mods.ftbquests.quest.Chapter;

@@ -1,24 +1,5 @@
 package dev.ftb.mods.ftbquests.block.entity;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.BooleanConfig;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ItemStackConfig;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.net.BlockConfigResponseMessage;
-import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
-import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
-import dev.ftb.mods.ftbquests.quest.TeamData;
-import dev.ftb.mods.ftbquests.quest.task.Task;
-import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
-import dev.ftb.mods.ftbquests.registry.ModBlocks;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
-import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
-import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,11 +23,32 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableBoolean;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableItemStack;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
+import dev.ftb.mods.ftbquests.net.BlockConfigResponseMessage;
+import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
+import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
+import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbquests.quest.task.Task;
+import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
+import dev.ftb.mods.ftbquests.registry.ModBlocks;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 
 import java.util.Optional;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static dev.ftb.mods.ftbquests.block.TaskScreenBlock.FACING;
 
@@ -218,21 +220,21 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
         textShadow = data.textShadow;
     }
 
-    public ConfigGroup fillConfigGroup(TeamData data) {
-        ConfigGroup cg0 = new ConfigGroup("task_screen", accepted -> {
+    public EditableConfigGroup fillConfigGroup(TeamData data) {
+        EditableConfigGroup cg0 = new EditableConfigGroup("task_screen", accepted -> {
             if (accepted) {
                 NetworkManager.sendToServer(new BlockConfigResponseMessage(getBlockPos(), saveWithoutMetadata(getLevel().registryAccess())));
             }
         });
 
         cg0.setNameKey(getBlockState().getBlock().getDescriptionId());
-        ConfigGroup cg = cg0.getOrCreateSubgroup("screen");
-        cg.add("task", new ConfigQuestObject<>(o -> isSuitableTask(data, o), this::formatLine), getTask(), this::setTask, null).setNameKey("ftbquests.task");
-        cg.add("skin", new ItemStackConfig(true, true), getSkin(), this::setSkin, ItemStack.EMPTY).setNameKey("block.ftbquests.screen.skin");
-        cg.add("text_shadow", new BooleanConfig(), isTextShadow(), this::setTextShadow, false).setNameKey("block.ftbquests.screen.text_shadow");
-        cg.add("indestructible", new BooleanConfig(), isIndestructible(), this::setIndestructible, false).setNameKey("block.ftbquests.screen.indestructible");
-        cg.add("input_only", new BooleanConfig(), isInputOnly(), this::setInputOnly, false).setNameKey("block.ftbquests.screen.input_only");
-        cg.add("input_icon", new ItemStackConfig(true, true), getInputModeIcon(), this::setInputModeIcon, ItemStack.EMPTY).setNameKey("block.ftbquests.screen.input_mode_icon");
+        EditableConfigGroup cg = cg0.getOrCreateSubgroup("screen");
+        cg.add("task", new EditableQuestObject<>(o -> isSuitableTask(data, o), this::formatLine), getTask(), this::setTask, null).setNameKey("ftbquests.task");
+        cg.add("skin", new EditableItemStack(true, true), getSkin(), this::setSkin, ItemStack.EMPTY).setNameKey("block.ftbquests.screen.skin");
+        cg.add("text_shadow", new EditableBoolean(), isTextShadow(), this::setTextShadow, false).setNameKey("block.ftbquests.screen.text_shadow");
+        cg.add("indestructible", new EditableBoolean(), isIndestructible(), this::setIndestructible, false).setNameKey("block.ftbquests.screen.indestructible");
+        cg.add("input_only", new EditableBoolean(), isInputOnly(), this::setInputOnly, false).setNameKey("block.ftbquests.screen.input_only");
+        cg.add("input_icon", new EditableItemStack(true, true), getInputModeIcon(), this::setInputModeIcon, ItemStack.EMPTY).setNameKey("block.ftbquests.screen.input_mode_icon");
 
         return cg0;
     }
@@ -241,7 +243,7 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
         if (task == null) return Component.empty();
 
         Component questTxt = Component.literal(" [").append(task.getQuest().getTitle()).append("]").withStyle(ChatFormatting.GREEN);
-        return ConfigQuestObject.formatEntry(task).copy().append(questTxt);
+        return EditableQuestObject.formatEntry(task).copy().append(questTxt);
     }
 
     private boolean isSuitableTask(TeamData data, QuestObjectBase o) {

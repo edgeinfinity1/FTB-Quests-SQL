@@ -1,8 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.NameMap;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.util.KnownServerRegistries;
+import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import net.minecraft.ChatFormatting;
@@ -63,7 +63,7 @@ public class DimensionTask extends AbstractBooleanTask {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 
 		if (KnownServerRegistries.client != null && !KnownServerRegistries.client.dimension().isEmpty()) {
@@ -72,7 +72,7 @@ public class DimensionTask extends AbstractBooleanTask {
 					NameMap.of(dimensions.getFirst(), dimensions.toArray(new Identifier[0])).create()
 			);
 		} else {
-			config.addString("dim", dimension.identifier().toString(), v -> dimension = ResourceKey.create(Registries.DIMENSION, Identifier.tryParse(v)), "minecraft:the_nether");
+			config.addString("dim", dimension.identifier().toString(), v -> Identifier.read(v).ifSuccess(id -> dimension = ResourceKey.create(Registries.DIMENSION, id)), "minecraft:the_nether");
 		}
 	}
 

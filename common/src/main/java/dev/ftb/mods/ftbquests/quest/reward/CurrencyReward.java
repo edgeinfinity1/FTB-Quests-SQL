@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.integration.currency.CurrencyHelper;
 import dev.ftb.mods.ftblibrary.integration.currency.CurrencyProvider;
@@ -65,7 +66,7 @@ public class CurrencyReward extends Reward {
     }
 
     @Override
-    public void fillConfigGroup(ConfigGroup config) {
+    public void fillConfigGroup(EditableConfigGroup config) {
         super.fillConfigGroup(config);
 
         config.addInt("coins", coinAmount, v -> coinAmount = v, 100, 1, Integer.MAX_VALUE)

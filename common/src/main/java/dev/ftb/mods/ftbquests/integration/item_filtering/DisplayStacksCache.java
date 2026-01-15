@@ -10,15 +10,16 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 public class DisplayStacksCache {
     private static final int MAX_CACHE_SIZE = 1024;
     private static final Int2ObjectLinkedOpenHashMap<List<ItemStack>> cache = new Int2ObjectLinkedOpenHashMap<>(MAX_CACHE_SIZE);
+    @Nullable
     private static List<ItemStack> extraCache = null;
 
-    @NotNull
     public static List<ItemStack> getCachedDisplayStacks(ItemStack filterStack, ItemFilterAdapter adapter, HolderLookup.Provider registryAccess) {
         int key = ItemStack.hashItemAndComponents(filterStack);
 

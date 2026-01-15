@@ -2,14 +2,20 @@ package dev.ftb.mods.ftbquests.client.gui.quests;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditConfigScreen;
+import dev.ftb.mods.ftblibrary.client.gui.WidgetType;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ui.EditConfigScreen;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.net.EditObjectMessage;
@@ -166,7 +172,7 @@ public class ChapterImageButton extends Button implements QuestPositionableButto
 
 	private void openEditScreen() {
 		String name = chapterImage.getImage() instanceof Color4I ? chapterImage.getColor().toString() : chapterImage.getImage().toString();
-		ConfigGroup group = new ConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
+		EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
 			if (accepted) {
 				EditObjectMessage.sendToServer(chapterImage.getChapter());
 			}

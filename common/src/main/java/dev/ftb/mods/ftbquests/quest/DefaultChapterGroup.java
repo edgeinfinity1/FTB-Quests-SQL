@@ -14,7 +14,7 @@ public class DefaultChapterGroup extends ChapterGroup {
 	}
 
 	@Override
-	public Icon getAltIcon() {
+	public Icon<?> getAltIcon() {
 		return file.getIcon();
 	}
 }

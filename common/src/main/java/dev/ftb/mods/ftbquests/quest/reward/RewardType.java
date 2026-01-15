@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
 import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.Panel;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.GuiProviders;
 import dev.ftb.mods.ftbquests.quest.Quest;

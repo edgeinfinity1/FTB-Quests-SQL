@@ -1,14 +1,15 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.Tristate;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.Tristate;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
+import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.Button;
-import dev.ftb.mods.ftblibrary.ui.Widget;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
-import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.integration.RecipeModHelper;
 import dev.ftb.mods.ftbquests.net.ClaimRewardMessage;
@@ -135,7 +136,7 @@ public abstract class Reward extends QuestObjectBase {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addEnum("team", team, v -> team = v, Tristate.NAME_MAP)
 				.setNameKey("ftbquests.reward.team_reward");
@@ -263,7 +264,7 @@ public abstract class Reward extends QuestObjectBase {
 	}
 
 	@Override
-	public final ConfigGroup createSubGroup(ConfigGroup group) {
+	public final EditableConfigGroup createSubGroup(EditableConfigGroup group) {
 		RewardType type = getType();
 		return group.getOrCreateSubgroup(getObjectType().getId())
 				.getOrCreateSubgroup(type.getTypeId().getNamespace())

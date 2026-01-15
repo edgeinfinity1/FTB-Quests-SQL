@@ -1,53 +1,73 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Whence;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 import com.mojang.blaze3d.platform.InputConstants;
+
+import dev.ftb.mods.ftblibrary.client.config.ConfigCallback;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableColor;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableList;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditConfigScreen;
+import dev.ftb.mods.ftblibrary.client.gui.input.Key;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.theme.NordColors;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.BaseScreen;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ColorSelectorPanel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenu;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.MultilineTextBox;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.PanelScrollBar;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ScrollBar;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.*;
-import dev.ftb.mods.ftblibrary.config.ui.EditConfigScreen;
+import dev.ftb.mods.ftblibrary.client.util.ImageComponent;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.RainbowIcon;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.MultilineTextBox.StringExtents;
-import dev.ftb.mods.ftblibrary.ui.input.Key;
-import dev.ftb.mods.ftblibrary.ui.input.KeyModifiers;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.NordColors;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.ImageComponent;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.client.gui.quests.ViewQuestPanel;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.QuestObjectType;
-import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.util.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Whence;
-import net.minecraft.network.chat.Component;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BooleanSupplier;
+import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.BooleanSupplier;
-import java.util.regex.Pattern;
-
 public class MultilineTextEditorScreen extends BaseScreen {
-    public static final Icon LINK_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/chain_link.png")).withPadding(2);
-    public static final Icon CLEAR_FORMATTING_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/eraser.png")).withPadding(2);
+    public static final Icon<?> LINK_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/chain_link.png")).withPadding(2);
+    public static final Icon<?> CLEAR_FORMATTING_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/eraser.png")).withPadding(2);
 
 	private static final Pattern STRIP_FORMATTING_PATTERN = Pattern.compile("(?i)([&\\u00A7])([0-9A-FK-ORZ]|#[0-9A-Fa-f]{6})");
 	private static final int MAX_UNDO = 10;
 	protected static final String LINK_TEXT_TEMPLATE = "{ \"text\": \"%s\", \"underlined\": true, \"clickEvent\": { \"action\": \"change_page\", \"value\": \"%016X\" } }";
 
 	private final Component title;
-	private final ListConfig<String, StringConfig> config;
+	private final EditableList<String, EditableString> config;
 	private final ConfigCallback callback;
 	private final Panel outerPanel;
 	private final Panel toolbarPanel;
@@ -72,7 +92,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 			InputConstants.KEY_L, this::openLinkInsert
 	);
 
-	public MultilineTextEditorScreen(Component title, ListConfig<String, StringConfig> config, ConfigCallback callback) {
+	public MultilineTextEditorScreen(Component title, EditableList<String, EditableString> config, ConfigCallback callback) {
 		this.title = title;
 		this.config = config;
 		this.callback = callback;
@@ -206,7 +226,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 	}
 
 	private void openLinkInsert() {
-		ConfigQuestObject<QuestObject> config = new ConfigQuestObject<>(QuestObjectType.QUEST.or(QuestObjectType.QUEST_LINK));
+		EditableQuestObject<QuestObject> config = new EditableQuestObject<>(QuestObjectType.QUEST.or(QuestObjectType.QUEST_LINK));
 		new SelectQuestObjectScreen<>(config, accepted -> {
 			int pos = textBox.cursorPos();
 			if (accepted) {
@@ -221,8 +241,8 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		String text = textBox.getSelectedText();
 		if (!text.contains("\n")) {
 			// a selection which doesn't extend over multiple physical lines; replace the selection in a smart way
-			StringExtents lineExtents = getPhysicalLineExtents();
-			StringExtents selectionExtents = textBox.getSelected();
+			MultilineTextBox.StringExtents lineExtents = getPhysicalLineExtents();
+			MultilineTextBox.StringExtents selectionExtents = textBox.getSelected();
 
 			if (lineExtents.start() == lineExtents.end() || selectionExtents.start() == selectionExtents.end()) {
 				return;
@@ -256,7 +276,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		}
 	}
 
-	private StringExtents getPhysicalLineExtents() {
+	private MultilineTextBox.StringExtents getPhysicalLineExtents() {
 		int pos = 0;
 		String thisLine = "";
 		for (String line : textBox.getText().split("\\n")) {
@@ -267,7 +287,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 			pos += line.length() + 1;
 		}
 
-		return new StringExtents(pos, pos + thisLine.length());
+		return new MultilineTextBox.StringExtents(pos, pos + thisLine.length());
 	}
 
 	private void errorToPlayer(String msg, Object... args) {
@@ -278,7 +298,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		int cursor = textBox.cursorPos();
 
 		ImageComponent component = new ImageComponent();
-		ConfigGroup group = new ConfigGroup(FTBQuestsAPI.MOD_ID + ".gui.image", accepted -> {
+		EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID + ".gui.image", accepted -> {
 			openGui();
 			if (accepted) {
 				textBox.seekCursor(Whence.ABSOLUTE, cursor);
@@ -286,8 +306,8 @@ public class MultilineTextEditorScreen extends BaseScreen {
 			}
 		});
 
-		group.add("image", new ImageResourceConfig(), ImageResourceConfig.getIdentifier(component.getImage()),
-				v -> component.setImage(Icon.getIcon(v)), ImageResourceConfig.NONE).setOrder(-127);
+		group.add("image", new EditableImageResource(), EditableImageResource.getIdentifier(component.getImage()),
+				v -> component.setImage(Icon.getIcon(v)), EditableImageResource.NONE).setOrder(-127);
 		group.addInt("width", component.getWidth(), component::setWidth, 0, 1, 1000);
 		group.addInt("height", component.getHeight(), component::setHeight, 0, 1, 1000);
 		group.addEnum("align", component.getAlign(), component::setAlign, ImageComponent.ImageAlign.NAME_MAP, ImageComponent.ImageAlign.CENTER);
@@ -317,7 +337,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		insertFormatting(String.valueOf(c.getChar()));
 	}
 
-	private void insertFormatting(ColorConfig color) {
+	private void insertFormatting(EditableColor color) {
 		insertFormatting(color.getValue().toString());
 	}
 
@@ -496,7 +516,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 				}
 			}
 
-			var colorConfig = new ColorConfig();
+			var colorConfig = new EditableColor();
 			items.add(new ContextMenuItem(Component.empty(), Icons.COLOR_HSB, btn -> ColorSelectorPanel.popupAtMouse(this.parent.getGui(), colorConfig, (b) -> {
 				if (b) {
 					insertFormatting(colorConfig);

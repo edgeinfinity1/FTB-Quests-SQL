@@ -1,8 +1,8 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import dev.ftb.mods.ftblibrary.client.gui.widget.BaseScreen;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
-import dev.ftb.mods.ftblibrary.ui.BaseScreen;
-import dev.ftb.mods.ftblibrary.ui.ContextMenuItem;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.quest.Movable;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;

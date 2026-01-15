@@ -1,8 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.loot;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.NameMap;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
+import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.registry.ModDataComponents;
 import dev.ftb.mods.ftbquests.registry.ModItems;
@@ -124,13 +124,13 @@ public final class LootCrate {
 		drops.readNetData(data);
 	}
 
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		config.addString("id", stringID, v -> stringID = v, "", Pattern.compile("[a-z0-9_]+"));
 		config.addString("item_name", itemName, v -> itemName = v, "");
 		config.addColor("color", color, v -> color = v, Color4I.WHITE);
 		config.addBool("glow", glow, v -> glow = v, true);
 
-		ConfigGroup d = config.getOrCreateSubgroup("drops");
+		EditableConfigGroup d = config.getOrCreateSubgroup("drops");
 		d.setNameKey("ftbquests.loot.entitydrops");
 		d.addInt("passive", drops.passive, v -> drops.passive = v, 0, 0, Integer.MAX_VALUE).setNameKey("ftbquests.loot.entitytype.passive");
 		d.addInt("monster", drops.monster, v -> drops.monster = v, 0, 0, Integer.MAX_VALUE).setNameKey("ftbquests.loot.entitytype.monster");

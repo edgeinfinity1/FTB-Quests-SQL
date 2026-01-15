@@ -1,27 +1,5 @@
 package dev.ftb.mods.ftbquests.quest;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.StringConfig;
-import dev.ftb.mods.ftblibrary.config.Tristate;
-import dev.ftb.mods.ftblibrary.config.ui.EditConfigScreen;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.math.Bits;
-import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.client.ClientQuestFile;
-import dev.ftb.mods.ftbquests.client.ConfigIconItemStack;
-import dev.ftb.mods.ftbquests.integration.RecipeModHelper;
-import dev.ftb.mods.ftbquests.item.CustomIconItem;
-import dev.ftb.mods.ftbquests.net.EditObjectMessage;
-import dev.ftb.mods.ftbquests.net.SyncTranslationMessageToServer;
-import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
-import dev.ftb.mods.ftbquests.registry.ModItems;
-import dev.ftb.mods.ftbquests.util.NetUtils;
-import dev.ftb.mods.ftbquests.util.ProgressChange;
-import dev.ftb.mods.ftbquests.util.TextUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -34,8 +12,30 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.Tristate;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditConfigScreen;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftblibrary.math.Bits;
+import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.ClientQuestFile;
+import dev.ftb.mods.ftbquests.client.config.EditableIconItemStack;
+import dev.ftb.mods.ftbquests.integration.RecipeModHelper;
+import dev.ftb.mods.ftbquests.item.CustomIconItem;
+import dev.ftb.mods.ftbquests.net.EditObjectMessage;
+import dev.ftb.mods.ftbquests.net.SyncTranslationMessageToServer;
+import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
+import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+import dev.ftb.mods.ftbquests.registry.ModItems;
+import dev.ftb.mods.ftbquests.util.NetUtils;
+import dev.ftb.mods.ftbquests.util.ProgressChange;
+import dev.ftb.mods.ftbquests.util.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +48,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
 	private static final Pattern TAG_PATTERN = Pattern.compile("^[a-z0-9_]*$");
@@ -59,8 +61,11 @@ public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
 	private ItemStack rawIcon = ItemStack.EMPTY;
 	private List<String> tags = new ArrayList<>(0);
 
+	@Nullable
 	private Icon<?> cachedIcon = null;
+	@Nullable
 	private Component cachedTitle = null;
+	@Nullable
 	private Set<String> cachedTags = null;
 
 	// stores translations in the client-side proto-quest-object before it's sent to server
@@ -363,16 +368,16 @@ public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
 		return true;
 	}
 
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		if (hasTitleConfig()) {
 			config.addString("title", getRawTitle(), this::setRawTitle, "").setNameKey("ftbquests.title").setOrder(-127);
 		}
 
 		if (hasIconConfig()) {
-			config.add("icon", new ConfigIconItemStack(), rawIcon, v -> rawIcon = v, ItemStack.EMPTY).setNameKey("ftbquests.icon").setOrder(-126);
+			config.add("icon", new EditableIconItemStack(), rawIcon, v -> rawIcon = v, ItemStack.EMPTY).setNameKey("ftbquests.icon").setOrder(-126);
 		}
 
-		config.addList("tags", tags, new StringConfig(TAG_PATTERN), "").setNameKey("ftbquests.tags").setOrder(-125);
+		config.addList("tags", tags, new EditableString(TAG_PATTERN), "").setNameKey("ftbquests.tags").setOrder(-125);
 	}
 
 	public abstract Component getAltTitle();
@@ -440,12 +445,12 @@ public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
 		cachedTags = null;
 	}
 
-	public ConfigGroup createSubGroup(ConfigGroup group) {
+	public EditableConfigGroup createSubGroup(EditableConfigGroup group) {
 		return group.getOrCreateSubgroup(getObjectType().getId());
 	}
 
 	public void onEditButtonClicked(Runnable gui) {
-		ConfigGroup group = new ConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
+		EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
 			gui.run();
 			if (accepted && validateEditedConfig()) {
 				NetworkManager.sendToServer(EditObjectMessage.forQuestObject(this));

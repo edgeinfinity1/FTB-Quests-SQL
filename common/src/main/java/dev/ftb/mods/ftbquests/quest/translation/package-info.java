@@ -1,4 +1,5 @@
+
 @NullMarked
-package dev.ftb.mods.ftbquests.client;
+package dev.ftb.mods.ftbquests.quest.translation;
 
 import org.jspecify.annotations.NullMarked;

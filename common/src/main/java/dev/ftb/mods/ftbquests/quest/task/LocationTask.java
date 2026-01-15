@@ -1,8 +1,5 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftbquests.quest.Quest;
-import dev.ftb.mods.ftbquests.quest.TeamData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -13,6 +10,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftbquests.quest.Quest;
+import dev.ftb.mods.ftbquests.quest.TeamData;
 
 public class LocationTask extends AbstractBooleanTask {
 	private ResourceKey<Level> dimension;
@@ -105,7 +106,7 @@ public class LocationTask extends AbstractBooleanTask {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addString("dim", dimension.identifier().toString(), v -> dimension = ResourceKey.create(Registries.DIMENSION, Identifier.tryParse(v)), "minecraft:overworld");
 		config.addBool("ignore_dim", ignoreDimension, v -> ignoreDimension = v, false);

@@ -1,22 +1,5 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.icon.Color4I;
-import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
-import dev.ftb.mods.ftbquests.client.ClientQuestFile;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.client.gui.ContextMenuBuilder;
-import dev.ftb.mods.ftbquests.net.ReorderItemMessage;
-import dev.ftb.mods.ftbquests.quest.reward.ItemReward;
-import dev.ftb.mods.ftbquests.quest.reward.Reward;
-import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,11 +7,33 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import org.joml.Matrix3x2fStack;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
+import dev.ftb.mods.ftblibrary.client.gui.WidgetType;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
+import dev.ftb.mods.ftblibrary.icon.Color4I;
+import dev.ftb.mods.ftblibrary.icon.Icons;
+import dev.ftb.mods.ftblibrary.util.TooltipList;
+import dev.ftb.mods.ftbquests.client.ClientQuestFile;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
+import dev.ftb.mods.ftbquests.client.gui.ContextMenuBuilder;
+import dev.ftb.mods.ftbquests.net.ReorderItemMessage;
+import dev.ftb.mods.ftbquests.quest.reward.ItemReward;
+import dev.ftb.mods.ftbquests.quest.reward.Reward;
+import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.joml.Matrix3x2fStack;
 
 public class RewardButton extends Button {
 	private final QuestScreen questScreen;

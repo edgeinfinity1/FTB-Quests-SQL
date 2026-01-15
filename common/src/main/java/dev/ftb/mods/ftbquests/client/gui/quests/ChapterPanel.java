@@ -1,19 +1,35 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
+
 import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.layout.WidgetLayout;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.client.icon.IconRenderer;
-import dev.ftb.mods.ftblibrary.config.StringConfig;
-import dev.ftb.mods.ftblibrary.config.ui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
@@ -28,17 +44,6 @@ import dev.ftb.mods.ftbquests.quest.ChapterGroup;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
 import dev.ftb.mods.ftbquests.util.TextUtils;
-import net.minecraft.ChatFormatting;
-import net.minecraft.util.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -218,7 +223,7 @@ public class ChapterPanel extends Panel {
 
 			List<ContextMenuItem> contextMenu = new ArrayList<>();
 			contextMenu.add(new ContextMenuItem(Component.translatable("ftbquests.chapter"), ThemeProperties.ADD_ICON.get(), b -> {
-				StringConfig c = new StringConfig(NON_EMPTY_PAT);
+				EditableString c = new EditableString(NON_EMPTY_PAT);
 				EditStringConfigOverlay<String> overlay = new EditStringConfigOverlay<>(parent.getParent(), c, accepted -> {
 					chapterPanel.questScreen.openGui();
 
@@ -237,7 +242,7 @@ public class ChapterPanel extends Panel {
 			}));
 
 			contextMenu.add(new ContextMenuItem(Component.translatable("ftbquests.chapter_group"), ThemeProperties.ADD_ICON.get(), b -> {
-				StringConfig c = new StringConfig(NON_EMPTY_PAT);
+				EditableString c = new EditableString(NON_EMPTY_PAT);
 				EditStringConfigOverlay<String> overlay = new EditStringConfigOverlay<>(parent.getParent(), c, accepted -> {
 					chapterPanel.questScreen.openGui();
 
@@ -347,7 +352,7 @@ public class ChapterPanel extends Panel {
 
 			playClickSound();
 
-			StringConfig c = new StringConfig(NON_EMPTY_PAT);
+			EditableString c = new EditableString(NON_EMPTY_PAT);
 			EditStringConfigOverlay<String> overlay = new EditStringConfigOverlay<>(parent.getParent(), c, accepted -> {
 				chapterPanel.questScreen.openGui();
 

@@ -1,18 +1,21 @@
 package dev.ftb.mods.ftbquests.quest;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
-import dev.ftb.mods.ftbquests.net.MoveMovableMessage;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
+import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
+import dev.ftb.mods.ftbquests.net.MoveMovableMessage;
+
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 public class QuestLink extends QuestObject implements Movable, Excludable {
     private Chapter chapter;
@@ -34,6 +37,7 @@ public class QuestLink extends QuestObject implements Movable, Excludable {
     }
 
     @Override
+    @Nullable
     public Quest getRelatedQuest() {
         return getQuest().orElse(null);
     }
@@ -54,7 +58,7 @@ public class QuestLink extends QuestObject implements Movable, Excludable {
     }
 
     @Override
-    public Icon getAltIcon() {
+    public Icon<?> getAltIcon() {
         return getQuest().map(Quest::getAltIcon).orElse(null);
     }
 
@@ -89,7 +93,7 @@ public class QuestLink extends QuestObject implements Movable, Excludable {
     }
 
     @Override
-    public void fillConfigGroup(ConfigGroup config) {
+    public void fillConfigGroup(EditableConfigGroup config) {
         super.fillConfigGroup(config);
 
         config.addEnum("shape", shape.isEmpty() ? "default" : shape, v -> shape = v.equals("default") ? "" : v, QuestShape.idMapWithDefault);

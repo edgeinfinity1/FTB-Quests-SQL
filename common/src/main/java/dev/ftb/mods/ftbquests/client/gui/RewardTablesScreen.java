@@ -1,19 +1,20 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
 import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.gui.input.Key;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.screens.AbstractButtonListScreen;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.StringConfig;
-import dev.ftb.mods.ftblibrary.config.ui.EditStringConfigOverlay;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.ui.ContextMenuItem;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.ui.SimpleTextButton;
-import dev.ftb.mods.ftblibrary.ui.Theme;
-import dev.ftb.mods.ftblibrary.ui.input.Key;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
@@ -72,11 +73,11 @@ public class RewardTablesScreen extends AbstractButtonListScreen {
 			public void onClicked(MouseButton button) {
 				playClickSound();
 
-				StringConfig cfg = new StringConfig();
-				EditStringConfigOverlay<String> panel = new EditStringConfigOverlay<>(getGui(), cfg, accepted -> {
+				EditableString editable = new EditableString();
+				EditStringConfigOverlay<String> panel = new EditStringConfigOverlay<>(getGui(), editable, accepted -> {
 					if (accepted) {
 						RewardTable table = new RewardTable(0L, ClientQuestFile.INSTANCE);
-						table.setRawTitle(cfg.getValue());
+						table.setRawTitle(editable.getValue());
 						rewardTablesCopy.add(table);
 						refreshWidgets();
 					}

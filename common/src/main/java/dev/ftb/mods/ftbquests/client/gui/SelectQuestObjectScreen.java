@@ -1,35 +1,39 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import dev.ftb.mods.ftblibrary.client.config.ConfigCallback;
+import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
+import dev.ftb.mods.ftblibrary.client.gui.input.Key;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.screens.AbstractButtonListScreen;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.ConfigCallback;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.input.Key;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.quest.*;
 import dev.ftb.mods.ftbquests.quest.loot.RewardTable;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
 import dev.ftb.mods.ftbquests.quest.task.Task;
-import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
 public class SelectQuestObjectScreen<T extends QuestObjectBase> extends AbstractButtonListScreen {
-	private final ConfigQuestObject<T> config;
+	private final EditableQuestObject<T> config;
 	private final ConfigCallback callback;
-	private Function<T,Component> formatter = ConfigQuestObject::formatEntry;
+	private Function<T,Component> formatter = EditableQuestObject::formatEntry;
 
-	public SelectQuestObjectScreen(ConfigQuestObject<T> config, ConfigCallback callback) {
+	public SelectQuestObjectScreen(EditableQuestObject<T> config, ConfigCallback callback) {
 		setTitle(Component.translatable("ftbquests.gui.select_quest_object"));
 		setHasSearchBox(true);
 		showBottomPanel(false);
@@ -42,7 +46,7 @@ public class SelectQuestObjectScreen<T extends QuestObjectBase> extends Abstract
 	}
 
 	public SelectQuestObjectScreen<T> withFormatter(@Nullable Function<T,Component> formatter) {
-		this.formatter = Objects.requireNonNullElse(formatter, ConfigQuestObject::formatEntry);
+		this.formatter = Objects.requireNonNullElse(formatter, EditableQuestObject::formatEntry);
 		return this;
 	}
 
@@ -189,8 +193,8 @@ public class SelectQuestObjectScreen<T extends QuestObjectBase> extends Abstract
 		@Override
 		public void onClicked(MouseButton button) {
 			playClickSound();
-			config.setCurrentValue(object);
-			callback.save(true);
+			boolean changed = config.updateValue(object);
+			callback.save(changed);
 		}
 	}
 }

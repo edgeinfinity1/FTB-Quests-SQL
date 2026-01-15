@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
@@ -64,7 +64,7 @@ public class StageReward extends Reward {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addString("stage", stage, v -> stage = v, "").setNameKey("ftbquests.reward.ftbquests.gamestage");
 		config.addBool("remove", remove, v -> remove = v, false);

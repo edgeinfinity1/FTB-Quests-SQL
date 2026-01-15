@@ -1,10 +1,11 @@
 package dev.ftb.mods.ftbquests.client;
 
 import dev.architectury.hooks.item.ItemStackHooks;
+
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.client.gui.IRewardListenerScreen;
 import dev.ftb.mods.ftbquests.client.gui.QuestObjectUpdateListener;

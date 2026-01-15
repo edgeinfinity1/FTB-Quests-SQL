@@ -1,20 +1,9 @@
 package dev.ftb.mods.ftbquests.block.entity;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.ftb.mods.ftbquests.item.LootCrateItem;
-import dev.ftb.mods.ftbquests.quest.loot.LootCrate;
-import dev.ftb.mods.ftbquests.quest.loot.WeightedReward;
-import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -22,13 +11,27 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.util.*;
+import dev.ftb.mods.ftbquests.item.LootCrateItem;
+import dev.ftb.mods.ftbquests.quest.loot.LootCrate;
+import dev.ftb.mods.ftbquests.quest.loot.WeightedReward;
+import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 public class LootCrateOpenerBlockEntity extends BlockEntity {
     private static final ItemEntry EMPTY_ENTRY = new ItemEntry(ItemStack.EMPTY);
     private static final int MAX_ITEM_TYPES = 64;
 
+    @Nullable
     private UUID owner = null;
     private final Map<ItemEntry, Integer> outputs = new LinkedHashMap<>();
 
@@ -89,6 +92,7 @@ public class LootCrateOpenerBlockEntity extends BlockEntity {
                 ItemContainerContents.fromItems(outputs.keySet().stream().map(ItemEntry::stack).toList()));
     }
 
+    @Nullable
     public UUID getOwner() {
         return owner;
     }

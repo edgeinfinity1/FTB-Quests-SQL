@@ -1,9 +1,28 @@
 package dev.ftb.mods.ftbquests.quest;
 
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import com.mojang.logging.LogUtils;
+
 import dev.architectury.utils.Env;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ItemStackConfig;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableItemStack;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.math.MathUtils;
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
@@ -12,7 +31,7 @@ import dev.ftb.mods.ftblibrary.util.NetworkHelper;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.api.QuestFile;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.client.config.LocaleConfig;
+import dev.ftb.mods.ftbquests.client.config.EditableLocaleConfig;
 import dev.ftb.mods.ftbquests.events.ClearFileCacheEvent;
 import dev.ftb.mods.ftbquests.events.CustomTaskEvent;
 import dev.ftb.mods.ftbquests.events.ObjectCompletedEvent;
@@ -41,51 +60,21 @@ import dev.ftb.mods.ftbquests.util.TextUtils;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import dev.ftb.mods.ftbteams.api.client.ClientTeamManager;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NumericTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.Util;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 
 public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 	public static int VERSION = 13;
@@ -138,8 +127,11 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 	private String fallbackLocale;
 	private boolean verifyOnLoad;
 
+	@Nullable
 	private List<Task> allTasks;
+	@Nullable
 	private List<Task> submitTasks;
+	@Nullable
 	private List<Task> craftingTasks;
 
 	public BaseQuestFile() {
@@ -212,6 +204,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		return false;
 	}
 
+	@Nullable
 	public Path getFolder() {
 		throw new IllegalStateException("This quest file doesn't have a folder!");
 	}
@@ -323,7 +316,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		return object instanceof Chapter ? (Chapter) object : null;
 	}
 
-	@NotNull
 	public Chapter getChapterOrThrow(long id) {
 		if (getBase(id) instanceof Chapter c) return c;
 		throw new IllegalArgumentException("Unknown chapter ID: c");
@@ -1186,9 +1178,9 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
-		config.addList("emergency_items", emergencyItems, new ItemStackConfig(false, false), ItemStack.EMPTY);
+		config.addList("emergency_items", emergencyItems, new EditableItemStack(false, false), ItemStack.EMPTY);
 		config.addInt("emergency_items_cooldown", emergencyItemsCooldown, v -> emergencyItemsCooldown = v, 300, 0, Integer.MAX_VALUE);
 		config.addBool("drop_loot_crates", dropLootCrates, v -> dropLootCrates = v, false);
 		config.addBool("disable_gui", disableGui, v -> disableGui = v, false);
@@ -1200,16 +1192,16 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		config.addBool("show_lock_icons", showLockIcons, v -> showLockIcons = v, true).setNameKey("ftbquests.ui.show_lock_icon");
 		config.addBool("drop_book_on_death", dropBookOnDeath, v -> dropBookOnDeath = v, true);
 		config.addBool("hide_excluded_quests", hideExcludedQuests, v -> hideExcludedQuests = v, false);
-		config.add("fallback_locale", new LocaleConfig(), fallbackLocale, v -> fallbackLocale = v, "");
+		config.add("fallback_locale", new EditableLocaleConfig(), fallbackLocale, v -> fallbackLocale = v, "");
 
-		ConfigGroup defaultsGroup = config.getOrCreateSubgroup("defaults");
+		EditableConfigGroup defaultsGroup = config.getOrCreateSubgroup("defaults");
 		defaultsGroup.addBool("reward_team", defaultPerTeamReward, v -> defaultPerTeamReward = v, false);
 		defaultsGroup.addBool("consume_items", defaultTeamConsumeItems, v -> defaultTeamConsumeItems = v, false);
 		defaultsGroup.addEnum("autoclaim_rewards", defaultRewardAutoClaim, v -> defaultRewardAutoClaim = v, RewardAutoClaim.NAME_MAP_NO_DEFAULT);
 		defaultsGroup.addEnum("quest_shape", defaultQuestShape, v -> defaultQuestShape = v, QuestShape.idMap);
 		defaultsGroup.addBool("quest_disable_jei", defaultQuestDisableJEI, v -> defaultQuestDisableJEI = v, false);
 
-		ConfigGroup d = config.getOrCreateSubgroup("loot_crate_no_drop");
+		EditableConfigGroup d = config.getOrCreateSubgroup("loot_crate_no_drop");
 		d.addInt("passive", lootCrateNoDrop.passive, v -> lootCrateNoDrop.passive = v, 0, 0, Integer.MAX_VALUE).setNameKey("ftbquests.loot.entitytype.passive");
 		d.addInt("monster", lootCrateNoDrop.monster, v -> lootCrateNoDrop.monster = v, 0, 0, Integer.MAX_VALUE).setNameKey("ftbquests.loot.entitytype.monster");
 		d.addInt("boss", lootCrateNoDrop.boss, v -> lootCrateNoDrop.boss = v, 0, 0, Integer.MAX_VALUE).setNameKey("ftbquests.loot.entitytype.boss");
@@ -1551,21 +1543,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 
 		return del.intValue();
 	}
-
-//	public String generateRewardTableName(String basename) {
-//		String s = titleToID(basename).orElse(toString());
-//		String filename = s;
-//
-//		Set<String> existingNames = rewardTables.stream().map(RewardTable::getFilename).collect(Collectors.toSet());
-//		int i = 2;
-//
-//		while (existingNames.contains(filename)) {
-//			filename = s + "_" + i;
-//			i++;
-//		}
-//
-//		return filename;
-//	}
 
 	public List<ChapterGroup> getChapterGroups() {
 		return Collections.unmodifiableList(chapterGroups);

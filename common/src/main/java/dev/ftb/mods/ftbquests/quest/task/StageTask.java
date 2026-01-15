@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
 import dev.architectury.hooks.level.entity.PlayerHooks;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.integration.stages.StageHelper;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
@@ -60,7 +61,7 @@ public class StageTask extends AbstractBooleanTask {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addString("stage", stage, v -> stage = v, "").setNameKey("ftbquests.task.ftbquests.gamestage");
 		config.addBool("team_stage", teamStage, v -> teamStage = v, false);

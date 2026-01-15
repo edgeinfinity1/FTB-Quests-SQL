@@ -2,21 +2,22 @@ package dev.ftb.mods.ftbquests.client.gui.quests;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableDouble;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.DoubleConfig;
-import dev.ftb.mods.ftblibrary.config.ui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.math.PixelBuffer;
-import dev.ftb.mods.ftblibrary.ui.Button;
-import dev.ftb.mods.ftblibrary.ui.ContextMenuItem;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.ui.Theme;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
 import dev.ftb.mods.ftbquests.client.gui.ContextMenuBuilder;
 import dev.ftb.mods.ftbquests.client.gui.CustomToast;
@@ -42,6 +43,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +53,7 @@ import java.util.Optional;
 public class QuestButton extends Button implements QuestPositionableButton {
 	protected final QuestScreen questScreen;
 	final Quest quest;
-	private Collection<QuestButton> dependencies = null;
+	@Nullable private Collection<QuestButton> dependencies = null;
 
 	public QuestButton(Panel panel, Quest quest) {
 		super(panel, quest.getTitle(), quest.getIcon());
@@ -235,13 +237,13 @@ public class QuestButton extends Button implements QuestPositionableButton {
 		Collection<Quest> quests = questScreen.getSelectedQuests();
 		if (quests.isEmpty()) return;
 
-		var c = new DoubleConfig(0.0625D, 8D);
-		c.setValue(quests.stream().findFirst().map(Quest::getSize).orElse(1.0));
+		var editable = new EditableDouble(0.0625D, 8D);
+		editable.setValue(quests.stream().findFirst().map(Quest::getSize).orElse(1.0));
 
-		EditStringConfigOverlay<Double> overlay = new EditStringConfigOverlay<>(getGui(), c, accepted -> {
+		EditStringConfigOverlay<Double> overlay = new EditStringConfigOverlay<>(getGui(), editable, accepted -> {
 			if (accepted) {
 				quests.forEach(q -> {
-					q.setSize(c.getValue());
+					q.setSize(editable.getValue());
 					NetworkManager.sendToServer(EditObjectMessage.forQuestObject(q));
 				});
 			}

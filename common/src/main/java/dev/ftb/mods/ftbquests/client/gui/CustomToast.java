@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import dev.ftb.mods.ftblibrary.client.gui.SimpleToast;
 import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.misc.SimpleToast;
 import net.minecraft.network.chat.Component;
 
 public class CustomToast extends SimpleToast {

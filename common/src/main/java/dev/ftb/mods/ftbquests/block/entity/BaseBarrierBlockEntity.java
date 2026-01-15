@@ -1,17 +1,5 @@
 package dev.ftb.mods.ftbquests.block.entity;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.architectury.networking.NetworkManager;
-import dev.architectury.platform.Platform;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ItemStackConfig;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.block.QuestBarrierBlock;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.net.BlockConfigResponseMessage;
-import dev.ftb.mods.ftbquests.registry.ModBlocks;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -20,7 +8,6 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -29,8 +16,8 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,12 +36,25 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.util.List;
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.platform.Platform;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableItemStack;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.block.QuestBarrierBlock;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
+import dev.ftb.mods.ftbquests.net.BlockConfigResponseMessage;
+import dev.ftb.mods.ftbquests.registry.ModBlocks;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.Nullable;
 
 import static dev.ftb.mods.ftbquests.block.QuestBarrierBlock.OPEN;
 
@@ -150,10 +150,10 @@ public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
 
 	public abstract boolean isOpen(Player player);
 
-	protected abstract void addConfigEntries(ConfigGroup cg);
+	protected abstract void addConfigEntries(EditableConfigGroup cg);
 
-	public ConfigGroup fillConfigGroup() {
-		ConfigGroup group = new ConfigGroup("ftbquests.barrier", accepted -> {
+	public EditableConfigGroup fillConfigGroup() {
+		EditableConfigGroup group = new EditableConfigGroup("ftbquests.barrier", accepted -> {
 			if (accepted) {
 				NetworkManager.sendToServer(new BlockConfigResponseMessage(getBlockPos(), saveWithoutMetadata(getLevel().registryAccess())));
 			}
@@ -163,14 +163,14 @@ public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
 		addConfigEntries(group);
 
 		if (Platform.isForgeLike()) {
-			ConfigGroup appearance = group.getOrCreateSubgroup("appearance").setNameKey("ftbquests.quest.appearance");
-			appearance.add("skin", new ItemStackConfig(true, true), getSkin(), this::setSkin, ItemStack.EMPTY)
+			EditableConfigGroup appearance = group.getOrCreateSubgroup("appearance").setNameKey("ftbquests.quest.appearance");
+			appearance.add("skin", new EditableItemStack(true, true), getSkin(), this::setSkin, ItemStack.EMPTY)
 					.withFilter(stack -> stack.getItem() instanceof BlockItem)
 					.setNameKey("block.ftbquests.screen.skin");
 			appearance.addBool("invis_when_open", isInvisibleWhenOpen(), this::setInvisibleWhenOpen, false).setNameKey("block.ftbquests.barrier.invis_when_open");
 		}
 
-		ConfigGroup teleport = group.getOrCreateSubgroup("teleport").setNameKey("ftbquests.barrier.teleport");
+		EditableConfigGroup teleport = group.getOrCreateSubgroup("teleport").setNameKey("ftbquests.barrier.teleport");
 		teleport.addBool("enabled", teleportData.enabled, v -> teleportData = teleportData.withEnabled(v), false);
 		teleport.addBool("relative", teleportData.relative, v -> teleportData = teleportData.withRelative(v), false);
 		teleport.addInt("dest_x", teleportData.dest.getX(), v -> teleportData = teleportData.withDestX(v), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);

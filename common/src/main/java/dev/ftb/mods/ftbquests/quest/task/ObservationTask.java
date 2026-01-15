@@ -1,11 +1,5 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
-import com.mojang.brigadier.StringReader;
-import dev.architectury.registry.registries.RegistrarManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.NameMap;
-import dev.ftb.mods.ftbquests.quest.Quest;
-import dev.ftb.mods.ftbquests.quest.TeamData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.IdentifierException;
 import net.minecraft.commands.arguments.blocks.BlockInput;
@@ -27,6 +21,14 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import com.mojang.brigadier.StringReader;
+
+import dev.architectury.registry.registries.RegistrarManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.util.NameMap;
+import dev.ftb.mods.ftbquests.quest.Quest;
+import dev.ftb.mods.ftbquests.quest.TeamData;
 
 import java.util.Optional;
 
@@ -89,7 +91,7 @@ public class ObservationTask extends AbstractBooleanTask {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addLong("timer", timer, v -> timer = v, 0L, 0L, 1200L);
 		config.addEnum("observe_type", observeType, v -> observeType = v, ObserveType.NAME_MAP);

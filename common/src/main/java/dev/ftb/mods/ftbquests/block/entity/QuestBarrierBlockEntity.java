@@ -1,15 +1,16 @@
 package dev.ftb.mods.ftbquests.block.entity;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObjectType;
 import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
-import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.state.BlockState;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 
 public class QuestBarrierBlockEntity extends BaseBarrierBlockEntity {
 	private Quest cachedQuest = null;
@@ -41,8 +42,8 @@ public class QuestBarrierBlockEntity extends BaseBarrierBlockEntity {
 	}
 
 	@Override
-	protected void addConfigEntries(ConfigGroup cg) {
-		cg.add("quest", new ConfigQuestObject<>(QuestObjectType.QUEST), getQuest(), this::setQuest, null)
+	protected void addConfigEntries(EditableConfigGroup cg) {
+		cg.add("quest", new EditableQuestObject<>(QuestObjectType.QUEST), getQuest(), this::setQuest, null)
 				.setNameKey("ftbquests.quest");
 	}
 

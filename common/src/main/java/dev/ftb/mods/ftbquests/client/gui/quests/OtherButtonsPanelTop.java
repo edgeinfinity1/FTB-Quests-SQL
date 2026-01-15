@@ -2,10 +2,11 @@ package dev.ftb.mods.ftbquests.client.gui.quests;
 
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
+
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.layout.WidgetLayout;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
 import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.ui.WidgetLayout;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.net.TogglePinnedMessage;
 import dev.ftb.mods.ftbquests.quest.TeamData;

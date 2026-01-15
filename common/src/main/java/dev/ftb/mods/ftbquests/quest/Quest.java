@@ -1,19 +1,27 @@
 package dev.ftb.mods.ftbquests.quest;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import com.mojang.datafixers.util.Pair;
+
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigCallback;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ListConfig;
-import dev.ftb.mods.ftblibrary.config.StringConfig;
-import dev.ftb.mods.ftblibrary.config.Tristate;
+
+import dev.ftb.mods.ftblibrary.client.config.ConfigCallback;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.Tristate;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableList;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.math.Bits;
 import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.gui.MultilineTextEditorScreen;
@@ -28,30 +36,16 @@ import dev.ftb.mods.ftbquests.quest.reward.RewardType;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.quest.task.TaskType;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
-import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 import dev.ftb.mods.ftbquests.util.ProgressChange;
 import dev.ftb.mods.ftbquests.util.TextUtils;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import org.jspecify.annotations.Nullable;
 
 public final class Quest extends QuestObject implements Movable, Excludable {
 	public static final String PAGEBREAK_CODE = "{@pagebreak}";
@@ -84,7 +78,9 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 	private int maxCompletableDeps;
 	private int repeatCooldown; // seconds
 
+	@Nullable
 	private Component cachedSubtitle = null;
+	@Nullable
 	private List<Component> cachedDescription = null;
 	private boolean ignoreRewardBlocking;
 	private ProgressionMode progressionMode;
@@ -658,19 +654,19 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 
 		config.addString("subtitle", getRawSubtitle(), this::setRawSubtitle, "");
-		StringConfig descType = new StringConfig();
-		config.add("description", new ListConfig<String, StringConfig>(descType) {
+		EditableString descType = new EditableString();
+		config.add("description", new EditableList<String, EditableString>(descType) {
 			@Override
 			public void onClicked(Widget clicked, MouseButton button, ConfigCallback callback) {
 				new MultilineTextEditorScreen(Component.translatable("ftbquests.gui.edit_description"), this, callback).openGui();
 			}
 		}, getRawDescription(), this::setRawDescription, Collections.emptyList());
 
-		ConfigGroup appearance = config.getOrCreateSubgroup("appearance");
+		EditableConfigGroup appearance = config.getOrCreateSubgroup("appearance");
 		appearance.addEnum("shape", shape.isEmpty() ? "default" : shape, v -> shape = v.equals("default") ? "" : v, QuestShape.idMapWithDefault);
 		appearance.addDouble("size", size, v -> size = v, 0, 0, 8D);
 		appearance.addDouble("x", x, v -> x = v, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
@@ -678,7 +674,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		appearance.addInt("min_width", minWidth, v -> minWidth = v, 0, 0, 3000);
 		appearance.addDouble("icon_scale", iconScale, v -> iconScale = v, 1f, 0.1, 2.0);
 
-		ConfigGroup visibility = config.getOrCreateSubgroup("visibility");
+		EditableConfigGroup visibility = config.getOrCreateSubgroup("visibility");
 		visibility.addTristate("hide_until_deps_complete", hideUntilDepsComplete, v -> hideUntilDepsComplete = v);
 		visibility.addTristate("hide_until_deps_visible", hideUntilDepsVisible, v -> hideUntilDepsVisible = v);
 		visibility.addBool("invisible", invisibleUntilCompleted, v -> invisibleUntilCompleted = v, false);
@@ -689,15 +685,15 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 
 		Predicate<QuestObjectBase> depTypes = object -> object != chapter.file && object != chapter && object instanceof QuestObject;
 		removeInvalidDependencies();
-		ConfigGroup deps = config.getOrCreateSubgroup("dependencies");
-		deps.addList("dependencies", dependencies, new ConfigQuestObject<>(depTypes), null).setNameKey("ftbquests.dependencies");
+		EditableConfigGroup deps = config.getOrCreateSubgroup("dependencies");
+		deps.addList("dependencies", dependencies, new EditableQuestObject<>(depTypes), null).setNameKey("ftbquests.dependencies");
 		deps.addEnum("dependency_requirement", dependencyRequirement, v -> dependencyRequirement = v, DependencyRequirement.NAME_MAP);
 		deps.addInt("min_required_dependencies", minRequiredDependencies, v -> minRequiredDependencies = v, 0, 0, Integer.MAX_VALUE);
 		deps.addTristate("hide_dependency_lines", hideDependencyLines, v -> hideDependencyLines = v);
 		deps.addBool("hide_dependent_lines", hideDependentLines, v -> hideDependentLines = v, false);
 		deps.addInt("max_completable_dependents", maxCompletableDeps, v -> maxCompletableDeps = v, 0, 0, Integer.MAX_VALUE);
 
-		ConfigGroup misc = config.getOrCreateSubgroup("misc");
+		EditableConfigGroup misc = config.getOrCreateSubgroup("misc");
 		misc.addString("guide_page", guidePage, v -> guidePage = v, "");
 		misc.addEnum("disable_jei", disableJEI, v -> disableJEI = v, Tristate.NAME_MAP);
 		misc.addTristate("can_repeat", canRepeat, v -> canRepeat = v);
@@ -1025,7 +1021,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 	}
 
 	public void removeInvalidDependencies() {
-		Iterator<QuestObject> iter = dependencies.iterator();
+		Iterator<@Nullable QuestObject> iter = dependencies.iterator();
 		while (iter.hasNext()) {
 			QuestObject qo = iter.next();
 			if (qo == null || qo.invalid || qo == this) {

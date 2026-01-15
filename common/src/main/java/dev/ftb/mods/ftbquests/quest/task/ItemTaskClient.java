@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.ui.Button;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.client.gui.CustomToast;
 import dev.ftb.mods.ftbquests.client.gui.quests.ValidItemsScreen;
@@ -14,7 +14,6 @@ import java.util.List;
 
 public enum ItemTaskClient implements TaskClient {
     INSTANCE;
-
 
     @Override
     public void onButtonClicked(Task task, Button button, boolean canClick) {

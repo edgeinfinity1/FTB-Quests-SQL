@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.ui.Button;
+
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
 import dev.ftb.mods.ftbquests.net.SubmitTaskMessage;
 
 public interface TaskClient {

@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
-import dev.ftb.mods.ftblibrary.ui.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.gui.SelectChoiceRewardScreen;
 import dev.ftb.mods.ftbquests.quest.Quest;

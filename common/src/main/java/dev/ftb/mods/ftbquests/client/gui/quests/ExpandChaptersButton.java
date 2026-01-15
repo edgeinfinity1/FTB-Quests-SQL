@@ -1,8 +1,8 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.ui.Theme;
-import dev.ftb.mods.ftblibrary.ui.Widget;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class ExpandChaptersButton extends Widget {

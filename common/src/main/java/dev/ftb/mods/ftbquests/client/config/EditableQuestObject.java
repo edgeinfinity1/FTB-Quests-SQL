@@ -1,28 +1,29 @@
-package dev.ftb.mods.ftbquests.util;
+package dev.ftb.mods.ftbquests.client.config;
 
-import dev.ftb.mods.ftblibrary.config.ConfigCallback;
-import dev.ftb.mods.ftblibrary.config.ConfigValue;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.config.ConfigCallback;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableConfigValue;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.gui.SelectQuestObjectScreen;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.jspecify.annotations.Nullable;
 
-public class ConfigQuestObject<T extends QuestObjectBase> extends ConfigValue<T> {
+public class EditableQuestObject<T extends QuestObjectBase> extends EditableConfigValue<T> {
 	public final Predicate<QuestObjectBase> predicate;
+	@Nullable
 	private final Function<T, Component> formatter;
 
-	public ConfigQuestObject(Predicate<QuestObjectBase> predicate, Function<T, Component> formatter) {
+	public EditableQuestObject(Predicate<QuestObjectBase> predicate, @Nullable Function<T, Component> formatter) {
 		this.predicate = predicate;
 		this.formatter = formatter;
 	}
 
-	public ConfigQuestObject(Predicate<QuestObjectBase> predicate) {
+	public EditableQuestObject(Predicate<QuestObjectBase> predicate) {
 		this(predicate, null);
 	}
 

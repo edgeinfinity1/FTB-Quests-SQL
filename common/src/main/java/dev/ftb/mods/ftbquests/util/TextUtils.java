@@ -3,7 +3,6 @@ package dev.ftb.mods.ftbquests.util;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import dev.ftb.mods.ftblibrary.util.client.ClientTextComponentUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -11,6 +10,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.PlainTextContents;
+
+import dev.ftb.mods.ftblibrary.client.util.ClientTextComponentUtils;
+
 import org.apache.commons.lang3.text.translate.UnicodeUnescaper;
 
 import java.util.ArrayList;
@@ -34,11 +36,8 @@ public class TextUtils {
             // could be JSON raw text, but not for definite...
             try {
                 var jsonData = JsonParser.parseString(UNESCAPER.translate(str2));
-                MutableComponent res = ComponentSerialization.CODEC.parse(provider.createSerializationContext(JsonOps.INSTANCE), jsonData).getOrThrow().copy();
-                if (res != null) {
-                    return res;
-                }
-            } catch (JsonParseException ignored) {
+                return ComponentSerialization.CODEC.parse(provider.createSerializationContext(JsonOps.INSTANCE), jsonData).getOrThrow().copy();
+            } catch (JsonParseException | IllegalStateException ignored) {
             }
         }
         return ClientTextComponentUtils.parse(UNESCAPER.translate(str));

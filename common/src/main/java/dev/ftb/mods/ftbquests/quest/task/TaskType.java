@@ -1,28 +1,30 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.client.GuiProviders;
-import dev.ftb.mods.ftbquests.quest.Quest;
-import net.minecraft.util.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.Util;
+
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.GuiProviders;
+import dev.ftb.mods.ftbquests.quest.Quest;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 
 public final class TaskType {
 	private final Identifier typeId;
 	private final Provider provider;
-	private final Supplier<Icon> iconSupplier;
+	private final Supplier<Icon<?>> iconSupplier;
+	@Nullable
 	private Component displayName;
 	private GuiProvider guiProvider;
 	public int internalId;
 
-	TaskType(Identifier typeId, Provider provider, Supplier<Icon> iconSupplier) {
+	TaskType(Identifier typeId, Provider provider, Supplier<Icon<?>> iconSupplier) {
 		this.typeId = typeId;
 		this.provider = provider;
 		this.iconSupplier = iconSupplier;

@@ -1,24 +1,37 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.Items;
 import com.mojang.datafixers.util.Pair;
+
 import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableList;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditConfigScreen;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.gui.CursorType;
+import dev.ftb.mods.ftblibrary.client.gui.input.Key;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.layout.CompactGridLayout;
+import dev.ftb.mods.ftblibrary.client.gui.layout.WidgetLayout;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.*;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ImageResourceConfig;
-import dev.ftb.mods.ftblibrary.config.ListConfig;
-import dev.ftb.mods.ftblibrary.config.StringConfig;
-import dev.ftb.mods.ftblibrary.config.ui.EditConfigScreen;
-import dev.ftb.mods.ftblibrary.config.ui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.util.ImageComponent;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.input.Key;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.CompactGridLayout;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.ImageComponent;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
@@ -38,33 +51,22 @@ import dev.ftb.mods.ftbquests.quest.theme.QuestTheme;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
 import dev.ftb.mods.ftbquests.util.TextUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.BiConsumer;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import net.minecraft.ChatFormatting;
-import net.minecraft.util.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.ConfirmLinkScreen;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.*;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.function.BiConsumer;
 
 public class ViewQuestPanel extends ModalPanel {
 	public static final Icon<?> PAGEBREAK_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/pagebreak.png"));
 
 	private final QuestScreen questScreen;
+	@Nullable
 	private Quest quest = null;
 	private Icon<?> icon = Color4I.empty();
 	private Button buttonOpenDependencies;
@@ -100,6 +102,7 @@ public class ViewQuestPanel extends ModalPanel {
 		return quest != null && super.checkMouseOver(mouseX, mouseY);
 	}
 
+	@Nullable
 	public Quest getViewedQuest() {
 		return quest;
 	}
@@ -521,6 +524,7 @@ public class ViewQuestPanel extends ModalPanel {
 		return prevPage;
 	}
 
+	@Nullable
 	private ImageComponent findImageComponent(Component c) {
 		// FIXME: this isn't ideal and needs a proper fix in ftb library, but works for now
 		if (c.getContents() instanceof ImageComponent img) {
@@ -643,7 +647,7 @@ public class ViewQuestPanel extends ModalPanel {
 	}
 
 	private void editTitle() {
-		StringConfig c = new StringConfig(null);
+		EditableString c = new EditableString();
 
 		// pressing T while mousing over a task button allows editing the task title
 		QuestObject qo = panelTasks.getWidgets().stream()
@@ -664,7 +668,7 @@ public class ViewQuestPanel extends ModalPanel {
 	}
 
 	private void editSubtitle() {
-		StringConfig c = new StringConfig(null);
+		EditableString c = new EditableString();
 		c.setValue(quest.getRawSubtitle());
 		EditStringConfigOverlay<String> overlay = new EditStringConfigOverlay<>(getGui(), c, accepted -> {
 			if (accepted) {
@@ -678,7 +682,7 @@ public class ViewQuestPanel extends ModalPanel {
 	}
 
 	private void editDescription() {
-		ListConfig<String, StringConfig> lc = new ListConfig<>(new StringConfig());
+		EditableList<String, EditableString> lc = new EditableList<>(new EditableString());
 
 		lc.setValue(new ArrayList<>(quest.getRawDescription()));
 		new MultilineTextEditorScreen(Component.translatable("ftbquests.gui.edit_description"), lc, accepted -> {
@@ -743,7 +747,7 @@ public class ViewQuestPanel extends ModalPanel {
 		} else {
 			var mutableRawDesc = new ArrayList<>(quest.getRawDescription());
 
-			StringConfig c = new StringConfig(null);
+			EditableString c = new EditableString();
 			c.setValue(line == -1 ? "" : mutableRawDesc.get(line));
 			EditStringConfigOverlay<String> overlay = new EditStringConfigOverlay<>(getGui(), c, accepted -> {
 				if (accepted) {
@@ -757,13 +761,13 @@ public class ViewQuestPanel extends ModalPanel {
 					refreshWidgets();
 				}
 			}).atPosition(clickedWidget.getX(), clickedWidget.getY());
-			overlay.setWidth(Mth.clamp(overlay.getWidth(), 150, getScreen().getGuiScaledWidth() - clickedWidget.getX() - 20));
+			overlay.setWidth(Mth.clamp(overlay.getWidth(), 150, getWindow().getGuiScaledWidth() - clickedWidget.getX() - 20));
 			getGui().pushModalPanel(overlay);
 		}
 	}
 
 	private void editImage(int line, ImageComponent component) {
-		ConfigGroup group = new ConfigGroup(FTBQuestsAPI.MOD_ID + ".chapter.image", accepted -> {
+		EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID + ".chapter.image", accepted -> {
 			openGui();
 			if (accepted) {
 				quest.modifyTranslatableListValue(TranslationKey.QUEST_DESC, mutableRawDesc -> {
@@ -779,8 +783,8 @@ public class ViewQuestPanel extends ModalPanel {
 			}
 		});
 
-		group.add("image", new ImageResourceConfig(), ImageResourceConfig.getIdentifier(component.getImage()),
-				v -> component.setImage(Icon.getIcon(v)), ImageResourceConfig.NONE);
+		group.add("image", new EditableImageResource(), EditableImageResource.getIdentifier(component.getImage()),
+				v -> component.setImage(Icon.getIcon(v)), EditableImageResource.NONE);
 		group.addInt("width", component.getWidth(), component::setWidth, 0, 1, 1000);
 		group.addInt("height", component.getHeight(), component::setHeight, 0, 1, 1000);
 		group.addEnum("align", component.getAlign(), component::setAlign, ImageComponent.ImageAlign.NAME_MAP, ImageComponent.ImageAlign.CENTER);

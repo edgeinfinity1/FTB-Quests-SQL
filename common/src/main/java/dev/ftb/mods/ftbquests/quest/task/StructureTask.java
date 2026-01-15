@@ -2,8 +2,9 @@ package dev.ftb.mods.ftbquests.quest.task;
 
 import com.mojang.datafixers.util.Either;
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.NameMap;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.net.SyncStructuresRequestMessage;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.TeamData;
@@ -73,7 +74,7 @@ public class StructureTask extends AbstractBooleanTask {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		if (KNOWN_STRUCTURES.isEmpty()) {
 			// should not normally be the case, but as a defensive fallback...

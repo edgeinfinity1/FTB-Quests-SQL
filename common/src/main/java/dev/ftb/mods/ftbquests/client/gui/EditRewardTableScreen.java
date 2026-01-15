@@ -1,36 +1,42 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Items;
 import com.mojang.blaze3d.platform.InputConstants;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableDouble;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditConfigScreen;
+import dev.ftb.mods.ftblibrary.client.config.gui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.gui.input.Key;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.screens.AbstractButtonListScreen;
+import dev.ftb.mods.ftblibrary.client.gui.theme.NordTheme;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleButton;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.DoubleConfig;
-import dev.ftb.mods.ftblibrary.config.ui.EditConfigScreen;
-import dev.ftb.mods.ftblibrary.config.ui.EditStringConfigOverlay;
+import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.input.Key;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.quest.loot.RewardTable;
 import dev.ftb.mods.ftbquests.quest.loot.WeightedReward;
 import dev.ftb.mods.ftbquests.quest.reward.RewardType;
 import dev.ftb.mods.ftbquests.quest.reward.RewardTypes;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Items;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.lwjgl.glfw.GLFW;
 
 public class EditRewardTableScreen extends AbstractButtonListScreen {
 	private final Runnable parentScreen;
@@ -147,7 +153,7 @@ public class EditRewardTableScreen extends AbstractButtonListScreen {
 		@Override
 		public void onClicked(MouseButton button) {
 			playClickSound();
-			ConfigGroup group = new ConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
+			EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
 				editedTable.clearCachedData();
 				run();
 			}) {
@@ -249,7 +255,7 @@ public class EditRewardTableScreen extends AbstractButtonListScreen {
 		}
 
 		private void setEntryWeight() {
-			DoubleConfig c = new DoubleConfig(0D, Double.POSITIVE_INFINITY);
+			EditableDouble c = new EditableDouble(0D, Double.POSITIVE_INFINITY);
 			c.setValue((double) wr.getWeight());
 			EditStringConfigOverlay<Double> overlay = new EditStringConfigOverlay<>(parent, c, accepted -> {
 				if (accepted) {
@@ -262,7 +268,7 @@ public class EditRewardTableScreen extends AbstractButtonListScreen {
 		}
 
 		private void editRewardTableEntry() {
-			ConfigGroup group = new ConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
+			EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID, accepted -> {
 				if (accepted) {
 					wr.getReward().clearCachedData();
 					changed = true;

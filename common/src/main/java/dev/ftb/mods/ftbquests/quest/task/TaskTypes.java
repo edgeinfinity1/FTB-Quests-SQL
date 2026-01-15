@@ -1,13 +1,15 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.material.Fluids;
+
 import dev.architectury.fluid.FluidStack;
+
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.material.Fluids;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,7 +19,7 @@ import java.util.function.Supplier;
 public interface TaskTypes {
 	Map<Identifier, TaskType> TYPES = new LinkedHashMap<>();
 
-	static TaskType register(Identifier name, TaskType.Provider provider, Supplier<Icon> iconSupplier) {
+	static TaskType register(Identifier name, TaskType.Provider provider, Supplier<Icon<?>> iconSupplier) {
 		return TYPES.computeIfAbsent(name, id -> new TaskType(id, provider, iconSupplier));
 	}
 

@@ -1,20 +1,19 @@
-package dev.ftb.mods.ftbquests.client;
+package dev.ftb.mods.ftbquests.client.config;
 
-import dev.ftb.mods.ftblibrary.config.ConfigCallback;
-import dev.ftb.mods.ftblibrary.config.EntityFaceConfig;
-import dev.ftb.mods.ftblibrary.config.ImageResourceConfig;
-import dev.ftb.mods.ftblibrary.config.ItemStackConfig;
-import dev.ftb.mods.ftblibrary.config.ui.resource.SelectEntityFaceScreen;
-import dev.ftb.mods.ftblibrary.config.ui.resource.SelectImageResourceScreen;
-import dev.ftb.mods.ftblibrary.config.ui.resource.SelectItemStackScreen;
+import dev.ftb.mods.ftblibrary.client.config.ConfigCallback;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableEntityFace;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableItemStack;
+import dev.ftb.mods.ftblibrary.client.config.gui.resource.SelectEntityFaceScreen;
+import dev.ftb.mods.ftblibrary.client.config.gui.resource.SelectImageResourceScreen;
+import dev.ftb.mods.ftblibrary.client.config.gui.resource.SelectItemStackScreen;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.widget.BaseScreen;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.icon.EntityIconLoader;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.ui.BaseScreen;
-import dev.ftb.mods.ftblibrary.ui.ContextMenuItem;
-import dev.ftb.mods.ftblibrary.ui.ScreenWrapper;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.item.CustomIconItem;
 import dev.ftb.mods.ftbquests.registry.ModDataComponents;
@@ -29,8 +28,8 @@ import net.minecraft.world.item.Items;
 
 import java.util.List;
 
-public class ConfigIconItemStack extends ItemStackConfig {
-	public ConfigIconItemStack() {
+public class EditableIconItemStack extends EditableItemStack {
+	public EditableIconItemStack() {
 		super(false, true);
 	}
 
@@ -50,17 +49,17 @@ public class ConfigIconItemStack extends ItemStackConfig {
 	}
 
 	private void openImageSelector(ConfigCallback callback) {
-		ImageResourceConfig imageConfig = new ImageResourceConfig();
+		EditableImageResource imageConfig = new EditableImageResource();
 		FTBQuests.getComponent(getValue(), ModDataComponents.CUSTOM_ICON)
-				.ifPresent(imageConfig::setCurrentValue);
+				.ifPresent(imageConfig::setValue);
 
 		new SelectImageResourceScreen(imageConfig, accepted -> {
 			if (accepted) {
-				if (!imageConfig.getValue().equals(ImageResourceConfig.NONE)) {
-					setCurrentValue(Util.make(new ItemStack(ModItems.CUSTOM_ICON.get()),
+				if (!imageConfig.getValue().equals(EditableImageResource.NONE)) {
+					setValue(Util.make(new ItemStack(ModItems.CUSTOM_ICON.get()),
 							s -> CustomIconItem.setIcon(s, imageConfig.getValue())));
 				} else {
-					setCurrentValue(ItemStack.EMPTY);
+					setValue(ItemStack.EMPTY);
 				}
 			}
 			callback.save(accepted);
@@ -68,18 +67,18 @@ public class ConfigIconItemStack extends ItemStackConfig {
 	}
 
 	private void openEntitySelector(ConfigCallback callback) {
-		EntityFaceConfig faceConfig = new EntityFaceConfig();
+		EditableEntityFace faceConfig = new EditableEntityFace();
 		FTBQuests.getComponent(getValue(), ModDataComponents.ENTITY_FACE_ICON)
 				.flatMap(BuiltInRegistries.ENTITY_TYPE::get)
-				.ifPresent(value -> faceConfig.setCurrentValue(value.value()));
+				.ifPresent(value -> faceConfig.setValue(value.value()));
 
 		new SelectEntityFaceScreen(faceConfig, accepted -> {
 			if (accepted) {
-				if (!faceConfig.getValue().equals(EntityFaceConfig.NONE)) {
-					setCurrentValue(Util.make(new ItemStack(ModItems.CUSTOM_ICON.get()),
+				if (!faceConfig.getValue().equals(EditableEntityFace.NONE)) {
+					setValue(Util.make(new ItemStack(ModItems.CUSTOM_ICON.get()),
 							s -> CustomIconItem.setFaceIcon(s, faceConfig.getValue())));
 				} else {
-					setCurrentValue(ItemStack.EMPTY);
+					setValue(ItemStack.EMPTY);
 				}
 			}
 			callback.save(accepted);

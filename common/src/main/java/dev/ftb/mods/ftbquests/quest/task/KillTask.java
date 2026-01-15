@@ -1,17 +1,5 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
-import dev.architectury.registry.registries.RegistrarManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.NameMap;
-import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.icon.Icons;
-import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftblibrary.util.Lazy;
-import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.quest.Quest;
-import dev.ftb.mods.ftbquests.quest.TeamData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -32,14 +20,27 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import dev.architectury.registry.registries.RegistrarManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftblibrary.icon.Icons;
+import dev.ftb.mods.ftblibrary.icon.ItemIcon;
+import dev.ftb.mods.ftblibrary.util.Lazy;
+import dev.ftb.mods.ftblibrary.util.NameMap;
+import dev.ftb.mods.ftbquests.FTBQuests;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
+import dev.ftb.mods.ftbquests.quest.Quest;
+import dev.ftb.mods.ftbquests.quest.TeamData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 public class KillTask extends Task {
 	private static final Identifier ZOMBIE = Identifier.withDefaultNamespace("zombie");
@@ -51,7 +52,7 @@ public class KillTask extends Task {
 	private TagKey<EntityType<?>> entityTypeTag = null;
 	private long value = 100L;
 	private String customName = "";
-	private static final Map<Identifier,Icon> entityIcons = new HashMap<>();
+	private static final Map<Identifier,Icon<?>> entityIcons = new HashMap<>();
 
 	public KillTask(long id, Quest quest) {
 		super(id, quest);
@@ -115,7 +116,7 @@ public class KillTask extends Task {
     }
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 
 		config.addEnum("entity", entityTypeId, v -> entityTypeId = v, entityNameMap.get(), ZOMBIE);
@@ -213,7 +214,7 @@ public class KillTask extends Task {
 						e.getName().getString().equals(customName));
 	}
 
-	private static @NotNull NameMap<Identifier> scanEntityTypes() {
+	private static NameMap<Identifier> scanEntityTypes() {
 		List<Identifier> ids = new ArrayList<>();
 		BuiltInRegistries.ENTITY_TYPE.forEach(type -> {
 			try {
@@ -237,10 +238,9 @@ public class KillTask extends Task {
 				.create();
 	}
 
-	private static @NotNull NameMap<String> scanEntityTags() {
+	private static NameMap<String> scanEntityTags() {
 		List<String> tags = new ArrayList<>(List.of(""));
-        // TODO: @since 21.11 this has unsafe access to the location.
-		tags.addAll(BuiltInRegistries.ENTITY_TYPE.getTags().map(pair -> pair.unwrap().left().get().location().toString()).sorted().toList());
+		tags.addAll(BuiltInRegistries.ENTITY_TYPE.listTagIds().map(key -> key.location().toString()).toList());
 		return NameMap.of("minecraft:zombies", tags).create();
 	}
 }

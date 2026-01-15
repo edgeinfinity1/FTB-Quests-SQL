@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
 import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftbquests.net.NotifyRewardMessage;
 import dev.ftb.mods.ftbquests.quest.Quest;
@@ -27,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class CommandReward extends Reward {
 	private static final String DEFAULT_COMMAND = "/say Hi, @p!";
-	private static final Icon REWARD_ICON = Icon.getIcon("minecraft:block/command_block_back");
+	private static final Icon<?> REWARD_ICON = Icon.getIcon("minecraft:block/command_block_back");
 	public static final Pattern PATTERN = Pattern.compile("[{](\\w+)}");
 
 	private String command;
@@ -93,7 +94,7 @@ public class CommandReward extends Reward {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addString("command", command, v -> command = v, DEFAULT_COMMAND).setNameKey("ftbquests.reward.ftbquests.command");
 		config.addInt("permission_level", permissionLevel, v -> permissionLevel = v, 0, 0, 4);

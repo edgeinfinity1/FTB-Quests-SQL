@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbquests.quest;
 
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftbquests.events.QuestProgressEventData;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
@@ -12,6 +12,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 public abstract class QuestObject extends QuestObjectBase {
 	protected boolean disableToast = false;
@@ -48,7 +49,7 @@ public abstract class QuestObject extends QuestObjectBase {
 	}
 
 	@Override
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		super.fillConfigGroup(config);
 		config.addBool("disable_toast", disableToast, v -> disableToast = v, false).setNameKey("ftbquests.disable_completion_toast").setCanEdit(getQuestChapter() == null || !getQuestChapter().isAlwaysInvisible()).setOrder(127);
 	}
@@ -148,6 +149,7 @@ public abstract class QuestObject extends QuestObjectBase {
 		return false;
 	}
 
+	@Nullable
 	public Quest getRelatedQuest() {
 		return null;
 	}

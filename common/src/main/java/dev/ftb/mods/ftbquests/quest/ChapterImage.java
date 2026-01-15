@@ -1,20 +1,5 @@
 package dev.ftb.mods.ftbquests.quest;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ImageResourceConfig;
-import dev.ftb.mods.ftblibrary.config.StringConfig;
-import dev.ftb.mods.ftblibrary.icon.Color4I;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftbquests.net.EditObjectMessage;
-import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
-import dev.ftb.mods.ftbquests.util.NetUtils;
-
-import net.minecraft.util.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,11 +10,27 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableString;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
+import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.icon.Color4I;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftblibrary.util.TooltipList;
+import dev.ftb.mods.ftbquests.net.EditObjectMessage;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
+import dev.ftb.mods.ftbquests.util.NetUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import org.jspecify.annotations.Nullable;
 
 public final class ChapterImage implements Movable {
 	// magic string which goes in the clipboard if an image has been copied
@@ -64,6 +65,7 @@ public final class ChapterImage implements Movable {
 	private String click;
 	private boolean editorsOnly;
 	private boolean alignToCorner;
+	@Nullable
 	private Quest dependency;
 	private int order;
 
@@ -84,11 +86,11 @@ public final class ChapterImage implements Movable {
 		order = 0;
 	}
 
-	public Icon getImage() {
+	public Icon<?> getImage() {
 		return image;
 	}
 
-	public ChapterImage setImage(Icon image) {
+	public ChapterImage setImage(Icon<?> image) {
 		this.image = image;
 		return this;
 	}
@@ -214,24 +216,24 @@ public final class ChapterImage implements Movable {
 		dependency = chapter.file.getQuest(buffer.readLong());
 	}
 
-	public void fillConfigGroup(ConfigGroup config) {
+	public void fillConfigGroup(EditableConfigGroup config) {
 		config.addDouble("x", x, v -> x = v, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		config.addDouble("y", y, v -> y = v, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		config.addDouble("width", width, v -> width = v, 1, 0, Double.POSITIVE_INFINITY);
 		config.addDouble("height", height, v -> height = v, 1, 0, Double.POSITIVE_INFINITY);
 		config.addDouble("rotation", rotation, v -> rotation = v, 0, -180, 180);
-		config.add("image", new ImageResourceConfig(), ImageResourceConfig.getIdentifier(image),
+		config.add("image", new EditableImageResource(), EditableImageResource.getIdentifier(image),
 				v -> setImage(Icon.getIcon(v)), Identifier.withDefaultNamespace("textures/gui/presets/isles.png"));
 		config.addColor("color", color, v -> color = v, Color4I.WHITE);
 		config.addInt("order", order, v -> order = v, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 		config.addInt("alpha", alpha, v -> alpha = v, 255, 0, 255);
-		config.addList("hover", hover, new StringConfig(), "");
+		config.addList("hover", hover, new EditableString(), "");
 		config.addString("click", click, v -> click = v, "");
 		config.addBool("dev", editorsOnly, v -> editorsOnly = v, false);
 		config.addBool("corner", alignToCorner, v -> alignToCorner = v, false);
 
 		Predicate<QuestObjectBase> depTypes = object -> object == null || object instanceof Quest;
-		config.add("dependency", new ConfigQuestObject<>(depTypes), dependency, v -> dependency = v, null).setNameKey("ftbquests.dependency");
+		config.add("dependency", new EditableQuestObject<>(depTypes), dependency, v -> dependency = v, null).setNameKey("ftbquests.dependency");
 	}
 
 	@Override

@@ -1,14 +1,16 @@
 package dev.ftb.mods.ftbquests.client.config;
 
 import com.mojang.datafixers.util.Pair;
-import dev.ftb.mods.ftblibrary.config.ConfigCallback;
-import dev.ftb.mods.ftblibrary.config.ConfigValue;
+
+import dev.ftb.mods.ftblibrary.client.config.ConfigCallback;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableConfigValue;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.screens.AbstractButtonListScreen;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
-import dev.ftb.mods.ftblibrary.ui.Panel;
-import dev.ftb.mods.ftblibrary.ui.SimpleTextButton;
-import dev.ftb.mods.ftblibrary.ui.Widget;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
-import dev.ftb.mods.ftblibrary.ui.misc.AbstractButtonListScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -18,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LocaleConfig extends ConfigValue<String> {
+public class EditableLocaleConfig extends EditableConfigValue<String> {
     public static final Color4I COLOR = Color4I.rgb(0xFFAA49);
 
     @Override
@@ -32,7 +34,7 @@ public class LocaleConfig extends ConfigValue<String> {
     }
 
     @Override
-    public Color4I getColor(@Nullable String v) {
+    public Color4I getColor(@Nullable String v, Theme theme) {
         return COLOR;
     }
 
@@ -76,7 +78,7 @@ public class LocaleConfig extends ConfigValue<String> {
                     @Override
                     public void onClicked(MouseButton button) {
                         playClickSound();
-                        boolean changed = setCurrentValue(entry.getFirst());
+                        boolean changed = updateValue(entry.getFirst());
                         callback.save(changed);
                     }
                 });

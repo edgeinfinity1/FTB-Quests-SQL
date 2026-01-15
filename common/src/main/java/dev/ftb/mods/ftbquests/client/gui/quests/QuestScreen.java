@@ -1,19 +1,33 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
 import com.mojang.datafixers.util.Pair;
+
 import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableConfigValue;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableVariantConfig;
+import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
+import dev.ftb.mods.ftblibrary.client.gui.input.Key;
+import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
+import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
+import dev.ftb.mods.ftblibrary.client.gui.widget.BaseScreen;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
+import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.config.ConfigGroup;
-import dev.ftb.mods.ftblibrary.config.ConfigValue;
-import dev.ftb.mods.ftblibrary.config.ConfigWithVariants;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.math.MathUtils;
-import dev.ftb.mods.ftblibrary.ui.*;
-import dev.ftb.mods.ftblibrary.ui.input.Key;
-import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftblibrary.util.client.ClientUtils;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
@@ -23,27 +37,39 @@ import dev.ftb.mods.ftbquests.client.gui.CustomToast;
 import dev.ftb.mods.ftbquests.client.gui.FTBQuestsTheme;
 import dev.ftb.mods.ftbquests.client.gui.RewardTablesScreen;
 import dev.ftb.mods.ftbquests.client.gui.SelectQuestObjectScreen;
-import dev.ftb.mods.ftbquests.net.*;
-import dev.ftb.mods.ftbquests.quest.*;
+import dev.ftb.mods.ftbquests.net.ChangeProgressMessage;
+import dev.ftb.mods.ftbquests.net.CopyChapterImageMessage;
+import dev.ftb.mods.ftbquests.net.CopyQuestMessage;
+import dev.ftb.mods.ftbquests.net.CreateObjectMessage;
+import dev.ftb.mods.ftbquests.net.EditObjectMessage;
+import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
+import dev.ftb.mods.ftbquests.quest.Chapter;
+import dev.ftb.mods.ftbquests.quest.ChapterImage;
+import dev.ftb.mods.ftbquests.quest.Movable;
+import dev.ftb.mods.ftbquests.quest.Quest;
+import dev.ftb.mods.ftbquests.quest.QuestLink;
+import dev.ftb.mods.ftbquests.quest.QuestObject;
+import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
+import dev.ftb.mods.ftbquests.quest.QuestObjectType;
 import dev.ftb.mods.ftbquests.quest.reward.RandomReward;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.quest.theme.QuestTheme;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 
 import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 public class QuestScreen extends BaseScreen {
 	// A fairly large z-offset is needed to ensure various GUI elements render above drawn block items,
@@ -55,7 +81,9 @@ public class QuestScreen extends BaseScreen {
 
 	double scrollWidth, scrollHeight;
 	int prevMouseX, prevMouseY;
+	@Nullable
 	MouseButton grabbed = null;
+	@Nullable
 	Chapter selectedChapter;
 	final List<Movable> selectedObjects;
 	final ExpandChaptersButton expandChaptersButton;
@@ -63,6 +91,7 @@ public class QuestScreen extends BaseScreen {
 	boolean movingObjects = false;
 	int zoom = 16;
 	static boolean grid = false;
+	@Nullable
 	private PersistedData pendingPersistedData;
 	private final Deque<Long> questViewHistory = new ArrayDeque<>();
 
@@ -167,11 +196,11 @@ public class QuestScreen extends BaseScreen {
 		questPanel.scrollTo(movable.getX(), movable.getY());
 	}
 
-	public void viewQuest(Quest quest) {
+	public void viewQuest(@Nullable Quest quest) {
 		viewQuest(quest, true);
 	}
 
-	private void viewQuest(Quest quest, boolean addHistory) {
+	private void viewQuest(@Nullable Quest quest, boolean addHistory) {
 		Quest current = viewQuestPanel.getViewedQuest();
 		if (current != quest) {
 			viewQuestPanel.setViewedQuest(quest);
@@ -232,8 +261,8 @@ public class QuestScreen extends BaseScreen {
 	 * @param deletionFocus the object to be deleted by the delete operation (which could be different from the quest object...)
 	 */
 	public void addObjectMenuItems(List<ContextMenuItem> contextMenu, Runnable gui, QuestObjectBase object, Movable deletionFocus) {
-		ConfigGroup group = new ConfigGroup(FTBQuestsAPI.MOD_ID);
-		ConfigGroup subGroup = object.createSubGroup(group);
+		EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID);
+		EditableConfigGroup subGroup = object.createSubGroup(group);
 		object.fillConfigGroup(subGroup);
 
 		contextMenu.add(new ContextMenuItem(Component.translatable("selectServer.edit"),
@@ -315,12 +344,12 @@ public class QuestScreen extends BaseScreen {
 		NetworkManager.sendToServer(EditObjectMessage.forQuestObject(selectedChapter));
 	}
 
-	private List<ContextMenuItem> scanForConfigEntries(List<ContextMenuItem> res, QuestObjectBase object, ConfigGroup g) {
-		for (ConfigValue<?> value : g.getValues()) {
-			if (value instanceof ConfigWithVariants) {
+	private List<ContextMenuItem> scanForConfigEntries(List<ContextMenuItem> res, QuestObjectBase object, EditableConfigGroup g) {
+		for (EditableConfigValue<?> value : g.getValues()) {
+			if (value instanceof EditableVariantConfig<?>) {
 				MutableComponent name = Component.translatable(value.getNameKey());
 				if (!value.getCanEdit()) {
-					name = name.withStyle(ChatFormatting.GRAY);
+					name.withStyle(ChatFormatting.GRAY);
 				}
 
 				res.add(new ContextMenuItem(name, Icons.SETTINGS, null) {
@@ -346,13 +375,13 @@ public class QuestScreen extends BaseScreen {
 				});
 			}
 		}
-		for (ConfigGroup sub : g.getSubgroups()) {
+		for (EditableConfigGroup sub : g.getSubgroups()) {
 			scanForConfigEntries(res, object, sub);
 		}
 		return res;
 	}
 
-	private void openPropertiesSubMenu(QuestObjectBase object, ConfigGroup g) {
+	private void openPropertiesSubMenu(QuestObjectBase object, EditableConfigGroup g) {
 		List<ContextMenuItem> subMenu = new ArrayList<>();
 
 		subMenu.add(new ContextMenuItem(object.getTitle(), Color4I.empty(), null).setCloseMenu(false));
@@ -580,7 +609,7 @@ public class QuestScreen extends BaseScreen {
 	}
 
 	private void openQuestSelectionGUI() {
-		ConfigQuestObject<QuestObject> c = new ConfigQuestObject<>(QuestObjectType.CHAPTER.or(QuestObjectType.QUEST).or(QuestObjectType.QUEST_LINK));
+		EditableQuestObject<QuestObject> c = new EditableQuestObject<>(QuestObjectType.CHAPTER.or(QuestObjectType.QUEST).or(QuestObjectType.QUEST_LINK));
 		new SelectQuestObjectScreen<>(c, accepted -> {
 			if (accepted) {
 				if (c.getValue() instanceof Chapter chapter) {

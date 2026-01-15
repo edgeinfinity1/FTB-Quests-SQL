@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbquests.integration.item_filtering;
 
-import dev.ftb.mods.ftblibrary.config.NameMap;
+import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.api.ItemFilterAdapter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
