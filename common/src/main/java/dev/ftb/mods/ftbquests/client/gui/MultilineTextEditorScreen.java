@@ -138,8 +138,8 @@ public class MultilineTextEditorScreen extends BaseScreen {
 
 	@Override
 	public boolean onInit() {
-		setWidth(getScreen().getGuiScaledWidth() / 5 * 4);
-		setHeight(getScreen().getGuiScaledHeight() / 5 * 4);
+		setWidth(getWindow().getGuiScaledWidth() / 5 * 4);
+		setHeight(getWindow().getGuiScaledHeight() / 5 * 4);
 		ticksOpen = 0L;
 		return true;
 	}
