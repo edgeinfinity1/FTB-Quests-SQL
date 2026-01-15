@@ -426,12 +426,9 @@ public class QuestButton extends Button implements QuestPositionableButton {
 		//RenderSystem.alphaFunc(GL11.GL_GREATER, 0.1F);
 
 		if (questScreen.getViewedQuest() == quest || questScreen.selectedObjects.contains(moveAndDeleteFocus())) {
-			poseStack.pushMatrix();
-			poseStack.translate(0, 0);
 			Color4I col = Color4I.WHITE.withAlpha((int) (190D + Math.sin(System.currentTimeMillis() * 0.003D) * 50D));
 			IconHelper.renderIcon(shape.getOutline().withColor(col), graphics, x, y, w, h);
 			IconHelper.renderIcon(shape.getBackground().withColor(col), graphics, x, y, w, h);
-			poseStack.popMatrix();
 		}
 
 		if (!canStart || !teamData.areDependenciesComplete(quest)) {
@@ -449,26 +446,17 @@ public class QuestButton extends Button implements QuestPositionableButton {
 
 		if (!questIcon.isEmpty()) {
 			int s = (int) (w / 8F * 3F);
-			poseStack.pushMatrix();
-			poseStack.translate(x + w - s, y);//, QuestScreen.Z_LEVEL);
-			IconHelper.renderIcon(questIcon, graphics, 0, 0, s, s);
-			poseStack.popMatrix();
+			IconHelper.renderIcon(questIcon, graphics, x + w - s, y, s, s);
 		}
 
 		if (!hiddenIcon.isEmpty()) {
 			int s = (int) (w / 8F * 3F);
-			poseStack.pushMatrix();
-			poseStack.translate(x, y);//, QuestScreen.Z_LEVEL);
-			IconHelper.renderIcon(hiddenIcon, graphics, 0, 0, s, s);
-			poseStack.popMatrix();
+			IconHelper.renderIcon(hiddenIcon, graphics, x, y, s, s);
 		}
 
 		if (!lockIcon.isEmpty() && !quest.shouldHideLockIcon()) {
 			int s = (int) (w / 8F * 3F);
-			poseStack.pushMatrix();
-			poseStack.translate(x + w - s, y + h - 1 - s);//, QuestScreen.Z_LEVEL);
-			IconHelper.renderIcon(lockIcon, graphics, 0, 0, s, s);
-			poseStack.popMatrix();
+			IconHelper.renderIcon(lockIcon, graphics, x + w - s, y + h - 1 - s, s, s);
 		}
 	}
 

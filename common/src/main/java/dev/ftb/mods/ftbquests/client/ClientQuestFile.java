@@ -32,6 +32,7 @@ import dev.ftb.mods.ftbteams.api.client.KnownClientPlayer;
 
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 public class ClientQuestFile extends BaseQuestFile {
@@ -41,12 +42,14 @@ public class ClientQuestFile extends BaseQuestFile {
 			"  and that no server-side errors were logged when you connected."
 	);
 
+	@Nullable
 	public static ClientQuestFile INSTANCE;
 
+	@Nullable
 	public TeamData selfTeamData;  // TeamData for the player on this client
-
+	@Nullable
 	private QuestScreen questScreen;
-	private QuestScreen.PersistedData persistedData;
+	private QuestScreen.@Nullable PersistedData persistedData;
 	private boolean editorPermission;
 
 	public static boolean exists() {
@@ -69,11 +72,11 @@ public class ClientQuestFile extends BaseQuestFile {
 	}
 
 	private void onReplaced() {
-		selfTeamData = new TeamData(Util.NIL_UUID, INSTANCE, "Loading...");
+		selfTeamData = new TeamData(Util.NIL_UUID, this, "Loading...");
 		selfTeamData.setLocked(true);
 
 		refreshGui();
-		FTBQuests.getRecipeModHelper().refreshRecipes(INSTANCE);
+		FTBQuests.getRecipeModHelper().refreshRecipes(this);
 	}
 
 	@Override
@@ -102,6 +105,7 @@ public class ClientQuestFile extends BaseQuestFile {
 		return Optional.ofNullable(questScreen);
 	}
 
+	@Nullable
 	public static QuestScreen openGui() {
 		if (INSTANCE != null) {
 			return INSTANCE.openQuestGui();
@@ -114,12 +118,14 @@ public class ClientQuestFile extends BaseQuestFile {
 		}
 	}
 
+	@Nullable
 	public static QuestScreen openGui(Quest quest, boolean focused) {
 		QuestScreen screen = openGui();
 		if (screen != null) screen.open(quest, focused);
 		return screen;
 	}
 
+	@Nullable
 	private QuestScreen openQuestGui() {
 		if (exists()) {
 			if (isDisableGui() && !canEdit()) {
