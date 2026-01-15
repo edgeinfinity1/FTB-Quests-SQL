@@ -1,5 +1,12 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.permissions.Permissions;
+
 import dev.architectury.networking.NetworkManager;
 
 import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
@@ -19,12 +26,6 @@ import dev.ftb.mods.ftbquests.net.ToggleEditingModeMessage;
 import dev.ftb.mods.ftbquests.quest.task.StructureTask;
 import dev.ftb.mods.ftbquests.quest.theme.ThemeLoader;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.server.permissions.Permissions;
 
 import java.io.File;
 import java.util.ArrayList;

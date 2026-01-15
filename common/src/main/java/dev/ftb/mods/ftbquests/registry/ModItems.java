@@ -1,21 +1,29 @@
 package dev.ftb.mods.ftbquests.registry;
 
-import dev.architectury.registry.CreativeTabRegistry;
-import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.RegistrySupplier;
-import dev.ftb.mods.ftblibrary.FTBLibrary;
-import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.item.*;
-import dev.ftb.mods.ftbquests.item.ScreenBlockItem.ScreenSize;
-import dev.ftb.mods.ftbquests.quest.loot.LootCrate;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+
+import dev.architectury.registry.CreativeTabRegistry;
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
+
+import dev.ftb.mods.ftblibrary.FTBLibrary;
+import dev.ftb.mods.ftbquests.FTBQuests;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.item.CustomIconItem;
+import dev.ftb.mods.ftbquests.item.LootCrateItem;
+import dev.ftb.mods.ftbquests.item.MissingItem;
+import dev.ftb.mods.ftbquests.item.QuestBarrierBlockItem;
+import dev.ftb.mods.ftbquests.item.QuestBookItem;
+import dev.ftb.mods.ftbquests.item.ScreenBlockItem;
+import dev.ftb.mods.ftbquests.item.ScreenBlockItem.ScreenSize;
+import dev.ftb.mods.ftbquests.item.StageBarrierBlockItem;
+import dev.ftb.mods.ftbquests.item.TaskScreenConfiguratorItem;
+import dev.ftb.mods.ftbquests.quest.loot.LootCrate;
 
 import java.util.List;
 import java.util.function.Function;

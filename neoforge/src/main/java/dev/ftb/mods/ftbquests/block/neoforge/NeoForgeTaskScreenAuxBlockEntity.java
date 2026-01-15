@@ -1,12 +1,14 @@
 package dev.ftb.mods.ftbquests.block.neoforge;
 
-import dev.ftb.mods.ftbquests.block.entity.TaskScreenAuxBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenAuxBlockEntity;
 
 public class NeoForgeTaskScreenAuxBlockEntity extends TaskScreenAuxBlockEntity {
     public NeoForgeTaskScreenAuxBlockEntity(BlockPos blockPos, BlockState blockState) {

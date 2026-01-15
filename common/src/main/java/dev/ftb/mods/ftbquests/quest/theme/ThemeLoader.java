@@ -1,23 +1,34 @@
 package dev.ftb.mods.ftbquests.quest.theme;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.QuestObjectType;
 import dev.ftb.mods.ftbquests.quest.QuestShape;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import dev.ftb.mods.ftbquests.quest.theme.selector.*;
+import dev.ftb.mods.ftbquests.quest.theme.selector.AllSelector;
+import dev.ftb.mods.ftbquests.quest.theme.selector.AndSelector;
+import dev.ftb.mods.ftbquests.quest.theme.selector.IDSelector;
+import dev.ftb.mods.ftbquests.quest.theme.selector.NotSelector;
+import dev.ftb.mods.ftbquests.quest.theme.selector.TagSelector;
+import dev.ftb.mods.ftbquests.quest.theme.selector.ThemeSelector;
+import dev.ftb.mods.ftbquests.quest.theme.selector.TypeSelector;
 import dev.ftb.mods.ftbquests.util.FileUtils;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.*;
-import java.util.regex.Pattern;
 
 public class ThemeLoader implements ResourceManagerReloadListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ThemeLoader.class);

@@ -1,15 +1,17 @@
 package dev.ftb.mods.ftbquests.net;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.client.FTBQuestsNetClient;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.FTBQuestsNetClient;
 
 public record NotifyRewardMessage(long id, Component text, Icon icon, boolean disableBlur) implements CustomPacketPayload {
 	public static final Type<NotifyRewardMessage> TYPE = new Type<>(FTBQuestsAPI.id("notify_reward_message"));

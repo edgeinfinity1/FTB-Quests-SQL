@@ -1,17 +1,18 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
-import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
-import dev.ftb.mods.ftblibrary.util.TooltipList;
-import dev.ftb.mods.ftbquests.client.gui.SelectChoiceRewardScreen;
-import dev.ftb.mods.ftbquests.quest.Quest;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+
+import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
+import dev.ftb.mods.ftblibrary.util.TooltipList;
+import dev.ftb.mods.ftbquests.client.gui.SelectChoiceRewardScreen;
+import dev.ftb.mods.ftbquests.quest.Quest;
 
 import java.util.List;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 public class ChoiceReward extends RandomReward {
 	public ChoiceReward(long id, Quest quest) {

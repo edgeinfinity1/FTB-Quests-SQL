@@ -1,12 +1,13 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.network.chat.Component;
+
 import dev.ftb.mods.ftblibrary.client.gui.widget.BaseScreen;
 import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.quest.Movable;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
-import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;

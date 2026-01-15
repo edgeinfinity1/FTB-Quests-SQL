@@ -1,11 +1,13 @@
 package dev.ftb.mods.ftbquests.net;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 
 public record SyncStructuresRequestMessage() implements CustomPacketPayload {
     public static final Type<SyncStructuresRequestMessage> TYPE = new Type<>(FTBQuestsAPI.id("sync_structures_request_message"));

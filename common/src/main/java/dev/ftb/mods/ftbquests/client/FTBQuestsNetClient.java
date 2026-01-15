@@ -1,5 +1,12 @@
 package dev.ftb.mods.ftbquests.client;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
+
 import dev.architectury.hooks.item.ItemStackHooks;
 
 import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
@@ -13,20 +20,20 @@ import dev.ftb.mods.ftbquests.client.gui.RewardKey;
 import dev.ftb.mods.ftbquests.client.gui.RewardToast;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.net.TeamDataUpdate;
-import dev.ftb.mods.ftbquests.quest.*;
+import dev.ftb.mods.ftbquests.quest.Chapter;
+import dev.ftb.mods.ftbquests.quest.ChapterGroup;
+import dev.ftb.mods.ftbquests.quest.Movable;
+import dev.ftb.mods.ftbquests.quest.QuestObject;
+import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
+import dev.ftb.mods.ftbquests.quest.QuestObjectType;
+import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
 import dev.ftb.mods.ftbquests.quest.reward.ToastReward;
 import dev.ftb.mods.ftbquests.quest.task.Task;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 public class FTBQuestsNetClient {
 	public static void syncTeamData(TeamData data) {

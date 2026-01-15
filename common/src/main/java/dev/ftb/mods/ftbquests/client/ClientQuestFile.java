@@ -1,6 +1,13 @@
 package dev.ftb.mods.ftbquests.client;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.player.Player;
 import com.mojang.blaze3d.platform.InputConstants;
+
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.utils.Env;
 
@@ -22,16 +29,10 @@ import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
 import dev.ftb.mods.ftbquests.util.TextUtils;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.client.KnownClientPlayer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
-import net.minecraft.world.entity.player.Player;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
+import org.lwjgl.glfw.GLFW;
 
 public class ClientQuestFile extends BaseQuestFile {
 	private static final List<String> MISSING_DATA_ERR = List.of(

@@ -1,12 +1,5 @@
 package dev.ftb.mods.ftbquests.quest.reward;
 
-import dev.architectury.networking.NetworkManager;
-
-import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftbquests.net.NotifyRewardMessage;
-import dev.ftb.mods.ftbquests.quest.Quest;
-import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -18,6 +11,14 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.server.permissions.PermissionSet;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftbquests.net.NotifyRewardMessage;
+import dev.ftb.mods.ftbquests.quest.Quest;
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 
 import java.util.ArrayList;
 import java.util.HashMap;

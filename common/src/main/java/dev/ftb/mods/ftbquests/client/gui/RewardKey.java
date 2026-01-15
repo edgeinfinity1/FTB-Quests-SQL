@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
-import dev.ftb.mods.ftblibrary.icon.Icon;
 import net.minecraft.world.item.ItemStack;
+
+import dev.ftb.mods.ftblibrary.icon.Icon;
 
 import java.util.Objects;
 

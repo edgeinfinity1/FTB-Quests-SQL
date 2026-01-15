@@ -1,8 +1,5 @@
 package dev.ftb.mods.ftbquests.block;
 
-import com.mojang.serialization.MapCodec;
-import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.ftb.mods.ftbquests.block.entity.LootCrateOpenerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -15,8 +12,13 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
+import com.mojang.serialization.MapCodec;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
+
+import dev.ftb.mods.ftbquests.block.entity.LootCrateOpenerBlockEntity;
+
 import org.jetbrains.annotations.Nullable;
 
 public class LootCrateOpenerBlock extends BaseEntityBlock {

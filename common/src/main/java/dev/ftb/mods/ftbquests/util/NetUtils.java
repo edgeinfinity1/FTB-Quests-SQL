@@ -1,10 +1,12 @@
 package dev.ftb.mods.ftbquests.util;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 
 import java.util.Collection;
 import java.util.function.BiConsumer;

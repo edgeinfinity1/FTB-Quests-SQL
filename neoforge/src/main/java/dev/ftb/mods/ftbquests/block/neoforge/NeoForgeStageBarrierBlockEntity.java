@@ -1,12 +1,14 @@
 package dev.ftb.mods.ftbquests.block.neoforge;
 
-import dev.ftb.mods.ftbquests.block.entity.StageBarrierBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
+
 import net.neoforged.neoforge.model.data.ModelData;
+
+import dev.ftb.mods.ftbquests.block.entity.StageBarrierBlockEntity;
 
 public class NeoForgeStageBarrierBlockEntity extends StageBarrierBlockEntity {
     public NeoForgeStageBarrierBlockEntity(BlockPos blockPos, BlockState blockState) {

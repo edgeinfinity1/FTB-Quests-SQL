@@ -1,12 +1,13 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.client.gui.GuiGraphics;
+
 import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestLink;
 import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import net.minecraft.client.gui.GuiGraphics;
 
 public class QuestLinkButton extends QuestButton {
     private final QuestLink link;

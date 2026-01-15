@@ -1,13 +1,7 @@
 package dev.ftb.mods.ftbquests.client.neoforge;
 
-import dev.ftb.mods.ftbquests.registry.ModBlocks;
-import net.minecraft.client.renderer.block.BlockModelShaper;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
-
-import java.util.function.Function;
 
 public class ModelBakeEventHandler {
     private ModelBakeEventHandler() {}

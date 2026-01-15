@@ -1,5 +1,8 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+
 import dev.architectury.networking.NetworkManager;
 
 import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
@@ -14,8 +17,6 @@ import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.net.ChangeChapterGroupMessage;
 import dev.ftb.mods.ftbquests.quest.Chapter;
 import dev.ftb.mods.ftbquests.quest.ChapterGroup;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 
 public class ChangeChapterGroupScreen extends AbstractButtonListScreen {
 	private final Chapter chapter;

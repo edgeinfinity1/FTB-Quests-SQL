@@ -1,11 +1,5 @@
 package dev.ftb.mods.ftbquests.item;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.block.entity.ITaskScreen;
-import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
-import dev.ftb.mods.ftbquests.registry.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -24,7 +18,14 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftbquests.FTBQuests;
+import dev.ftb.mods.ftbquests.block.entity.ITaskScreen;
+import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+import dev.ftb.mods.ftbquests.registry.ModItems;
+
 import java.util.Optional;
 import java.util.function.Consumer;
 

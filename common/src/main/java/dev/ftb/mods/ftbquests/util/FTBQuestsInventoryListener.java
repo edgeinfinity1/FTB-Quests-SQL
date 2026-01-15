@@ -1,15 +1,17 @@
 package dev.ftb.mods.ftbquests.util;
 
-import dev.architectury.hooks.level.entity.PlayerHooks;
-import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
-import dev.ftb.mods.ftbquests.quest.TeamData;
-import dev.ftb.mods.ftbquests.quest.task.Task;
-import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.item.ItemStack;
+
+import dev.architectury.hooks.level.entity.PlayerHooks;
+
+import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
+import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbquests.quest.task.Task;
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 
 import java.util.List;
 

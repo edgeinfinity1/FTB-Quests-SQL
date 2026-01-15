@@ -1,13 +1,15 @@
 package dev.ftb.mods.ftbquests.net;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
 import dev.architectury.networking.NetworkManager;
+
 import dev.ftb.mods.ftblibrary.util.NetworkHelper;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.quest.Chapter;
 import dev.ftb.mods.ftbquests.quest.ChapterImage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public record CopyChapterImageMessage(ChapterImage img) implements CustomPacketPayload {
     public static final Type<CopyChapterImageMessage> TYPE = new Type<>(FTBQuestsAPI.id("copy_chapter_image_message"));

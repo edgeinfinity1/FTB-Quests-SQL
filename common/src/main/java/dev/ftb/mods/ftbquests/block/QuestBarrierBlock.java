@@ -1,16 +1,5 @@
 package dev.ftb.mods.ftbquests.block;
 
-import com.mojang.serialization.MapCodec;
-import dev.architectury.hooks.level.entity.EntityHooks;
-import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftbquests.block.entity.BaseBarrierBlockEntity;
-import dev.ftb.mods.ftbquests.block.entity.QuestBarrierBlockEntity;
-import dev.ftb.mods.ftbquests.client.ClientQuestFile;
-import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage;
-import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage.BlockType;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
-import dev.ftb.mods.ftbquests.util.NetUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -42,11 +31,24 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.MapCodec;
+
+import dev.architectury.hooks.level.entity.EntityHooks;
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftbquests.block.entity.BaseBarrierBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.QuestBarrierBlockEntity;
+import dev.ftb.mods.ftbquests.client.ClientQuestFile;
+import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage;
+import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage.BlockType;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+import dev.ftb.mods.ftbquests.util.NetUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 public class QuestBarrierBlock extends BaseEntityBlock {
 	private static final MapCodec<QuestBarrierBlock> CODEC = simpleCodec(QuestBarrierBlock::new);

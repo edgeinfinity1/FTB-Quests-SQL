@@ -1,7 +1,5 @@
 package dev.ftb.mods.ftbquests.block;
 
-import com.mojang.serialization.MapCodec;
-import dev.ftb.mods.ftbquests.block.entity.DetectorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,6 +14,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.redstone.Orientation;
+import com.mojang.serialization.MapCodec;
+
+import dev.ftb.mods.ftbquests.block.entity.DetectorBlockEntity;
+
 import org.jspecify.annotations.Nullable;
 
 public class DetectorBlock extends BaseEntityBlock {

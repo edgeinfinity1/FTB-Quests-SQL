@@ -1,5 +1,13 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
+
 import dev.architectury.networking.NetworkManager;
 
 import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
@@ -37,24 +45,16 @@ import dev.ftb.mods.ftbquests.quest.task.TaskType;
 import dev.ftb.mods.ftbquests.quest.task.TaskTypes;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.ARGB;
-import net.minecraft.util.Mth;
-
-import org.jetbrains.annotations.UnknownNullability;
-import org.joml.Matrix3x2fStack;
-import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.UnknownNullability;
+import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 public class QuestPanel extends Panel {
 	private static final ImageIcon DEFAULT_DEPENDENCY_LINE_TEXTURE = (ImageIcon) Icon.getIcon(FTBQuestsAPI.MOD_ID + ":textures/gui/dependency.png");

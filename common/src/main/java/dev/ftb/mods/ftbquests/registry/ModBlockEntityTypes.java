@@ -1,17 +1,22 @@
 package dev.ftb.mods.ftbquests.registry;
 
-import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.RegistrySupplier;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.block.LootCrateOpenerBlock;
-import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
-import dev.ftb.mods.ftbquests.block.entity.*;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
+
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.block.LootCrateOpenerBlock;
+import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
+import dev.ftb.mods.ftbquests.block.entity.DetectorBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.LootCrateOpenerBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.QuestBarrierBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.StageBarrierBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenAuxBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
 
 import java.util.Collection;
 import java.util.Set;

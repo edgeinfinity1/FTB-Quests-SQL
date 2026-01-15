@@ -1,11 +1,12 @@
 package dev.ftb.mods.ftbquests.util;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
 
 import java.util.List;
 

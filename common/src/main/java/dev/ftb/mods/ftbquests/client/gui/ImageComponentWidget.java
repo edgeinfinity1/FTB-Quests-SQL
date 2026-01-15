@@ -1,5 +1,9 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+
 import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
@@ -8,9 +12,6 @@ import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
 import dev.ftb.mods.ftblibrary.client.util.ImageComponent;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.gui.quests.ViewQuestPanel;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
 
 public class ImageComponentWidget extends Widget {
 	private final ImageComponent component;

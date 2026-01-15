@@ -1,10 +1,11 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.client.gui.GuiGraphics;
+
 import dev.ftb.mods.ftblibrary.client.gui.screens.KeyReferenceScreen;
 import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import net.minecraft.client.gui.GuiGraphics;
 
 public class QuestKeyReferenceScreen extends KeyReferenceScreen {
     public QuestKeyReferenceScreen(String... translationKeys) {

@@ -23,6 +23,7 @@ import dev.ftb.mods.ftblibrary.client.config.gui.resource.SelectFluidScreen;
 import dev.ftb.mods.ftblibrary.client.config.gui.resource.SelectItemStackScreen;
 import dev.ftb.mods.ftblibrary.integration.currency.CurrencyHelper;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 import dev.ftb.mods.ftbquests.client.gui.SelectQuestObjectScreen;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObjectType;
@@ -37,7 +38,6 @@ import dev.ftb.mods.ftbquests.quest.reward.StageReward;
 import dev.ftb.mods.ftbquests.quest.reward.XPReward;
 import dev.ftb.mods.ftbquests.quest.task.*;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
-import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 
 import java.util.function.BiConsumer;
 

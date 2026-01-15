@@ -1,17 +1,5 @@
 package dev.ftb.mods.ftbquests.item;
 
-import com.mojang.datafixers.util.Either;
-import dev.architectury.registry.registries.RegistrarManager;
-
-import dev.ftb.mods.ftblibrary.client.config.editable.EditableEntityFace;
-import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
-import dev.ftb.mods.ftblibrary.icon.EntityIconLoader;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
-import dev.ftb.mods.ftbquests.registry.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -27,8 +15,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
+import com.mojang.datafixers.util.Either;
 
-import java.util.List;
+import dev.architectury.registry.registries.RegistrarManager;
+
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableEntityFace;
+import dev.ftb.mods.ftblibrary.client.config.editable.EditableImageResource;
+import dev.ftb.mods.ftblibrary.icon.EntityIconLoader;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftblibrary.icon.ItemIcon;
+import dev.ftb.mods.ftbquests.FTBQuests;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+import dev.ftb.mods.ftbquests.registry.ModItems;
+
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;

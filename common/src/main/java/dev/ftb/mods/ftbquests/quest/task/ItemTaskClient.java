@@ -1,14 +1,15 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+
 import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.client.gui.CustomToast;
 import dev.ftb.mods.ftbquests.client.gui.quests.ValidItemsScreen;
 import dev.ftb.mods.ftbquests.registry.ModItems;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 

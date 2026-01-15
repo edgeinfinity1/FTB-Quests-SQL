@@ -1,5 +1,11 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
+
 import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.client.gui.layout.WidgetLayout;
 import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
@@ -13,16 +19,11 @@ import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.util.StringUtils;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.quest.QuestShape;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public class RewardNotificationsScreen extends BaseScreen implements IRewardListenerScreen {
 	private final Object2IntOpenHashMap<RewardKey> rewards;

@@ -1,17 +1,19 @@
 package dev.ftb.mods.ftbquests.registry;
 
-import com.mojang.serialization.Codec;
-import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.RegistrySupplier;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.block.entity.BaseBarrierBlockEntity.BarrierSavedData;
-import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity.TaskScreenSaveData;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.component.ItemContainerContents;
+import com.mojang.serialization.Codec;
+
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
+
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.block.entity.BaseBarrierBlockEntity.BarrierSavedData;
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity.TaskScreenSaveData;
 
 public class ModDataComponents {
     public static final DeferredRegister<DataComponentType<?>> COMPONENT_TYPES

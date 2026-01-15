@@ -1,11 +1,13 @@
 package dev.ftb.mods.ftbquests.net;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.client.FTBQuestsNetClient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.FTBQuestsNetClient;
 
 public record TeamDataChangedMessage(TeamDataUpdate oldDataUpdate, TeamDataUpdate newDataUpdate) implements CustomPacketPayload {
 	public static final Type<TeamDataChangedMessage> TYPE = new Type<>(FTBQuestsAPI.id("team_data_changed_message"));

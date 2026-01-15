@@ -1,19 +1,5 @@
 package dev.ftb.mods.ftbquests.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import dev.architectury.hooks.client.fluid.ClientFluidStackHooks;
-import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
-import dev.ftb.mods.ftblibrary.icon.AtlasSpriteIcon;
-import dev.ftb.mods.ftblibrary.icon.Icon;
-import dev.ftb.mods.ftblibrary.icon.ItemIcon;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
-import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
-import dev.ftb.mods.ftbquests.quest.TeamData;
-import dev.ftb.mods.ftbquests.quest.task.EnergyTask;
-import dev.ftb.mods.ftbquests.quest.task.FluidTask;
-import dev.ftb.mods.ftbquests.quest.task.Task;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -29,6 +15,23 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.phys.Vec3;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+
+import dev.architectury.hooks.client.fluid.ClientFluidStackHooks;
+
+import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
+import dev.ftb.mods.ftblibrary.icon.AtlasSpriteIcon;
+import dev.ftb.mods.ftblibrary.icon.Icon;
+import dev.ftb.mods.ftblibrary.icon.ItemIcon;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
+import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbquests.quest.task.EnergyTask;
+import dev.ftb.mods.ftbquests.quest.task.FluidTask;
+import dev.ftb.mods.ftbquests.quest.task.Task;
+
 import org.jspecify.annotations.Nullable;
 
 public class TaskScreenRenderer implements BlockEntityRenderer<TaskScreenBlockEntity, TaskScreenRenderState> {

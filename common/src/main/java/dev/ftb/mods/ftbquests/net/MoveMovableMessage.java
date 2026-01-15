@@ -1,14 +1,16 @@
 package dev.ftb.mods.ftbquests.net;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftblibrary.util.NetworkHelper;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.quest.Movable;
-import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftblibrary.util.NetworkHelper;
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.quest.Movable;
+import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 
 public record MoveMovableMessage(long id, long chapterID, double x, double y) implements CustomPacketPayload {
 	public static final Type<MoveMovableMessage> TYPE = new Type<>(FTBQuestsAPI.id("move_movable_message"));

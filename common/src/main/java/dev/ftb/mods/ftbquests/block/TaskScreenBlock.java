@@ -1,26 +1,8 @@
 package dev.ftb.mods.ftbquests.block;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftbquests.block.entity.ITaskScreen;
-import dev.ftb.mods.ftbquests.block.entity.TaskScreenAuxBlockEntity;
-import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import dev.ftb.mods.ftbquests.item.ScreenBlockItem;
-import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage;
-import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage.BlockType;
-import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
-import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
-import dev.ftb.mods.ftbquests.quest.task.Task;
-import dev.ftb.mods.ftbquests.registry.ModBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -29,10 +11,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -47,9 +26,23 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.util.List;
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftbquests.block.entity.ITaskScreen;
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenAuxBlockEntity;
+import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
+import dev.ftb.mods.ftbquests.item.ScreenBlockItem;
+import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage;
+import dev.ftb.mods.ftbquests.net.BlockConfigRequestMessage.BlockType;
+import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
+import dev.ftb.mods.ftbquests.registry.ModBlocks;
+
+import org.jetbrains.annotations.Nullable;
 
 public class TaskScreenBlock extends BaseEntityBlock {
     private static final MapCodec<TaskScreenBlock> CODEC = RecordCodecBuilder.mapCodec(instance ->

@@ -1,14 +1,20 @@
 package dev.ftb.mods.ftbquests.registry;
 
-import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.RegistrySupplier;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.block.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
+
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.block.DetectorBlock;
+import dev.ftb.mods.ftbquests.block.LootCrateOpenerBlock;
+import dev.ftb.mods.ftbquests.block.QuestBarrierBlock;
+import dev.ftb.mods.ftbquests.block.StageBarrierBlock;
+import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
 
 import java.util.function.Function;
 

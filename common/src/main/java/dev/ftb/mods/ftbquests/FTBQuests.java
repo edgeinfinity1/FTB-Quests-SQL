@@ -1,10 +1,17 @@
 package dev.ftb.mods.ftbquests;
 
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.world.item.ItemStack;
+
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
 import dev.architectury.utils.GameInstance;
+
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.FTBQClientProxy;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
@@ -13,17 +20,12 @@ import dev.ftb.mods.ftbquests.net.ClearDisplayCacheMessage;
 import dev.ftb.mods.ftbquests.net.FTBQuestsNetHandler;
 import dev.ftb.mods.ftbquests.quest.reward.RewardTypes;
 import dev.ftb.mods.ftbquests.quest.task.TaskTypes;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.world.item.ItemStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FTBQuests {
 	public static final Logger LOGGER = LogManager.getLogger(FTBQuestsAPI.MOD_NAME);

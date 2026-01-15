@@ -1,9 +1,10 @@
 package dev.ftb.mods.ftbquests.quest;
 
-import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
-import dev.ftb.mods.ftblibrary.icon.Color4I;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+
+import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.icon.Color4I;
 
 public interface Movable {
 	long getMovableID();

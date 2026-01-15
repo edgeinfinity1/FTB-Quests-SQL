@@ -1,12 +1,14 @@
 package dev.ftb.mods.ftbquests.net;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 
 public class ClaimAllRewardsMessage implements CustomPacketPayload {
 	public static final Type<ClaimAllRewardsMessage> TYPE = new Type<>(FTBQuestsAPI.id("claim_all_rewards_message"));

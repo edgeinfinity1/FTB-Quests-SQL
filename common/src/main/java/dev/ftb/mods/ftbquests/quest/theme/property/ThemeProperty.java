@@ -2,6 +2,7 @@ package dev.ftb.mods.ftbquests.quest.theme.property;
 
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.theme.QuestTheme;
+
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ThemeProperty<T> {

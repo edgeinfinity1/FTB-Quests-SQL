@@ -1,9 +1,10 @@
 package dev.ftb.mods.ftbquests.client;
 
+import net.minecraft.client.gui.GuiGraphics;
+
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
 import dev.ftb.mods.ftblibrary.client.icon.IconRenderer;
 import dev.ftb.mods.ftbquests.quest.QuestShape;
-import net.minecraft.client.gui.GuiGraphics;
 
 public enum QuestShapeRenderer implements IconRenderer<QuestShape> {
     INSTANCE;

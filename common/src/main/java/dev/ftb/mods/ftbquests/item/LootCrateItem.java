@@ -1,17 +1,5 @@
 package dev.ftb.mods.ftbquests.item;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.architectury.platform.Platform;
-import dev.architectury.registry.client.rendering.ColorHandlerRegistry;
-import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.client.ClientQuestFile;
-import dev.ftb.mods.ftbquests.client.gui.RewardNotificationsScreen;
-import dev.ftb.mods.ftbquests.quest.loot.LootCrate;
-import dev.ftb.mods.ftbquests.quest.loot.WeightedReward;
-import dev.ftb.mods.ftbquests.registry.ModDataComponents;
-import dev.ftb.mods.ftbquests.registry.ModItems;
-import net.fabricmc.api.EnvType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -36,10 +24,23 @@ import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import dev.architectury.platform.Platform;
+import net.fabricmc.api.EnvType;
+
+import dev.ftb.mods.ftbquests.FTBQuests;
+import dev.ftb.mods.ftbquests.client.ClientQuestFile;
+import dev.ftb.mods.ftbquests.client.gui.RewardNotificationsScreen;
+import dev.ftb.mods.ftbquests.quest.loot.LootCrate;
+import dev.ftb.mods.ftbquests.quest.loot.WeightedReward;
+import dev.ftb.mods.ftbquests.registry.ModDataComponents;
+import dev.ftb.mods.ftbquests.registry.ModItems;
 
 import java.util.List;
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 
 public class LootCrateItem extends Item {
 	public LootCrateItem(ResourceKey<Item> id) {

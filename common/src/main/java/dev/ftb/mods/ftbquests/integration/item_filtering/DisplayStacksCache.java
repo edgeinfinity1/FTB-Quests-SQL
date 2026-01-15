@@ -1,18 +1,19 @@
 package dev.ftb.mods.ftbquests.integration.item_filtering;
 
-import com.google.common.collect.ImmutableList;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
+
 import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.api.ItemFilterAdapter;
 import dev.ftb.mods.ftbquests.api.event.CustomFilterDisplayItemsEvent;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import com.google.common.collect.ImmutableList;
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 public class DisplayStacksCache {
     private static final int MAX_CACHE_SIZE = 1024;

@@ -1,12 +1,14 @@
 package dev.ftb.mods.ftbquests.block.neoforge;
 
-import dev.ftb.mods.ftbquests.block.entity.LootCrateOpenerBlockEntity;
-import dev.ftb.mods.ftbquests.item.LootCrateItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
+import dev.ftb.mods.ftbquests.block.entity.LootCrateOpenerBlockEntity;
+import dev.ftb.mods.ftbquests.item.LootCrateItem;
 
 public class NeoForgeLootCrateOpenerBlockEntity extends LootCrateOpenerBlockEntity {
     private final LootCrateHandler lootCrateHandler = new LootCrateHandler();

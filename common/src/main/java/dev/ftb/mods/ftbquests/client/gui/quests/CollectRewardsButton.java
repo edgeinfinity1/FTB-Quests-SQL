@@ -1,5 +1,9 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+
 import dev.architectury.networking.NetworkManager;
 
 import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
@@ -10,9 +14,6 @@ import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.gui.RewardNotificationsScreen;
 import dev.ftb.mods.ftbquests.net.ClaimAllRewardsMessage;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 
 public class CollectRewardsButton extends TabButton {
 	public CollectRewardsButton(Panel panel) {

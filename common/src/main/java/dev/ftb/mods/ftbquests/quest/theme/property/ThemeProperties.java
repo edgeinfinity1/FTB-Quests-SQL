@@ -1,15 +1,11 @@
 package dev.ftb.mods.ftbquests.quest.theme.property;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Either;
+
 import dev.ftb.mods.ftblibrary.client.icon.IconRenderer;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import org.joml.Matrix4f;
 
 public interface ThemeProperties {
 	// Main GUI //

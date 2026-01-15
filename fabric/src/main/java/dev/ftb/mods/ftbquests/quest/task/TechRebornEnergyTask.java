@@ -1,12 +1,13 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+
 import dev.ftb.mods.ftblibrary.util.StringUtils;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.EnergyTaskClientData;
 import dev.ftb.mods.ftbquests.quest.Quest;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
 
 public class TechRebornEnergyTask extends EnergyTask {
     public static TaskType TYPE;

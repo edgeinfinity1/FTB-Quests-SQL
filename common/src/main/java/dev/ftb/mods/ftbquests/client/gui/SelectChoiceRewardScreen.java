@@ -1,5 +1,7 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.network.chat.Component;
+
 import dev.architectury.networking.NetworkManager;
 
 import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
@@ -12,7 +14,6 @@ import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.net.ClaimChoiceRewardMessage;
 import dev.ftb.mods.ftbquests.quest.loot.WeightedReward;
 import dev.ftb.mods.ftbquests.quest.reward.ChoiceReward;
-import net.minecraft.network.chat.Component;
 
 import java.util.Optional;
 

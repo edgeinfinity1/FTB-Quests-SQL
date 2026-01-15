@@ -1,15 +1,17 @@
 package dev.ftb.mods.ftbquests.net;
 
-import dev.architectury.networking.NetworkManager;
-import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.client.FTBQuestsNetClient;
-import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
-import net.minecraft.util.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.util.Util;
+
+import dev.architectury.networking.NetworkManager;
+
+import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.FTBQuestsNetClient;
+import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 
 public record EditObjectResponseMessage(long id, CompoundTag nbt) implements CustomPacketPayload {
 	public static final Type<EditObjectResponseMessage> TYPE = new Type<>(FTBQuestsAPI.id("edit_object_response_message"));

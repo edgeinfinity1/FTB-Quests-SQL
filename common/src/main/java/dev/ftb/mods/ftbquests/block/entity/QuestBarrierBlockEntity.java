@@ -6,11 +6,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObjectType;
 import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
-import dev.ftb.mods.ftbquests.client.config.EditableQuestObject;
 
 public class QuestBarrierBlockEntity extends BaseBarrierBlockEntity {
 	private Quest cachedQuest = null;

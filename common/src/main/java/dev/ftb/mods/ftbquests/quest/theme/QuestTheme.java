@@ -2,12 +2,12 @@ package dev.ftb.mods.ftbquests.quest.theme;
 
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperty;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.Nullable;
 
 public class QuestTheme {
 	public static QuestTheme instance;

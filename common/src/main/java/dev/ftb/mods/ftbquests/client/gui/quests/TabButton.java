@@ -1,5 +1,8 @@
 package dev.ftb.mods.ftbquests.client.gui.quests;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+
 import dev.ftb.mods.ftblibrary.client.gui.theme.Theme;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
@@ -7,8 +10,6 @@ import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 
 public abstract class TabButton extends Button {
 	protected final QuestScreen questScreen;

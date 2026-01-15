@@ -1,8 +1,9 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import net.minecraft.network.chat.Component;
+
 import dev.ftb.mods.ftblibrary.client.gui.SimpleToast;
 import dev.ftb.mods.ftblibrary.icon.Icon;
-import net.minecraft.network.chat.Component;
 
 import java.util.Objects;
 
