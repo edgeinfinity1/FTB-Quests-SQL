@@ -42,7 +42,7 @@ import dev.ftb.mods.ftbquests.quest.task.StructureTask;
 import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
 
 import java.util.List;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import static dev.ftb.mods.ftbquests.client.TaskScreenRenderer.*;
@@ -52,15 +52,23 @@ public class FTBQuestsClientEventHandler {
 
     static boolean creativeTabRebuildPending = false;
 
+    @Nullable
     private List<ObservationTask> observationTasks = null;
+    @Nullable
     private ObservationTask currentlyObserving = null;
     private long currentlyObservingTicks = 0L;
 
+    @Nullable
     public static TextureAtlasSprite inputOnlySprite;
+    @Nullable
     public static TextureAtlasSprite tankSprite;
+    @Nullable
     public static TextureAtlasSprite feEnergyEmptySprite;
+    @Nullable
     public static TextureAtlasSprite feEnergyFullSprite;
+    @Nullable
     public static TextureAtlasSprite trEnergyEmptySprite;
+    @Nullable
     public static TextureAtlasSprite trEnergyFullSprite;
 
     public void init() {
@@ -101,14 +109,13 @@ public class FTBQuestsClientEventHandler {
 
     private void onSidebarButtonCreated(SidebarButtonCreatedEvent event) {
         if (event.getButton().getId().equals(QUESTS_BUTTON)) {
-            event.getButton().addOverlayRender(ButtonOverlayRender.ofSimpleString(() ->
-            {
+            event.getButton().addOverlayRender(ButtonOverlayRender.ofSimpleString(() -> {
                 if (ClientQuestFile.exists()) {
-                    if (ClientQuestFile.INSTANCE.isDisableGui() && !ClientQuestFile.INSTANCE.canEdit()) {
+                    if (ClientQuestFile.getInstance().isDisableGui() && !ClientQuestFile.getInstance().canEdit()) {
                         return "[X]";
-                    } else if (ClientQuestFile.INSTANCE.selfTeamData.isLocked()) {
+                    } else if (FTBQuestsClient.getClientPlayerData().isLocked()) {
                         return "[X]";
-                    } else if (ClientQuestFile.INSTANCE.selfTeamData.hasUnclaimedRewards(Minecraft.getInstance().player.getUUID(), ClientQuestFile.INSTANCE)) {
+                    } else if (FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(FTBQuestsClient.getClientPlayer().getUUID(), ClientQuestFile.getInstance())) {
                         return "[!]";
                     }
                 }
@@ -126,7 +133,7 @@ public class FTBQuestsClientEventHandler {
 
     private void onKeyEvent(Minecraft mc) {
         if (ClientQuestFile.exists()
-                && (!ClientQuestFile.INSTANCE.isDisableGui() || ClientQuestFile.INSTANCE.canEdit())
+                && (!ClientQuestFile.getInstance().isDisableGui() || ClientQuestFile.getInstance().canEdit())
                 && FTBQuestsClient.KEY_QUESTS.consumeClick()) {
             ClientQuestFile.openGui();
         }
@@ -150,7 +157,7 @@ public class FTBQuestsClientEventHandler {
 
     private void onClientTick(Minecraft mc) {
         if (mc.level != null && ClientQuestFile.exists() && mc.player != null) {
-            PinnedQuestsTracker.INSTANCE.tick(ClientQuestFile.INSTANCE);
+            PinnedQuestsTracker.INSTANCE.tick(ClientQuestFile.getInstance());
 
             if (observationTasks == null) {
                 observationTasks = ClientQuestFile.INSTANCE.collect(ObservationTask.class);

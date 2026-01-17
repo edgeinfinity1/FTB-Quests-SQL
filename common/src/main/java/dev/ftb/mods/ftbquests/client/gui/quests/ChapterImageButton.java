@@ -22,6 +22,7 @@ import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.net.EditObjectMessage;
 import dev.ftb.mods.ftbquests.quest.ChapterImage;
 import dev.ftb.mods.ftbquests.quest.Movable;
@@ -211,7 +212,7 @@ public class ChapterImageButton extends Button implements QuestPositionableButto
 		Icon<?> image = chapterImage.getImage();
 
 		// if we've got this far and the image shouldn't normally be drawn, we must be in edit mode
-		boolean transparent = !chapterImage.shouldShowImage(questScreen.file.selfTeamData);
+		boolean transparent = !chapterImage.shouldShowImage(FTBQuestsClient.getClientPlayerData());
 		if (transparent) {
 			image = image.withColor(Color4I.WHITE.withAlpha(100));
 		} else if (!chapterImage.getColor().equals(Color4I.WHITE) || chapterImage.getAlpha() < 255) {

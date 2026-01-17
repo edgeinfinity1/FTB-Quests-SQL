@@ -2,6 +2,7 @@ package dev.ftb.mods.ftbquests.block.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Util;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.player.Player;
@@ -56,6 +57,14 @@ public class TaskScreenAuxBlockEntity extends BlockEntity implements ITaskScreen
 
         this.coreScreen = new WeakReference<>(coreScreen);
         setChanged();
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState) {
+        if (level instanceof ServerLevel serverLevel) {
+            // just break the core screen and let it handle the multiblock removal logic
+            getCoreScreen().ifPresent(coreScreen -> serverLevel.removeBlock(coreScreen.getBlockPos(), false));
+        }
     }
 
     @Override

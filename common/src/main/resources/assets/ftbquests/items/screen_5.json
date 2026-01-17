@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "ftbquests:block/screen_5"
+    "model": "ftbquests:block/screen"
   }
 }

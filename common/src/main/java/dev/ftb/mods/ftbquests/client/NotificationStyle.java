@@ -39,10 +39,12 @@ public enum NotificationStyle {
         this.onReward = onReward;
     }
     public boolean notifyCompletion(long id) {
-        QuestObject object = ClientQuestFile.INSTANCE.get(id);
-        if (object != null) {
-            onComplete.accept(object);
-            return true;
+        if (ClientQuestFile.exists()) {
+            QuestObject object = ClientQuestFile.getInstance().get(id);
+            if (object != null) {
+                onComplete.accept(object);
+                return true;
+            }
         }
         return false;
     }

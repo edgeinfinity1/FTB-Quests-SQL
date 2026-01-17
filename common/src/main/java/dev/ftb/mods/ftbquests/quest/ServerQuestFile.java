@@ -44,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
@@ -61,6 +62,21 @@ public class ServerQuestFile extends BaseQuestFile {
 	private Path folder;
 	@Nullable
 	private ServerPlayer currentPlayer = null;
+
+	public static void startup(MinecraftServer server) {
+		INSTANCE = new ServerQuestFile(server);
+	}
+
+	public static void shutdown() {
+		ServerQuestFile sqf = getInstance();
+		sqf.saveNow();
+		sqf.unload();
+		INSTANCE = null;
+	}
+
+	public static ServerQuestFile getInstance() {
+		return Objects.requireNonNull(INSTANCE);
+	}
 
 	public ServerQuestFile(MinecraftServer s) {
 		server = s;

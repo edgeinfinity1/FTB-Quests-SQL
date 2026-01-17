@@ -45,7 +45,7 @@ public class OtherButtonsPanelBottom extends OtherButtonsPanel {
 			add(new EditSettingsButton(this));
 		}
 
-		if (FTBQuestsClient.getClientPlayer().permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) || ClientQuestFile.INSTANCE.hasEditorPermission()) {
+		if (FTBQuestsClient.getClientPlayer().permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) || ClientQuestFile.getInstance().hasEditorPermission()) {
 			// note: single player owner can't use the GUI button but can use the /ftbquests editing_mode command
 			// this is intentional, since there should not be an obvious "cheat" button for single player questing
 			add(new ToggleEditModeButton(this));
@@ -70,14 +70,14 @@ public class OtherButtonsPanelBottom extends OtherButtonsPanel {
 
 		private static Component makeTooltip() {
 			String key = ClientQuestFile.canClientPlayerEdit() ? "commands.ftbquests.editing_mode.enabled" : "commands.ftbquests.editing_mode.disabled";
-			return Component.translatable(key, ClientQuestFile.INSTANCE.selfTeamData.getName());
+			return Component.translatable(key, FTBQuestsClient.getClientPlayerData().getName());
 		}
 
 		@Override
 		public void onClicked(MouseButton button) {
 			playClickSound();
 
-			if (!questScreen.file.selfTeamData.getCanEdit(Minecraft.getInstance().player)) {
+			if (!FTBQuestsClient.getClientPlayerData().getCanEdit(FTBQuestsClient.getClientPlayer())) {
 				StructureTask.maybeRequestStructureSync();
 			}
 
@@ -126,10 +126,10 @@ public class OtherButtonsPanelBottom extends OtherButtonsPanel {
 					b -> questScreen.file.onEditButtonClicked(this)));
 
 			contextMenu.add(new ContextMenuItem(Component.translatable("ftbquests.gui.reset_progress"), ThemeProperties.RELOAD_ICON.get(),
-					b -> ChangeProgressMessage.sendToServer(questScreen.file.selfTeamData, questScreen.file, progressChange -> progressChange.setReset(true)))
+					b -> ChangeProgressMessage.sendToServer(FTBQuestsClient.getClientPlayerData(), questScreen.file, progressChange -> progressChange.setReset(true)))
 					.setYesNoText(Component.translatable("ftbquests.gui.reset_progress_q")));
 			contextMenu.add(new ContextMenuItem(Component.translatable("ftbquests.gui.complete_instantly"), ThemeProperties.CHECK_ICON.get(),
-					b -> ChangeProgressMessage.sendToServer(questScreen.file.selfTeamData, questScreen.file, progressChange -> progressChange.setReset(false)))
+					b -> ChangeProgressMessage.sendToServer(FTBQuestsClient.getClientPlayerData(), questScreen.file, progressChange -> progressChange.setReset(false)))
 					.setYesNoText(Component.translatable("ftbquests.gui.complete_instantly_q")));
 
 			contextMenu.add(new TooltipContextMenuItem(Component.translatable("ftbquests.reward_tables"), ThemeProperties.REWARD_TABLE_ICON.get(),
@@ -151,7 +151,7 @@ public class OtherButtonsPanelBottom extends OtherButtonsPanel {
 			Minecraft mc = Minecraft.getInstance();
 			//FIXME: mc.getTextureManager().onResourceManagerReload(mc.getResourceManager());
 			ThemeLoader.loadTheme(mc.getResourceManager());
-			ClientQuestFile.INSTANCE.refreshGui();
+			ClientQuestFile.getInstance().refreshGui();
 			Minecraft.getInstance().getToastManager().addToast(new CustomToast(Component.translatable("ftbquests.gui.reload_theme"), Icons.ACCEPT, Component.translatable("gui.done")));
 		}
 
@@ -166,8 +166,8 @@ public class OtherButtonsPanelBottom extends OtherButtonsPanel {
 				appendNum(fileName, time.get(Calendar.MINUTE), '-');
 				appendNum(fileName, time.get(Calendar.SECOND), '\0');
 				File file = new File(Minecraft.getInstance().gameDirectory, fileName.toString()).getCanonicalFile();
-				ClientQuestFile.INSTANCE.writeDataFull(file.toPath(), ClientQuestFile.INSTANCE.holderLookup());
-				ClientQuestFile.INSTANCE.getTranslationManager().saveToNBT(file.toPath().resolve("lang"), true);
+				ClientQuestFile.getInstance().writeDataFull(file.toPath(), ClientQuestFile.getInstance().holderLookup());
+				ClientQuestFile.getInstance().getTranslationManager().saveToNBT(file.toPath().resolve("lang"), true);
 
                 String p = "." + file.getPath().replace(Minecraft.getInstance().gameDirectory.getCanonicalFile().getAbsolutePath(), "");
 				Component component = Component.translatable("ftbquests.gui.saved_as_file", p)

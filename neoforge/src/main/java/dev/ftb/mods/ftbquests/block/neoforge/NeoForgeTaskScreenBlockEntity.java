@@ -21,6 +21,8 @@ import dev.ftb.mods.ftbquests.quest.task.FluidTask;
 import dev.ftb.mods.ftbquests.quest.task.ItemTask;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 
+import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
 import org.jspecify.annotations.NonNull;
 
 public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
@@ -69,8 +71,8 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
     }
 
     private class TaskItemHandler implements ResourceHandler<ItemResource> {
-        private long progress;
-        private final ProgressSnapshot snapshot = new ProgressSnapshot(this.progress);
+        private long inserted;
+        private final ProgressSnapshot snapshot = new ProgressSnapshot(() -> inserted, a -> inserted = a);
 
         @Override
         public int size() {
@@ -106,14 +108,14 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
         @Override
         public int insert(int index, ItemResource resource, int amount, @NonNull TransactionContext transaction) {
             TeamData data = getCachedTeamData();
-            ItemStack stack = resource.toStack();
+            ItemStack stack = resource.toStack(amount);
             if (getTask() instanceof ItemTask itemTask && data.canStartTasks(itemTask.getQuest())) {
                 // task.insert() handles testing the item is valid and the task isn't already completed
                 ItemStack res = itemTask.insert(data, stack, true);
                 int nAdded = stack.getCount() - res.getCount();
                 if (nAdded > 0) {
                     this.snapshot.updateSnapshots(transaction);
-                    progress = getCachedTeamData().getProgress(itemTask) + nAdded;
+                    inserted += nAdded;
                 }
                 return nAdded;
             }
@@ -125,10 +127,10 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
             if (getTask() instanceof ItemTask itemTask && !isInputOnly() && !ItemMatchingSystem.INSTANCE.isItemFilter(itemTask.getItemStack())) {
                 TeamData data = getCachedTeamData();
                 if (data != null && data.canStartTasks(itemTask.getQuest()) && !data.isCompleted(itemTask)) {
-                    int nRemoved = (int) Math.min(data.getProgress(itemTask), amount);
+                    int nRemoved = (int) Math.min(data.getProgress(itemTask) - inserted, amount);
                     if (nRemoved > 0) {
                         this.snapshot.updateSnapshots(transaction);
-                        progress = getCachedTeamData().getProgress(itemTask) - nRemoved;
+                        inserted -= nRemoved;
                     }
                     return nRemoved;
                 }
@@ -138,8 +140,8 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
     }
 
     private class TaskFluidHandler implements ResourceHandler<FluidResource> {
-        private long progress;
-        private final ProgressSnapshot snapshot = new ProgressSnapshot(this.progress);
+        private long inserted;
+        private final ProgressSnapshot snapshot = new ProgressSnapshot(() -> inserted, a -> inserted = a);
 
         @Override
         public int size() {
@@ -173,12 +175,12 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
             if (getTask() instanceof FluidTask fluidTask) {
                 TeamData data = getCachedTeamData();
                 if (data != null && data.canStartTasks(fluidTask.getQuest()) && !data.isCompleted(fluidTask) && fluidTask.getFluid() == resource.getFluid()) {
-                    long curProgress = data.getProgress(fluidTask);
+                    long curProgress = data.getProgress(fluidTask) + inserted;
                     long space = fluidTask.getMaxProgress() - curProgress;
                     long toAdd = Math.min(amount, space);
                     if (toAdd > 0L) {
                         this.snapshot.updateSnapshots(transaction);
-                        progress = curProgress + toAdd;
+                        inserted += toAdd;
                     }
                     return Math.toIntExact(toAdd);
                 }
@@ -192,11 +194,11 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
             if (getTask() instanceof FluidTask fluidTask) {
                 TeamData data = getCachedTeamData();
                 if (data != null && data.canStartTasks(fluidTask.getQuest()) && !data.isCompleted(fluidTask)) {
-                    long curProgress = data.getProgress(fluidTask);
+                    long curProgress = data.getProgress(fluidTask) + inserted;
                     long toTake = Math.min(amount, curProgress);
                     if (toTake > 0L) {
                         this.snapshot.updateSnapshots(transaction);
-                        progress = curProgress - toTake;
+                        inserted -= toTake;
                     }
                     return Math.toIntExact(toTake);
                 }
@@ -207,8 +209,8 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
     }
 
     private class TaskEnergyHandler implements EnergyHandler {
-        private long progress;
-        private final ProgressSnapshot snapshot = new ProgressSnapshot(this.progress);
+        private long inserted;
+        private final ProgressSnapshot snapshot = new ProgressSnapshot(() -> inserted, a -> inserted = a);
 
         @Override
         public long getAmountAsLong() {
@@ -225,13 +227,13 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
             if (getTask() instanceof EnergyTask energyTask) {
                 TeamData data = getCachedTeamData();
                 if (data != null && data.canStartTasks(energyTask.getQuest()) && !data.isCompleted(energyTask)) {
-                    long space = energyTask.getMaxProgress() - data.getProgress(energyTask);
-                    long toAdd = Math.min(energyTask.getMaxInput(), Math.min(amount, space));
-                    if (toAdd > 0L) {
+                    long space = energyTask.getMaxProgress() - data.getProgress(energyTask) - inserted;
+                    long toInsert = Math.min(energyTask.getMaxInput(), Math.min(amount, space));
+                    if (toInsert > 0L) {
                         this.snapshot.updateSnapshots(transaction);
-                        progress = data.getProgress(energyTask) + toAdd;
+                        inserted += toInsert;
                     }
-                    return Math.toIntExact(toAdd);
+                    return Math.toIntExact(toInsert);
                 }
             }
             return 0;
@@ -244,37 +246,33 @@ public class NeoForgeTaskScreenBlockEntity extends TaskScreenBlockEntity {
     }
 
     private class ProgressSnapshot extends SnapshotJournal<Long> {
-        private long parentProgressRef;
+        private final LongSupplier progressGetter;
+        private final LongConsumer progressSetter;
 
-        public ProgressSnapshot(long parentProgress) {
-            this.parentProgressRef = parentProgress;
+        public ProgressSnapshot(LongSupplier progressGetter, LongConsumer progressSetter) {
+            this.progressGetter = progressGetter;
+            this.progressSetter = progressSetter;
         }
 
         @Override
         protected Long createSnapshot() {
-            var teamData = getCachedTeamData();
-            if (teamData == null) {
-                return 0L;
-            }
-
-            return getCachedTeamData().getProgress(getTask());
+            return progressGetter.getAsLong();
         }
 
         @Override
         protected void revertToSnapshot(Long snapshot) {
-            parentProgressRef = snapshot;
+            progressSetter.accept(snapshot);
         }
 
         @Override
         protected void onRootCommit(Long originalState) {
-            TeamData data = getCachedTeamData();
-            if (data == null) {
-                return;
-            }
-
-            long newState = parentProgressRef;
-            if (!originalState.equals(newState)) {
-                data.setProgress(getTask(), newState);
+            long inserted = progressGetter.getAsLong();
+            if (!originalState.equals(inserted)) {
+                TeamData data = getCachedTeamData();
+                if (data != null) {
+                    data.setProgress(getTask(), data.getProgress(getTask()) + inserted);
+                }
+                progressSetter.accept(0L);
             }
         }
     }

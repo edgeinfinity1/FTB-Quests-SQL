@@ -44,7 +44,7 @@ public enum PinnedQuestsTracker {
     }
 
     private void collectPinnedQuests(ClientQuestFile file) {
-        TeamData data = file.selfTeamData;
+        TeamData data = FTBQuestsClient.getClientPlayerData();
 
         showChapterTitle = false;
         List<Quest> pinnedQuests = new ArrayList<>();
@@ -108,7 +108,7 @@ public enum PinnedQuestsTracker {
 
         MutableComponent title = Component.translatable("ftbquests.pinned");
         if (showChapterTitle) {
-            ClientQuestFile.INSTANCE.getQuestScreen().flatMap(QuestScreen::getSelectedChapter)
+            ClientQuestFile.getInstance().getQuestScreen().flatMap(QuestScreen::getSelectedChapter)
                     .ifPresent(chapter -> title.append(": ").append(chapter.getTitle()));
         }
 

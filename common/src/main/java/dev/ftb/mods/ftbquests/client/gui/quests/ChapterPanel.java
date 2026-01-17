@@ -71,7 +71,7 @@ public class ChapterPanel extends Panel {
 
 		boolean canEdit = questScreen.file.canEdit();
 
-		for (Chapter chapter : questScreen.file.getDefaultChapterGroup().getVisibleChapters(questScreen.file.selfTeamData)) {
+		for (Chapter chapter : questScreen.file.getDefaultChapterGroup().getVisibleChapters(FTBQuestsClient.getClientPlayerData())) {
 			add(new ChapterButton(this, chapter));
 		}
 
@@ -247,7 +247,7 @@ public class ChapterPanel extends Panel {
 					chapterPanel.questScreen.openGui();
 
 					if (accepted) {
-						ChapterGroup group = new ChapterGroup(0L, ClientQuestFile.INSTANCE);
+						ChapterGroup group = new ChapterGroup(0L, ClientQuestFile.getInstance());
 						CompoundTag extra = Util.make(new CompoundTag(), t -> t.putLong("group", 0L));
 						file.getTranslationManager().addInitialTranslation(extra, file.getLocale(), TranslationKey.TITLE, c.getValue());
 						NetworkManager.sendToServer(CreateObjectMessage.create(group, extra));
@@ -310,7 +310,7 @@ public class ChapterPanel extends Panel {
 			super(panel, g.getTitle(), g.getIcon());
 			setSize(100, 18);
 			group = g;
-			visibleChapters = g.getVisibleChapters(panel.questScreen.file.selfTeamData);
+			visibleChapters = g.getVisibleChapters(FTBQuestsClient.getClientPlayerData());
 			xlateWarning = g.getQuestFile().getTranslationManager().hasMissingTranslation(group, TranslationKey.TITLE);
 		}
 
@@ -479,18 +479,16 @@ public class ChapterPanel extends Panel {
 				IconHelper.renderIcon(Color4I.WHITE.withAlpha(40), graphics, x + 1, y, w - 2, h);
 			}
 
-			Color4I c = chapter.getProgressColor(chapterPanel.questScreen.file.selfTeamData, !isMouseOver());
+			Color4I c = chapter.getProgressColor(FTBQuestsClient.getClientPlayerData(), !isMouseOver());
 			int xOff = chapter.getGroup().isDefaultGroup() ? 0 : 7;
 
 			IconHelper.renderIcon(icon, graphics, x + 2 + xOff, y + 1, 12, 12);
 			MutableComponent text = Component.literal("").append(title).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(c.rgb())));
 			theme.drawString(graphics, text, x + 16 + xOff, y + 3);
 
-//			GuiHelper.setupDrawing();
-
 			if (!chapter.hasAnyVisibleChildren()) {
 				IconHelper.renderIcon(ThemeProperties.CLOSE_ICON.get(), graphics, x + w - 12, y + 3, 8, 8);
-			} else if (chapterPanel.questScreen.file.selfTeamData.hasUnclaimedRewards(Minecraft.getInstance().player.getUUID(), chapter)) {
+			} else if (FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(FTBQuestsClient.getClientPlayer().getUUID(), chapter)) {
 				IconHelper.renderIcon(ThemeProperties.ALERT_ICON.get(), graphics, x + w - 12, y + 3, 8, 8);
 			}
 		}
@@ -515,7 +513,7 @@ public class ChapterPanel extends Panel {
 		public int getActualWidth(QuestScreen screen) {
 			int extra = chapter.getGroup().isDefaultGroup() ? 0 : 7;
 
-			if (!chapter.hasAnyVisibleChildren() || chapterPanel.questScreen.file.selfTeamData.hasUnclaimedRewards(Minecraft.getInstance().player.getUUID(), chapter)) {
+			if (!chapter.hasAnyVisibleChildren() || FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(FTBQuestsClient.getClientPlayer().getUUID(), chapter)) {
 				// space for the "X" marker
 				extra += 16;
 			}

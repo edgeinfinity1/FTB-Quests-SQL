@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "ftbquests:block/stage_barrier"
+    "model": "ftbquests:item/stage_barrier"
   }
 }

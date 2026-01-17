@@ -39,6 +39,7 @@ import dev.ftb.mods.ftbquests.net.BlockConfigResponseMessage;
 import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbquests.quest.task.ItemTask;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.registry.ModBlockEntityTypes;
 import dev.ftb.mods.ftbquests.registry.ModBlocks;
@@ -48,27 +49,29 @@ import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static dev.ftb.mods.ftbquests.block.TaskScreenBlock.FACING;
 
 public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskScreen {
     private long taskId = 0L;
+    @Nullable
     private Task task = null;
     private boolean indestructible = false;
     private boolean inputOnly = false;
-    private boolean textShadow = false;
+    private boolean textShadow = true;
     private ItemStack inputModeIcon = ItemStack.EMPTY;
     private ItemStack skin = ItemStack.EMPTY;
-    @NotNull
     private UUID teamId = Util.NIL_UUID;
-    public float[] fakeTextureUV = null;  // null for unknown, 0-array for no texture, 4-array for a texture
+    public float @Nullable [] fakeTextureUV = null;  // null for unknown, 0-array for no texture, 4-array for a texture
+    @Nullable
     private TeamData cachedTeamData = null;
 
     public TaskScreenBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(ModBlockEntityTypes.CORE_TASK_SCREEN.get(), blockPos, blockState);
     }
 
+    @Nullable
     public Task getTask() {
         if (task == null && taskId != 0L || task != null && task.id != taskId) {
             task = FTBQuestsAPI.api().getQuestFile(level.isClientSide()).getTask(taskId);
@@ -77,7 +80,11 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
         return task;
     }
 
-    public void setTask(Task task) {
+    public ItemStack getTaskItem() {
+        return task instanceof ItemTask itemTask ? itemTask.getItemStack() : ItemStack.EMPTY;
+    }
+
+    public void setTask(@Nullable Task task) {
         this.task = task;
         this.taskId = task == null ? 0L: task.id;
         setChanged();
@@ -136,11 +143,11 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
     }
 
     @Override
-    @NotNull
     public UUID getTeamId() {
         return teamId;
     }
 
+    @Nullable
     public TeamData getCachedTeamData() {
         if (cachedTeamData == null) {
             BaseQuestFile f = FTBQuestsAPI.api().getQuestFile(level.isClientSide());
@@ -154,7 +161,9 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
         return Optional.of(this);
     }
 
-    public void removeAllAuxScreens() {
+    @Override
+    public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState) {
+        // break all the auxiliary screen blocks for this core screen
         if (level != null && getBlockState().getBlock() instanceof TaskScreenBlock tsb) {
             BlockPos.betweenClosedStream(TaskScreenBlock.getMultiblockBounds(getBlockPos(), tsb.getSize(), getBlockState().getValue(FACING))).forEach(pos -> {
                 if (level.getBlockState(pos).getBlock() == ModBlocks.AUX_SCREEN.get()) {
@@ -227,11 +236,14 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
             }
         });
 
-        cg0.setNameKey(getBlockState().getBlock().getDescriptionId());
+        cg0.setNameKey(new ItemStack(getBlockState().getBlock()).getItem().getDescriptionId());
         EditableConfigGroup cg = cg0.getOrCreateSubgroup("screen");
-        cg.add("task", new EditableQuestObject<>(o -> isSuitableTask(data, o), this::formatLine), getTask(), this::setTask, null).setNameKey("ftbquests.task");
-        cg.add("skin", new EditableItemStack(true, true), getSkin(), this::setSkin, ItemStack.EMPTY).setNameKey("block.ftbquests.screen.skin");
-        cg.add("text_shadow", new EditableBoolean(), isTextShadow(), this::setTextShadow, false).setNameKey("block.ftbquests.screen.text_shadow");
+        cg.add("task", new EditableQuestObject<>(o -> isSuitableTask(data, o), this::formatLine), getTask(), this::setTask, null)
+                .setNameKey("ftbquests.task");
+        cg.add("skin", new EditableItemStack(true, true), getSkin(), this::setSkin, ItemStack.EMPTY)
+                .withFilter(s -> s.getItem() instanceof BlockItem)
+                .setNameKey("block.ftbquests.screen.skin");
+        cg.add("text_shadow", new EditableBoolean(), isTextShadow(), this::setTextShadow, true).setNameKey("block.ftbquests.screen.text_shadow");
         cg.add("indestructible", new EditableBoolean(), isIndestructible(), this::setIndestructible, false).setNameKey("block.ftbquests.screen.indestructible");
         cg.add("input_only", new EditableBoolean(), isInputOnly(), this::setInputOnly, false).setNameKey("block.ftbquests.screen.input_only");
         cg.add("input_icon", new EditableItemStack(true, true), getInputModeIcon(), this::setInputModeIcon, ItemStack.EMPTY).setNameKey("block.ftbquests.screen.input_mode_icon");
@@ -283,7 +295,7 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
 
     public record TaskScreenSaveData(long taskId, ItemStack skin, boolean indestructible, boolean inputOnly, ItemStack inputModeIcon, boolean textShadow) {
         public static TaskScreenSaveData DEFAULT = new TaskScreenSaveData(
-                0L, ItemStack.EMPTY, false, false, ItemStack.EMPTY, false
+                0L, ItemStack.EMPTY, false, true, ItemStack.EMPTY, false
         );
 
         public static TaskScreenSaveData fromBlockEntity(TaskScreenBlockEntity b) {
@@ -295,8 +307,8 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
                 ItemStack.CODEC.optionalFieldOf("skin", ItemStack.EMPTY).forGetter(TaskScreenSaveData::skin),
                 Codec.BOOL.optionalFieldOf("indestructible", false).forGetter(TaskScreenSaveData::indestructible),
                 Codec.BOOL.optionalFieldOf("input_only", false).forGetter(TaskScreenSaveData::inputOnly),
-                ItemStack.CODEC.optionalFieldOf("skin", ItemStack.EMPTY).forGetter(TaskScreenSaveData::inputModeIcon),
-                Codec.BOOL.optionalFieldOf("text_shadow", false).forGetter(TaskScreenSaveData::textShadow)
+                ItemStack.CODEC.optionalFieldOf("inputModeIcon", ItemStack.EMPTY).forGetter(TaskScreenSaveData::inputModeIcon),
+                Codec.BOOL.optionalFieldOf("text_shadow", true  ).forGetter(TaskScreenSaveData::textShadow)
         ).apply(builder, TaskScreenSaveData::new));
 
         public static StreamCodec<RegistryFriendlyByteBuf, TaskScreenSaveData> STREAM_CODEC = StreamCodec.composite(

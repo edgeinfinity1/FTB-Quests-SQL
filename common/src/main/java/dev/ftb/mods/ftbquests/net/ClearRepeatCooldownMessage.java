@@ -10,6 +10,7 @@ import dev.architectury.networking.NetworkManager;
 import dev.ftb.mods.ftblibrary.util.NetworkHelper;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 
@@ -30,8 +31,8 @@ public record ClearRepeatCooldownMessage(long id) implements CustomPacketPayload
 
 	public static void handle(ClearRepeatCooldownMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
-			if (ClientQuestFile.exists() && ClientQuestFile.INSTANCE.getBase(message.id) instanceof Quest quest) {
-				ClientQuestFile.INSTANCE.selfTeamData.clearRepeatCooldown(quest);
+			if (ClientQuestFile.exists() && ClientQuestFile.getInstance().getBase(message.id) instanceof Quest quest) {
+				FTBQuestsClient.getClientPlayerData().clearRepeatCooldown(quest);
 			}
 		});
 	}

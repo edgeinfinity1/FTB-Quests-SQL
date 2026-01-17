@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,11 +115,11 @@ public class FTBQuestsClient {
 	}
 
 	public static Player getClientPlayer() {
-		return Minecraft.getInstance().player;
+		return Objects.requireNonNull(Minecraft.getInstance().player);
 	}
 
 	public static Level getClientLevel() {
-		return Minecraft.getInstance().level;
+		return Objects.requireNonNull(Minecraft.getInstance().level);
 	}
 
 	public static boolean isClientDataLoaded() {
@@ -126,7 +127,7 @@ public class FTBQuestsClient {
 	}
 
 	public static TeamData getClientPlayerData() {
-		return ClientQuestFile.INSTANCE.selfTeamData;
+		return Objects.requireNonNull(ClientQuestFile.getInstance().selfTeamData);
 	}
 
 	public static BaseQuestFile createClientQuestFile() {

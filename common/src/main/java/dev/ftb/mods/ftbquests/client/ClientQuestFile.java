@@ -31,6 +31,7 @@ import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.client.KnownClientPlayer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -54,6 +55,10 @@ public class ClientQuestFile extends BaseQuestFile {
 
 	public static boolean exists() {
 		return INSTANCE != null && !INSTANCE.invalid;
+	}
+
+	public static ClientQuestFile getInstance() {
+		return Objects.requireNonNull(INSTANCE);
 	}
 
 	public static void syncFromServer(BaseQuestFile newInstance) {

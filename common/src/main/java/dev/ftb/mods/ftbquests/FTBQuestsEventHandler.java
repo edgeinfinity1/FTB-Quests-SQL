@@ -83,15 +83,13 @@ public enum FTBQuestsEventHandler {
 	}
 
 	private void serverStarted(MinecraftServer server) {
-		ServerQuestFile.INSTANCE.load();
+		ServerQuestFile.startup(server);
 	}
 
 	private void serverStopped(MinecraftServer server) {
 		clearCachedData();
 
-		ServerQuestFile.INSTANCE.saveNow();
-		ServerQuestFile.INSTANCE.unload();
-		ServerQuestFile.INSTANCE = null;
+		ServerQuestFile.shutdown();
 	}
 
 	private void worldSaved(ServerLevel level) {

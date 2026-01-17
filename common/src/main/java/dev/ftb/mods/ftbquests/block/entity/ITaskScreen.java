@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 public interface ITaskScreen extends IEditable {
     Optional<TaskScreenBlockEntity> getCoreScreen();
 
-    @NotNull
     UUID getTeamId();
 
     boolean isInputOnly();

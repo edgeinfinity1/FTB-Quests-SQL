@@ -54,12 +54,14 @@ import dev.ftb.mods.ftbquests.registry.ModDataComponents;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.Nullable;
+
+import org.jspecify.annotations.Nullable;
 
 import static dev.ftb.mods.ftbquests.block.QuestBarrierBlock.OPEN;
 
 public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
 	protected String objStr = "";
+	@Nullable
 	protected BlockState camo = null;
 	private boolean invisibleWhenOpen = false;
 	private ItemStack skin = ItemStack.EMPTY;
@@ -224,7 +226,7 @@ public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
 
 	@Override
 	public boolean hasPermissionToEdit(Player player) {
-		return FTBQuestsAPI.api().getQuestFile(level.isClientSide()).getTeamData(player)
+		return FTBQuestsAPI.api().getQuestFile(player.level().isClientSide()).getTeamData(player)
 				.map(team -> team.getCanEdit(player))
 				.orElse(false);
 	}
