@@ -23,7 +23,7 @@ public class FTBQuestsInventoryListener implements ContainerListener {
 	}
 
 	public static void detect(ServerPlayer player, ItemStack craftedItem, long sourceTask) {
-		ServerQuestFile file = ServerQuestFile.INSTANCE;
+		ServerQuestFile file = ServerQuestFile.getInstance();
 
 		if (file == null || PlayerHooks.isFake(player)) {
 			return;
@@ -60,7 +60,7 @@ public class FTBQuestsInventoryListener implements ContainerListener {
 				// Only checking for items in the main inventory & hotbar
 				// Armor slots can contain items with rapidly changing NBT (especially powered modded armor)
 				//  which can trigger a lot of unnecessary inventory scans
-				int delay = Mth.clamp(ServerQuestFile.INSTANCE.getDetectionDelay(), 0, 200);
+				int delay = Mth.clamp(ServerQuestFile.getInstance().getDetectionDelay(), 0, 200);
 				if (delay == 0) {
 					FTBQuestsInventoryListener.detect(player, ItemStack.EMPTY, 0);
 				} else {

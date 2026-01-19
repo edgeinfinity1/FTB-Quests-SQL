@@ -30,10 +30,10 @@ public record ClaimChoiceRewardMessage(long id, int index) implements CustomPack
 
 	public static void handle(ClaimChoiceRewardMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
-			Reward reward = ServerQuestFile.INSTANCE.getReward(message.id);
+			Reward reward = ServerQuestFile.getInstance().getReward(message.id);
 
 			if (reward instanceof ChoiceReward choiceReward && context.getPlayer() instanceof ServerPlayer serverPlayer) {
-				ServerQuestFile.INSTANCE.getTeamData(serverPlayer).ifPresent(data -> {
+				ServerQuestFile.getInstance().getTeamData(serverPlayer).ifPresent(data -> {
 					RewardTable table = choiceReward.getTable();
 
 					if (table != null && data.isCompleted(reward.getQuest())) {

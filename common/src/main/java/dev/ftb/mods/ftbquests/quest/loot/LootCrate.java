@@ -35,7 +35,7 @@ public final class LootCrate {
 		this.table = table;
 
 		if (initFromTable) {
-			initFromTable();
+			stringID = initFromTable();
 		} else {
 			stringID = table.toString();
 		}
@@ -45,9 +45,9 @@ public final class LootCrate {
 		return isClient ? LOOT_CRATES_CLIENT : LOOT_CRATES_SERVER;
 	}
 
-	public void initFromTable() {
-		stringID = buildStringID(table);
-		Defaults def = Defaults.NAME_MAP.getNullable(stringID);
+	private String initFromTable() {
+		String id = buildStringID(table);
+		Defaults def = Defaults.NAME_MAP.getNullable(id);
 		if (def != null) {
 			color = Color4I.rgb(def.color);
 			glow = def.glow;
@@ -55,6 +55,7 @@ public final class LootCrate {
 			drops.monster = def.monster;
 			drops.boss = def.boss;
 		}
+		return id;
 	}
 
 	private static String buildStringID(RewardTable table) {

@@ -77,7 +77,7 @@ public class SelectQuestObjectScreen<T extends QuestObjectBase> extends Abstract
 	public void addButtons(Panel panel) {
 		List<T> list = new ArrayList<>();
 
-		ClientQuestFile file = ClientQuestFile.INSTANCE;
+		ClientQuestFile file = ClientQuestFile.getInstance();
 		for (QuestObjectBase objectBase : file.getAllObjects()) {
 			if (config.predicate.test(objectBase) &&
 					(file.canEdit() || (!(objectBase instanceof QuestObject qo) || qo.isSearchable(file.selfTeamData)))) {

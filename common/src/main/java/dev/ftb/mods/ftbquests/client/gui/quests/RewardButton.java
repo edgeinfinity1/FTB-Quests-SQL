@@ -18,12 +18,12 @@ import dev.ftb.mods.ftblibrary.client.gui.widget.Button;
 import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.gui.ContextMenuBuilder;
 import dev.ftb.mods.ftbquests.net.ReorderItemMessage;
 import dev.ftb.mods.ftbquests.quest.reward.ItemReward;
@@ -62,7 +62,7 @@ public class RewardButton extends Button {
 		if (reward.addTitleInMouseOverText()) {
 			if (reward instanceof ItemReward itemReward) {
 				TooltipFlag.Default flag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL;
-				itemReward.getItem().getTooltipLines(Item.TooltipContext.of(FTBQuestsClient.getClientLevel()), FTBQuestsClient.getClientPlayer(), flag)
+				itemReward.getItem().getTooltipLines(Item.TooltipContext.of(ClientUtils.getClientLevel()), ClientUtils.getClientPlayer(), flag)
 						.forEach(list::add);
 			} else {
 				list.add(getTitle());
@@ -109,10 +109,10 @@ public class RewardButton extends Button {
 			if (reward.getQuestFile().canEdit() && Minecraft.getInstance().hasAltDown()) {
 				reward.onEditButtonClicked(this);
 			} else if (ClientQuestFile.exists()) {
-				boolean canClick = questScreen.file.selfTeamData.getClaimType(FTBQuestsClient.getClientPlayer().getUUID(), reward).canClaim();
+				boolean canClick = questScreen.file.selfTeamData.getClaimType(ClientUtils.getClientPlayer().getUUID(), reward).canClaim();
 				reward.onButtonClicked(this, canClick);
             }
-		} else if (button.isRight() && ClientQuestFile.exists() && ClientQuestFile.INSTANCE.canEdit()) {
+		} else if (button.isRight() && ClientQuestFile.exists() && ClientQuestFile.getInstance().canEdit()) {
 			playClickSound();
 
 			ContextMenuBuilder builder = ContextMenuBuilder.create(reward, questScreen);

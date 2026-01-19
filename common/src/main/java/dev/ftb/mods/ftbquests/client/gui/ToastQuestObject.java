@@ -35,7 +35,7 @@ public class ToastQuestObject extends SimpleToast {
 	}
 
 	@Override
-	public Icon getIcon() {
+	public Icon<?> getIcon() {
 		return object.getIcon();
 	}
 

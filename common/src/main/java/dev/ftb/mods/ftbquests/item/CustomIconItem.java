@@ -49,7 +49,6 @@ public class CustomIconItem extends Item {
 			FTBQuestsClient.openCustomIconGui(player, interactionHand);
 		}
 
-//		return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(interactionHand));
         return InteractionResult.SUCCESS;
 	}
 
@@ -108,7 +107,8 @@ public class CustomIconItem extends Item {
 		if (stack.has(ModDataComponents.CUSTOM_ICON.get())) {
 			return Optional.of(Either.left(stack.get(ModDataComponents.CUSTOM_ICON.get())));
 		} else if (stack.has(ModDataComponents.ENTITY_FACE_ICON.get())) {
-			return Optional.of(Either.right(BuiltInRegistries.ENTITY_TYPE.get(stack.get(ModDataComponents.ENTITY_FACE_ICON.get())).orElseThrow().value()));
+            //noinspection DataFlowIssue
+            return Optional.of(Either.right(BuiltInRegistries.ENTITY_TYPE.get(stack.get(ModDataComponents.ENTITY_FACE_ICON.get())).orElseThrow().value()));
 		}
 		return Optional.empty();
 	}

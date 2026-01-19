@@ -28,7 +28,7 @@ public record SubmitTaskMessage(long taskId) implements CustomPacketPayload {
 	public static void handle(SubmitTaskMessage message, NetworkManager.PacketContext context) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
 			context.queue(() -> {
-				ServerQuestFile.INSTANCE.getTeamData(player).ifPresent(data -> {
+				ServerQuestFile.getInstance().getTeamData(player).ifPresent(data -> {
 					if (!data.isLocked()) {
 						Task task = data.getFile().getTask(message.taskId);
 						if (task != null && data.getFile() instanceof ServerQuestFile sqf && data.canStartTasks(task.getQuest())) {

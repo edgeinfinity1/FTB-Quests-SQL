@@ -566,7 +566,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 			if (questObject instanceof Quest quest) {
                 if (quest.getProgressionMode() == ProgressionMode.FLEXIBLE && quest.checkDependencies(data::isCompleted)) {
                     quest.tasks.forEach(task -> {
-                        if (data.getProgress(task.id) >= task.getMaxProgress()) {
+                        if (data.getProgress(task) >= task.getMaxProgress()) {
                             data.markTaskCompleted(task);
                         }
                     });

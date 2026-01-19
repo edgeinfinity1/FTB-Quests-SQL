@@ -44,6 +44,7 @@ import dev.architectury.platform.Platform;
 
 import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.client.config.editable.EditableItemStack;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.block.QuestBarrierBlock;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
@@ -54,7 +55,6 @@ import dev.ftb.mods.ftbquests.registry.ModDataComponents;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import org.jspecify.annotations.Nullable;
 
 import static dev.ftb.mods.ftbquests.block.QuestBarrierBlock.OPEN;
@@ -74,7 +74,7 @@ public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
 	public static void tick(Level level, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
 		if (blockEntity instanceof BaseBarrierBlockEntity barrier) {
 			if (level.isClientSide() && FTBQuestsClient.isClientDataLoaded() && level.getGameTime() % 5L == 0L) {
-				boolean completed = barrier.isOpen(FTBQuestsClient.getClientPlayer());
+				boolean completed = barrier.isOpen(ClientUtils.getClientPlayer());
 
 				if (completed != blockState.getValue(OPEN)) {
 					level.setBlock(blockPos, blockState.setValue(OPEN, completed), Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
@@ -89,17 +89,8 @@ public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
     protected void loadAdditional(ValueInput valueInput) {
         super.loadAdditional(valueInput);
 
-        Optional<String> object = valueInput.getString("Object");
-        object.ifPresent(objStr -> {
-            // TODO legacy - remove in 1.22
-            this.objStr = objStr;
-            skin = ItemStack.EMPTY;
-        });
-
-        if (object.isEmpty()) {
-            valueInput.read("savedData", BarrierSavedData.CODEC).ifPresent(this::applySavedData);
-        }
-    }
+		valueInput.read("savedData", BarrierSavedData.CODEC).ifPresent(this::applySavedData);
+	}
 
     @Override
     protected void saveAdditional(ValueOutput valueOutput) {
@@ -211,7 +202,7 @@ public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
 
 	public BlockState getClientAppearance() {
 		if (camo == null) {
-			if (isOpen(FTBQuestsClient.getClientPlayer())) {
+			if (isOpen(ClientUtils.getClientPlayer())) {
 				camo = invisibleWhenOpen ?
 						Blocks.AIR.defaultBlockState() :
 						ModBlocks.BARRIER.get().defaultBlockState().setValue(QuestBarrierBlock.OPEN, true);
@@ -341,8 +332,8 @@ public abstract class BaseBarrierBlockEntity extends EditableBlockEntity {
 			return relative ? this.withDestPos(basePos.offset(dest)) : this;
 		}
 
-		public void teleportPlayer(ServerPlayer player) {
-            if (player != null && player.level().getServer() != null && enabled) {
+		public void teleportPlayer(@Nullable ServerPlayer player) {
+            if (player != null && enabled) {
                 Vec3 dest = dest().getBottomCenter();
                 Level destLevel = Objects.requireNonNullElse(getLevel(player.level().getServer()), player.level());
                 if (destLevel instanceof ServerLevel serverLevel) {

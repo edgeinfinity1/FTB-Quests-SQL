@@ -246,6 +246,13 @@ public final class Chapter extends QuestObject {
 		buffer.writeInt(defaultMinWidth);
 		ProgressionMode.NAME_MAP.write(buffer, progressionMode);
 
+		int flags = makeFlags();
+		buffer.writeVarInt(flags);
+
+		if (!autoFocusId.isEmpty()) buffer.writeLong(QuestObjectBase.parseHexId(autoFocusId).orElse(0L));
+	}
+
+	private int makeFlags() {
 		int flags = 0;
 		flags = Bits.setFlag(flags, 0x01, alwaysInvisible);
 		flags = Bits.setFlag(flags, 0x02, defaultHideDependencyLines);
@@ -258,9 +265,7 @@ public final class Chapter extends QuestObject {
 		flags = Bits.setFlag(flags, 0x100, !autoFocusId.isEmpty());
 		flags = Bits.setFlag(flags, 0x200, hideQuestUntilDepsVisible);
 		flags = Bits.setFlag(flags, 0x400, hideTextUntilComplete);
-		buffer.writeVarInt(flags);
-
-		if (!autoFocusId.isEmpty()) buffer.writeLong(QuestObjectBase.parseHexId(autoFocusId).orElse(0L));
+		return flags;
 	}
 
 	@Override
@@ -556,7 +561,7 @@ public final class Chapter extends QuestObject {
 	}
 
 	public Optional<Movable> getAutofocus() {
-		if (autoFocusId != null && !autoFocusId.isEmpty()) {
+		if (!autoFocusId.isEmpty()) {
 			return QuestObjectBase.parseHexId(autoFocusId)
 					.flatMap(id -> file.get(id) instanceof Movable m && m.getChapter() == this ?
 							Optional.of(m) :

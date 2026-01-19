@@ -60,9 +60,9 @@ public class RewardTablesScreen extends AbstractButtonListScreen {
 		super();
 
 		this.questScreen = questScreen;
-		this.rewardTablesCopy = ClientQuestFile.INSTANCE.getRewardTables().stream()
+		this.rewardTablesCopy = ClientQuestFile.getInstance().getRewardTables().stream()
 				.map(table -> QuestObjectBase.copy(table,
-						() -> new RewardTable(table.id, ClientQuestFile.INSTANCE)))
+						() -> new RewardTable(table.id, ClientQuestFile.getInstance())))
 				.collect(Collectors.toCollection(ArrayList::new));
 
 		setTitle(Component.translatable("ftbquests.reward_tables"));
@@ -76,8 +76,8 @@ public class RewardTablesScreen extends AbstractButtonListScreen {
 
 				EditableString editable = new EditableString();
 				EditStringConfigOverlay<String> panel = new EditStringConfigOverlay<>(getGui(), editable, accepted -> {
-					if (accepted) {
-						RewardTable table = new RewardTable(0L, ClientQuestFile.INSTANCE);
+					if (accepted && editable.getValue() != null) {
+						RewardTable table = new RewardTable(0L, ClientQuestFile.getInstance());
 						table.setRawTitle(editable.getValue());
 						rewardTablesCopy.add(table);
 						refreshWidgets();
@@ -161,7 +161,7 @@ public class RewardTablesScreen extends AbstractButtonListScreen {
 	}
 
 	private static CreateObjectMessage makeCreationPacket(RewardTable table) {
-		ClientQuestFile file = ClientQuestFile.INSTANCE;
+		ClientQuestFile file = ClientQuestFile.getInstance();
 		CompoundTag extra = Util.make(new CompoundTag(), tag -> file.getTranslationManager().addInitialTranslation(
 				tag, file.getLocale(), TranslationKey.TITLE, table.getRawTitle())
 		);
@@ -320,7 +320,7 @@ public class RewardTablesScreen extends AbstractButtonListScreen {
 				list.add(getLootCrateText());
 			} else {
 				MutableInt usedIn = new MutableInt(0);
-				ClientQuestFile.INSTANCE.forAllQuests(quest -> quest.getRewards().stream()
+				ClientQuestFile.getInstance().forAllQuests(quest -> quest.getRewards().stream()
 						.filter(reward -> reward instanceof RandomReward rr && rr.getTable() != null && rr.getTable().id == table.id)
 						.forEach(reward -> usedIn.increment()));
 				list.add(Component.translatable("ftbquests.reward_table.used_in", usedIn));

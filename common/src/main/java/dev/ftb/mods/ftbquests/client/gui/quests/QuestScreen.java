@@ -143,7 +143,7 @@ public class QuestScreen extends BaseScreen {
 
 	@Override
 	public boolean doesGuiPauseGame() {
-		return ClientQuestFile.INSTANCE.isPauseGame();
+		return ClientQuestFile.getInstance().isPauseGame();
 	}
 
 	@Override
@@ -292,11 +292,11 @@ public class QuestScreen extends BaseScreen {
 		}
 
 		long delId = deletionFocus == null ? object.id : deletionFocus.getMovableID();
-		QuestObjectBase delObject = ClientQuestFile.INSTANCE.getBase(delId);
+		QuestObjectBase delObject = ClientQuestFile.getInstance().getBase(delId);
 		if (delObject != null) {
 			ContextMenuItem delete = new ContextMenuItem(Component.translatable("selectServer.delete"),
 					ThemeProperties.DELETE_ICON.get(),
-					b -> ClientQuestFile.INSTANCE.deleteObject(delId));
+					b -> ClientQuestFile.getInstance().deleteObject(delId));
 			if (!isShiftKeyDown()) {
 				delete.setYesNoText(Component.translatable("delete_item", delObject.getTitle()));
 			}
@@ -811,7 +811,7 @@ public class QuestScreen extends BaseScreen {
 				file.selfTeamData.getCompletedTime(object.id)
 						.ifPresent(date -> list.add(formatDate("Completed", date)));
 			} else if (object instanceof Reward r) {
-				file.selfTeamData.getRewardClaimTime(FTBQuestsClient.getClientPlayer().getUUID(), r)
+				file.selfTeamData.getRewardClaimTime(ClientUtils.getClientPlayer().getUUID(), r)
 						.ifPresent(date -> list.add(formatDate("Claimed", date)));
 			}
 		}

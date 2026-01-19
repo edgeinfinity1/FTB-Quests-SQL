@@ -39,7 +39,7 @@ public class TranslationManager {
     }
 
     public static void syncTable(ServerPlayer player, String language) {
-        ServerQuestFile file = ServerQuestFile.INSTANCE;
+        ServerQuestFile file = ServerQuestFile.getInstance();
         if (file != null && file.isValid()) {
             file.getTranslationManager().sendTableToPlayer(player, language);
         }
@@ -176,7 +176,7 @@ public class TranslationManager {
 
     public void sendTranslationsToPlayer(ServerPlayer player) {
         Set<String> toSend = new HashSet<>();
-        String fallback = ServerQuestFile.INSTANCE.getFallbackLocale();
+        String fallback = ServerQuestFile.getInstance().getFallbackLocale();
 
         toSend.add(DEFAULT_FALLBACK_LOCALE);
         toSend.add(fallback);

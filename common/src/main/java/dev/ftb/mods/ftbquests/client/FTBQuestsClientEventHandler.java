@@ -28,6 +28,7 @@ import dev.ftb.mods.ftblibrary.api.sidebar.SidebarButtonCreatedEvent;
 import dev.ftb.mods.ftblibrary.client.gui.CustomClickEvent;
 import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.block.entity.TaskScreenBlockEntity;
@@ -115,7 +116,7 @@ public class FTBQuestsClientEventHandler {
                         return "[X]";
                     } else if (FTBQuestsClient.getClientPlayerData().isLocked()) {
                         return "[X]";
-                    } else if (FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(FTBQuestsClient.getClientPlayer().getUUID(), ClientQuestFile.getInstance())) {
+                    } else if (FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(ClientUtils.getClientPlayer().getUUID(), ClientQuestFile.getInstance())) {
                         return "[!]";
                     }
                 }
@@ -160,7 +161,7 @@ public class FTBQuestsClientEventHandler {
             PinnedQuestsTracker.INSTANCE.tick(ClientQuestFile.getInstance());
 
             if (observationTasks == null) {
-                observationTasks = ClientQuestFile.INSTANCE.collect(ObservationTask.class);
+                observationTasks = ClientQuestFile.getInstance().collect(ObservationTask.class);
             }
 
             if (observationTasks.isEmpty()) {
@@ -169,7 +170,7 @@ public class FTBQuestsClientEventHandler {
 
             currentlyObserving = null;
 
-            TeamData selfTeamData = ClientQuestFile.INSTANCE.selfTeamData;
+            TeamData selfTeamData = ClientQuestFile.getInstance().selfTeamData;
             if (mc.hitResult != null && mc.hitResult.getType() != HitResult.Type.MISS) {
                 for (ObservationTask task : observationTasks) {
                     if (!selfTeamData.isCompleted(task) && task.observe(mc.player, mc.hitResult)

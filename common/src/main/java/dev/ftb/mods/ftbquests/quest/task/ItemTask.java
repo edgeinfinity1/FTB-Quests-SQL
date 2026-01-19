@@ -13,13 +13,13 @@ import net.minecraft.world.item.TooltipFlag;
 
 import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.client.config.Tristate;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
 import dev.ftb.mods.ftblibrary.math.Bits;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.integration.item_filtering.ItemMatchingSystem;
 import dev.ftb.mods.ftbquests.integration.item_filtering.ItemMatchingSystem.ComponentMatchType;
 import dev.ftb.mods.ftbquests.item.MissingItem;
@@ -224,8 +224,8 @@ public class ItemTask extends Task implements Predicate<ItemStack> {
 			// use item's tooltip, but include a count with the item name (e.g. "3 x Stick") if appropriate
 			ItemStack stack = getIcon() instanceof ItemIcon i ? i.getStack() : itemStack;
 			List<Component> lines = stack.getTooltipLines(Item.TooltipContext.of(
-					FTBQuestsClient.getClientLevel()),
-					FTBQuestsClient.getClientPlayer(),
+					ClientUtils.getClientLevel()),
+					ClientUtils.getClientPlayer(),
 					advanced ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL
 			);
 			if (!lines.isEmpty()) {

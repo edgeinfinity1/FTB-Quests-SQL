@@ -13,31 +13,32 @@ import dev.ftb.mods.ftbquests.quest.Quest;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.Nullable;
+import org.apache.commons.lang3.Validate;
+import org.jspecify.annotations.Nullable;
 
 public final class RewardType {
 	private final Identifier typeId;
 	private final Provider provider;
-	private final Supplier<Icon> iconSupplier;
-	private Component displayName;
+	private final Supplier<Icon<?>> iconSupplier;
+	private final Component displayName;
+	@Nullable
 	private GuiProvider guiProvider;
 	private boolean excludeFromListRewards = false;
 	public int intId;
 
-	public RewardType(Identifier typeId, Provider provider, Supplier<Icon> iconSupplier, boolean availableByDefault) {
+	public RewardType(Identifier typeId, Provider provider, Supplier<Icon<?>> iconSupplier, boolean availableByDefault) {
 		this.typeId = typeId;
 		this.provider = provider;
 		this.iconSupplier = iconSupplier;
 
-		displayName = null;
+		displayName = Component.translatable(typeId.toLanguageKey("ftbquests.reward"));
 		guiProvider = availableByDefault ? GuiProviders.defaultRewardGuiProvider(provider) : null;
 	}
 
-	public RewardType(Identifier typeId, Provider provider, Supplier<Icon> iconSupplier) {
+	public RewardType(Identifier typeId, Provider provider, Supplier<Icon<?>> iconSupplier) {
 		this(typeId, provider, iconSupplier, true);
 	}
 
-	@Nullable
 	public static Reward createReward(long id, Quest quest, String typeId) {
 		if (typeId.isEmpty()) {
 			typeId = FTBQuestsAPI.MOD_ID + ":item";
@@ -46,8 +47,8 @@ public final class RewardType {
 		}
 
 		RewardType type = RewardTypes.TYPES.get(Identifier.tryParse(typeId));
-
-        return type == null ? null : type.provider.create(id, quest);
+		Validate.isTrue(type != null, "Unknown reward type: " + type);
+        return type.provider.create(id, quest);
     }
 
 	public Identifier getTypeId() {
@@ -66,20 +67,11 @@ public final class RewardType {
 		return Util.make(new CompoundTag(), t -> t.putString("type", getTypeForNBT()));
 	}
 
-	public RewardType setDisplayName(Component name) {
-		displayName = name;
-		return this;
-	}
-
 	public Component getDisplayName() {
-		if (displayName == null) {
-			displayName = Component.translatable("ftbquests.reward." + typeId.getNamespace() + '.' + typeId.getPath());
-		}
-
 		return displayName;
 	}
 
-	public Icon getIconSupplier() {
+	public Icon<?> getIconSupplier() {
 		return iconSupplier.get();
 	}
 

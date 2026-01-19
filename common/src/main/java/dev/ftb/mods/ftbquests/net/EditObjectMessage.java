@@ -28,9 +28,9 @@ public record EditObjectMessage(long id, CompoundTag nbt) implements CustomPacke
 
 	public static EditObjectMessage forQuestObject(QuestObjectBase qo) {
 		FTBQuests.getRecipeModHelper().refreshRecipes(qo);
-		ClientQuestFile.INSTANCE.clearCachedData();
+		ClientQuestFile.getInstance().clearCachedData();
 
-		return new EditObjectMessage(qo.id, Util.make(new CompoundTag(), nbt1 -> qo.writeData(nbt1, ClientQuestFile.INSTANCE.holderLookup())));
+		return new EditObjectMessage(qo.id, Util.make(new CompoundTag(), nbt1 -> qo.writeData(nbt1, ClientQuestFile.getInstance().holderLookup())));
 	}
 
 	public static void sendToServer(QuestObjectBase qo) {
@@ -45,11 +45,11 @@ public record EditObjectMessage(long id, CompoundTag nbt) implements CustomPacke
 	public static void handle(EditObjectMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
 			if (NetUtils.canEdit(context)) {
-				QuestObjectBase object = ServerQuestFile.INSTANCE.getBase(message.id);
+				QuestObjectBase object = ServerQuestFile.getInstance().getBase(message.id);
 				if (object != null) {
 					object.readData(message.nbt, context.registryAccess());
-					ServerQuestFile.INSTANCE.clearCachedData();
-					ServerQuestFile.INSTANCE.markDirty();
+					ServerQuestFile.getInstance().clearCachedData();
+					ServerQuestFile.getInstance().markDirty();
 					NetworkHelper.sendToAll(context.getPlayer().level().getServer(), new EditObjectResponseMessage(object));
 					object.editedFromGUIOnServer();
 				}

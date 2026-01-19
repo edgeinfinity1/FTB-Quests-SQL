@@ -31,6 +31,7 @@ import dev.architectury.networking.NetworkManager;
 import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
 import dev.ftb.mods.ftblibrary.client.config.editable.EditableBoolean;
 import dev.ftb.mods.ftblibrary.client.config.editable.EditableItemStack;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.block.TaskScreenBlock;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
@@ -251,7 +252,7 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
         return cg0;
     }
 
-    private Component formatLine(Task task) {
+    private Component formatLine(@Nullable Task task) {
         if (task == null) return Component.empty();
 
         Component questTxt = Component.literal(" [").append(task.getQuest().getTitle()).append("]").withStyle(ChatFormatting.GREEN);
@@ -259,7 +260,7 @@ public class TaskScreenBlockEntity extends EditableBlockEntity implements ITaskS
     }
 
     private boolean isSuitableTask(TeamData data, QuestObjectBase o) {
-        return o instanceof Task t && (data.getCanEdit(FTBQuestsClient.getClientPlayer()) || data.canStartTasks(t.getQuest())) && t.consumesResources();
+        return o instanceof Task t && (data.getCanEdit(ClientUtils.getClientPlayer()) || data.canStartTasks(t.getQuest())) && t.consumesResources();
     }
 
     public float[] getFakeTextureUV() {

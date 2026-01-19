@@ -59,14 +59,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 public class FTBQuestsCommands {
-	public static final SimpleCommandExceptionType NO_FILE = new SimpleCommandExceptionType(
-			Component.translatable("commands.ftbquests.command.error.no_file"));
 	public static final DynamicCommandExceptionType NO_OBJECT = new DynamicCommandExceptionType(
 			(object) -> Component.translatable("commands.ftbquests.command.error.no_object", object));
 	public static final DynamicCommandExceptionType INVALID_ID = new DynamicCommandExceptionType(
@@ -223,12 +221,9 @@ public class FTBQuestsCommands {
 	}
 
 	private static QuestObjectBase getQuestObjectForString(String idStr) throws CommandSyntaxException {
-		ServerQuestFile file = ServerQuestFile.INSTANCE;
-		if (file == null) {
-			throw NO_FILE.create();
-		}
+		ServerQuestFile file = ServerQuestFile.getInstance();
 
-		if (idStr.startsWith("#")) {
+        if (idStr.startsWith("#")) {
 			String val = idStr.substring(1);
 			for (QuestObjectBase qob : file.getAllObjects()) {
 				if (qob.hasTag(val)) {
@@ -250,13 +245,13 @@ public class FTBQuestsCommands {
 		if (qo instanceof Chapter) {
 			return true;
 		}
-		return ServerQuestFile.INSTANCE.getTeamData(player).map(data -> {
+		return ServerQuestFile.getInstance().getTeamData(player).map(data -> {
 			Quest quest = qo.getRelatedQuest();
 			return quest != null && (data.getCanEdit(player) || !quest.hideDetailsUntilStartable() || data.canStartTasks(quest));
 		}).orElse(false);
 	}
 
-	private static int openQuest(ServerPlayer player, String qobId) throws CommandSyntaxException {
+	private static int openQuest(ServerPlayer player, @Nullable String qobId) throws CommandSyntaxException {
 		if (qobId == null) {
 			NetworkManager.sendToPlayer(player, OpenQuestBookMessage.lastOpenedQuest());
 			return Command.SINGLE_SUCCESS;
@@ -295,10 +290,10 @@ public class FTBQuestsCommands {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	private static int importRewards(CommandSourceStack source, String name, BlockPos pos) throws CommandSyntaxException {
+	private static int importRewards(CommandSourceStack source, String name, @Nullable BlockPos pos) throws CommandSyntaxException {
 		ServerPlayer player = source.getPlayerOrException();
 		ServerLevel level = source.getLevel();
-		ServerQuestFile file = ServerQuestFile.INSTANCE;
+		ServerQuestFile file = ServerQuestFile.getInstance();
 
 		if (pos == null) {
 			pos = BlockPos.containing(player.pick(10, 1F, false).getLocation());
@@ -332,7 +327,7 @@ public class FTBQuestsCommands {
 	}
 
 	private static int editingMode(CommandSourceStack source, ServerPlayer player, @Nullable Boolean canEdit) {
-		return ServerQuestFile.INSTANCE.getTeamData(player).map(data -> {
+		return ServerQuestFile.getInstance().getTeamData(player).map(data -> {
 			boolean newCanEdit = Objects.requireNonNullElse(canEdit, !data.getCanEdit(player));
 
 			data.setCanEdit(player, newCanEdit);
@@ -348,7 +343,7 @@ public class FTBQuestsCommands {
 	}
 
 	private static int locked(CommandSourceStack source, ServerPlayer player, @Nullable Boolean locked) {
-		return ServerQuestFile.INSTANCE.getTeamData(player).map(data -> {
+		return ServerQuestFile.getInstance().getTeamData(player).map(data -> {
 			boolean newLocked = Objects.requireNonNullElse(locked, !data.isLocked());
 
 			data.setLocked(newLocked);
@@ -366,7 +361,7 @@ public class FTBQuestsCommands {
 	private static int changeProgress(CommandSourceStack source, Collection<ServerPlayer> players, boolean reset, String idStr) throws CommandSyntaxException {
 		QuestObjectBase questObject = getQuestObjectForString(idStr);
 		for (ServerPlayer player : players) {
-			ServerQuestFile.INSTANCE.getTeamData(player).ifPresent(data -> {
+			ServerQuestFile.getInstance().getTeamData(player).ifPresent(data -> {
 				ProgressChange progressChange = new ProgressChange(questObject, player.getUUID()).setReset(reset);
 				questObject.forceProgress(data, progressChange);
 				if (questObject instanceof Quest quest && reset) {
@@ -381,7 +376,7 @@ public class FTBQuestsCommands {
 	}
 
 	private static int deleteEmptyRewardTables(CommandSourceStack source) {
-		int removed = ServerQuestFile.INSTANCE.removeEmptyRewardTables(source);
+		int removed = ServerQuestFile.getInstance().removeEmptyRewardTables(source);
 
 		source.sendSuccess(() -> Component.translatable("commands.ftbquests.command.delete_empty_reward_tables.text", removed), false);
 
@@ -416,7 +411,7 @@ public class FTBQuestsCommands {
 			return 0;
 		}
 
-		ServerQuestFile file = ServerQuestFile.INSTANCE;
+		ServerQuestFile file = ServerQuestFile.getInstance();
 
 		long newId = file.newID();
 		Chapter chapter = new Chapter(newId, file, file.getDefaultChapterGroup());
@@ -448,6 +443,9 @@ public class FTBQuestsCommands {
 
 		for (ItemStack stack : list) {
 			Identifier id = RegistrarManager.getId(stack.getItem(), Registries.ITEM);
+			if (id == null) {
+				continue;
+			}
 			if (modid == null) {
 				modid = id.getNamespace();
 			}
@@ -485,7 +483,7 @@ public class FTBQuestsCommands {
 			return 0;
 		}
 
-		ServerQuestFile instance = ServerQuestFile.INSTANCE;
+		ServerQuestFile instance = ServerQuestFile.getInstance();
 		ServerPlayer sender = source.getPlayer();
 
 		instance.load(quests, progression);
@@ -507,8 +505,8 @@ public class FTBQuestsCommands {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	private static int toggleRewardBlocking(CommandSourceStack source, ServerPlayer player, Boolean doBlocking) {
-		return ServerQuestFile.INSTANCE.getTeamData(player).map(data -> {
+	private static int toggleRewardBlocking(CommandSourceStack source, ServerPlayer player, @Nullable Boolean doBlocking) {
+		return ServerQuestFile.getInstance().getTeamData(player).map(data -> {
 			boolean shouldBlock = Objects.requireNonNullElse(doBlocking, !data.areRewardsBlocked());
 			data.setRewardsBlocked(shouldBlock);
 

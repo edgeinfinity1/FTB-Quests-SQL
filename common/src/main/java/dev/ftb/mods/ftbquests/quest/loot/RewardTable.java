@@ -26,7 +26,6 @@ import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
 import dev.ftb.mods.ftblibrary.util.NetworkHelper;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.gui.EditRewardTableScreen;
 import dev.ftb.mods.ftbquests.client.gui.RewardTablesScreen;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
@@ -54,9 +53,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class RewardTable extends QuestObjectBase {
 	private final BaseQuestFile file;
@@ -66,7 +63,9 @@ public class RewardTable extends QuestObjectBase {
 	private int lootSize;
 	private boolean hideTooltip;
 	private boolean useTitle;
+	@Nullable
 	private LootCrate lootCrate;
+	@Nullable
 	private Identifier lootTableId;
 	private String filename;
 
@@ -98,11 +97,8 @@ public class RewardTable extends QuestObjectBase {
 		return id == -1L;
 	}
 
-	@NotNull
 	public static QuestObjectBase createRewardForTable(long id, String type, BaseQuestFile file) {
-		Reward reward = RewardType.createReward(id, makeFakeQuest(file), type);
-		Validate.isTrue(reward != null, "Unknown reward type!");
-		return reward;
+        return RewardType.createReward(id, makeFakeQuest(file), type);
 	}
 
 	public Component getTitleOrElse(Component def) {
@@ -256,16 +252,14 @@ public class RewardTable extends QuestObjectBase {
 			}
 
 			Reward reward = RewardType.createReward(rewardId, fakeQuest, rewardTag.getString("type").orElse(""));
-			if (reward != null) {
-				getQuestFile().getTranslationManager().processInitialTranslation(rewardTag, reward);
-				reward.readData(rewardTag, provider);
-				weightedRewards.add(new WeightedReward(reward, rewardTag.contains("weight") ? rewardTag.getFloat("weight").orElse(0f) : 1));
-				prevRewards.remove(rewardId);
-				if (newReward && getFile() instanceof ServerQuestFile sqf) {
-					NetworkHelper.sendToAll(sqf.server, CreateObjectResponseMessage.create(reward, rewardTag));
-				}
-			}
-		}
+            getQuestFile().getTranslationManager().processInitialTranslation(rewardTag, reward);
+            reward.readData(rewardTag, provider);
+            weightedRewards.add(new WeightedReward(reward, rewardTag.contains("weight") ? rewardTag.getFloat("weight").orElse(0f) : 1));
+            prevRewards.remove(rewardId);
+            if (newReward && getFile() instanceof ServerQuestFile sqf) {
+                NetworkHelper.sendToAll(sqf.server, CreateObjectResponseMessage.create(reward, rewardTag));
+            }
+        }
 
 		if (refreshIds) {
 			file.refreshRewardTableRewardIDs();
@@ -405,10 +399,6 @@ public class RewardTable extends QuestObjectBase {
 
 	@Override
 	public void onCreated() {
-//		if (filename.isEmpty()) {
-//			filename = file.generateRewardTableName(titleToID(getRawTitle()).orElse(toString()));
-//		}
-
 		file.addRewardTable(this);
 	}
 
@@ -428,9 +418,8 @@ public class RewardTable extends QuestObjectBase {
 	@Override
 	public Component getAltTitle() {
 		return weightedRewards.size() == 1 ?
-				weightedRewards.get(0).getReward().getTitle() :
+				weightedRewards.getFirst().getReward().getTitle() :
 				Component.translatable("ftbquests.reward_table");
-
 	}
 
 	@Override
@@ -456,7 +445,7 @@ public class RewardTable extends QuestObjectBase {
 	}
 
 	public void addMouseOverText(TooltipList list, boolean includeWeight, boolean includeEmpty) {
-		if (ClientQuestFile.INSTANCE.canEdit() || !hideTooltip) {
+		if (ClientQuestFile.getInstance().canEdit() || !hideTooltip) {
 			float totalWeight = getTotalWeight(includeEmpty);
 
 			if (includeWeight && includeEmpty && emptyWeight > 0) {
@@ -469,7 +458,7 @@ public class RewardTable extends QuestObjectBase {
 			int maxLines = gui == null ? 12 : (gui.height - 20) / (gui.getTheme().getFontHeight() + 2);
 			int nRewards = sortedRewards.size();
 			int start = nRewards > maxLines ?
-					(int) ((FTBQuestsClient.getClientLevel().getGameTime() / 10) % nRewards) :
+					(int) ((ClientUtils.getClientLevel().getGameTime() / 10) % nRewards) :
 					0;
 
 			int nLines = Math.min(maxLines, nRewards);
@@ -506,6 +495,7 @@ public class RewardTable extends QuestObjectBase {
 		return new WeightedReward(new ItemReward(0L, fakeQuest, stack), weight);
 	}
 
+	@Nullable
 	public LootCrate toggleLootCrate() {
 		if (lootCrate == null) {
 			lootCrate = new LootCrate(this, true);
@@ -521,11 +511,9 @@ public class RewardTable extends QuestObjectBase {
 
 	public RewardTable copy() {
 		RewardTable copy = QuestObjectBase.copy(this, () ->  new RewardTable(this.id, this.getFile()));
-		if (copy != null) {
-			copy.setRawTitle(getRawTitle());
-			copy.weightedRewards.clear();
-			getWeightedRewards().forEach(wr -> copy.weightedRewards.add(wr.copy()));
-		}
-		return copy;
+        copy.setRawTitle(getRawTitle());
+        copy.weightedRewards.clear();
+        getWeightedRewards().forEach(wr -> copy.weightedRewards.add(wr.copy()));
+        return copy;
 	}
 }

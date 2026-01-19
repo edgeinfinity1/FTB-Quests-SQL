@@ -52,7 +52,7 @@ public record SyncTranslationMessageToClient(long id, String locale, Translation
 
     public static void handle(SyncTranslationMessageToClient message, NetworkManager.PacketContext context) {
         context.queue(() -> {
-            ClientQuestFile file = ClientQuestFile.INSTANCE;
+            ClientQuestFile file = ClientQuestFile.getInstance();
             if (file.isValid()) {
                 QuestObjectBase object = file.getBase(message.id);
                 if (object != null) {

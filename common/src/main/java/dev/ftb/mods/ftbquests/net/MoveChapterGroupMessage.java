@@ -28,7 +28,7 @@ public record MoveChapterGroupMessage(long id, boolean movingUp) implements Cust
 	public static void handle(MoveChapterGroupMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
 			if (NetUtils.canEdit(context)) {
-				ServerQuestFile.INSTANCE.moveChapterGroup(message.id, message.movingUp);
+				ServerQuestFile.getInstance().moveChapterGroup(message.id, message.movingUp);
 			}
 		});
 	}

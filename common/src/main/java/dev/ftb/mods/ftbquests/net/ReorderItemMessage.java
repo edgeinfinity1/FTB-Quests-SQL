@@ -31,7 +31,7 @@ public record ReorderItemMessage(long id, boolean moveRight) implements CustomPa
     public static void handle(ReorderItemMessage message, NetworkManager.PacketContext context) {
         context.queue(() -> {
             if (NetUtils.canEdit(context)) {
-                QuestObjectBase object = ServerQuestFile.INSTANCE.getBase(message.id);
+                QuestObjectBase object = ServerQuestFile.getInstance().getBase(message.id);
                 if (object instanceof Task task) {
                     if (message.moveRight) {
                         task.getQuest().moveTaskRight(task);

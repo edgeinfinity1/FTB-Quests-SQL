@@ -64,6 +64,7 @@ public enum ItemMatchingSystem {
     }
 
     private boolean fuzzyMatch(DataComponentMap map, DataComponentMap toMatch) {
+        //noinspection DataFlowIssue
         return map.stream().allMatch(tc -> toMatch.has(tc.type()) && toMatch.get(tc.type()).equals(tc.value()));
     }
 

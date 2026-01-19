@@ -27,7 +27,7 @@ public record SyncQuestsMessage(BaseQuestFile file) implements CustomPacketPaylo
 		context.queue(() -> {
 			ClientQuestFile.syncFromServer(message.file);
 
-			ClientQuestFile.INSTANCE.updateLootCrates();
+			ClientQuestFile.getInstance().updateLootCrates();
 
 			NetworkManager.sendToServer(RequestTeamDataMessage.INSTANCE);
 		});

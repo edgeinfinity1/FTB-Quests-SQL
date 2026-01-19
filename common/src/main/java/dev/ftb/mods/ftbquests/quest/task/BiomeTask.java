@@ -18,8 +18,8 @@ import net.minecraft.world.level.biome.Biomes;
 import com.mojang.datafixers.util.Either;
 
 import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.util.NameMap;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 
@@ -120,7 +120,7 @@ public class BiomeTask extends AbstractBooleanTask {
 	private List<String> getKnownBiomes() {
 		// only called client-side to fill the config screen options
 		if (KNOWN_BIOMES.isEmpty()) {
-			RegistryAccess registryAccess = FTBQuestsClient.getClientPlayer().level().registryAccess();
+			RegistryAccess registryAccess = ClientUtils.getClientPlayer().level().registryAccess();
 			KNOWN_BIOMES.addAll(registryAccess
 					.getOrThrow(Registries.BIOME).value().keySet().stream()
 					.map(Identifier::toString)

@@ -50,7 +50,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.lang3.function.ToBooleanBiFunction;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class TeamData {
@@ -69,7 +68,7 @@ public class TeamData {
                 buf.writeUUID(data.getTeamId());
                 data.writeNetData(buf);
             },
-			buf -> Util.make(new TeamData(buf.readUUID(), ClientQuestFile.INSTANCE), data -> data.readNetData(buf))
+			buf -> Util.make(new TeamData(buf.readUUID(), ClientQuestFile.getInstance()), data -> data.readNetData(buf))
     );
 
 	private final UUID teamId;
@@ -129,9 +128,7 @@ public class TeamData {
 		return file;
 	}
 
-	@NotNull
 	public static TeamData get(Player player) {
-        // TODO: @since 21.11: verify if this is a good replacement for ".getCommandSenderWorld().isClientSide()"
 		return FTBQuestsAPI.api().getQuestFile(player.level().isClientSide()).getTeamData(player).orElseThrow();
 	}
 
@@ -417,7 +414,7 @@ public class TeamData {
 		claimedRewards.clear();
 		CompoundTag claimedRewardsNBT = nbt.getCompound("claimed_rewards").orElse(new CompoundTag());
 		for (String s : claimedRewardsNBT.keySet()) {
-			claimedRewards.put(QuestKey.fromString(s), claimedRewardsNBT.getLong(s).orElse(0L));
+			claimedRewards.put(QuestKey.fromString(s), (long) claimedRewardsNBT.getLong(s).orElse(0L));
 		}
 
 		perPlayerData.clear();
@@ -651,10 +648,10 @@ public class TeamData {
 			RewardAutoClaim auto = reward.getAutoClaimType();
 
 			if (auto != RewardAutoClaim.DISABLED) {
-				if (reward.isTeamReward() && ServerQuestFile.INSTANCE.getCurrentPlayer() != null) {
+				if (reward.isTeamReward() && ServerQuestFile.getInstance().getCurrentPlayer() != null) {
 					// only the submitting player gets the reward if it's a team reward
 					// (assuming it's possible to determine who the submitting player is)
-					claimReward(ServerQuestFile.INSTANCE.getCurrentPlayer(), reward, auto == RewardAutoClaim.ENABLED);
+					claimReward(ServerQuestFile.getInstance().getCurrentPlayer(), reward, auto == RewardAutoClaim.ENABLED);
 				} else {
 					if (online == null) {
 						online = getOnlineMembers();
@@ -811,10 +808,13 @@ public class TeamData {
 	 * @return the player's per-player data, or {@code Optional.empty()} if the player isn't in this team
 	 */
 	private Optional<PerPlayerData> getOrCreatePlayerData(Player player) {
-		if (!perPlayerData.containsKey(player.getUUID()) && file.isPlayerOnTeam(player, this)) {
+		if (!file.isPlayerOnTeam(player, this)) {
+			return Optional.empty();
+		}
+		if (!perPlayerData.containsKey(player.getUUID())) {
 			perPlayerData.put(player.getUUID(), new PerPlayerData());
 		}
-		return Optional.ofNullable(perPlayerData.get(player.getUUID()));
+		return Optional.of(perPlayerData.get(player.getUUID()));
 	}
 
 	public boolean getCanEdit(Player player) {
@@ -856,11 +856,11 @@ public class TeamData {
 		if (qo instanceof Excludable e) {
 			// note: computeIfAbsent() won't work well here due to indirect recursion
 			//   (can throw exception with both standard and fastutil maps)
-			if (exclusionCache.containsKey(e.getId())) {
-				return exclusionCache.get(e.getId());
+			if (exclusionCache.containsKey(qo.getId())) {
+				return exclusionCache.get(qo.getId());
 			}
 			boolean excluded = e.isQuestObjectExcluded(this);
-			exclusionCache.put(e.getId(), excluded);
+			exclusionCache.put(qo.getId(), excluded);
 			return excluded;
 
 		}

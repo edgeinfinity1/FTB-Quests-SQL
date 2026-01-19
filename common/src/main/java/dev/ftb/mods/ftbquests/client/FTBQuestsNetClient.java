@@ -91,9 +91,9 @@ public class FTBQuestsNetClient {
 		}
 	}
 
-	public static void teamDataChanged(TeamDataUpdate oldDataUpdate, TeamDataUpdate newDataUpdate) {
+	public static void teamDataChanged(TeamDataUpdate dataUpdate) {
 		if (ClientQuestFile.exists()) {
-			TeamData data = new TeamData(newDataUpdate.uuid(), ClientQuestFile.getInstance(), newDataUpdate.name());
+			TeamData data = new TeamData(dataUpdate.uuid(), ClientQuestFile.getInstance(), dataUpdate.name());
 			ClientQuestFile.getInstance().addData(data, false);
 		}
 	}
@@ -135,11 +135,15 @@ public class FTBQuestsNetClient {
 	}
 
 	public static void displayRewardToast(long id, Component text, Icon<?> icon, boolean disableBlur) {
-		Icon<?> actualIcon = icon.isEmpty() ? ClientQuestFile.getInstance().getBase(id).getIcon() : icon;
+		Icon<?> actualIcon = icon.isEmpty() ? getFallbackIcon(id) : icon;
 
 		if (!IRewardListenerScreen.add(new RewardKey(text.getString(), actualIcon, disableBlur), 1)) {
 			FTBQuestsClientConfig.REWARD_STYLE.get().notifyReward(text, actualIcon);
 		}
+	}
+
+	private static Icon<?> getFallbackIcon(long id) {
+		return ClientQuestFile.getInstance().getBase(id) instanceof QuestObjectBase qo ? qo.getIcon() : Icon.empty();
 	}
 
 	public static void editObject(long id, CompoundTag nbt) {
@@ -176,7 +180,7 @@ public class FTBQuestsNetClient {
 	}
 
 	public static void syncEditingMode(UUID teamId, boolean editingMode) {
-		if (ClientQuestFile.getInstance().getOrCreateTeamData(teamId).setCanEdit(FTBQuestsClient.getClientPlayer(), editingMode)) {
+		if (ClientQuestFile.getInstance().getOrCreateTeamData(teamId).setCanEdit(ClientUtils.getClientPlayer(), editingMode)) {
 			setEditorPermission(editingMode);
 			ClientQuestFile.getInstance().refreshGui();
 		}
@@ -184,7 +188,7 @@ public class FTBQuestsNetClient {
 
 	public static void togglePinned(long id, boolean pinned) {
 		TeamData data = FTBQuestsClient.getClientPlayerData();
-		data.setQuestPinned(FTBQuestsClient.getClientPlayer(), id, pinned);
+		data.setQuestPinned(ClientUtils.getClientPlayer(), id, pinned);
 
 		ClientQuestFile.getInstance().getQuestScreen().ifPresent(questScreen -> {
 			questScreen.otherButtonsTopPanel.refreshWidgets();

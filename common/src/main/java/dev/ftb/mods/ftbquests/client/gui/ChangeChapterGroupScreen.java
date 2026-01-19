@@ -36,7 +36,7 @@ public class ChangeChapterGroupScreen extends AbstractButtonListScreen {
 
 	@Override
 	public void addButtons(Panel panel) {
-		ClientQuestFile.INSTANCE.getChapterGroups().stream()
+		ClientQuestFile.getInstance().getChapterGroups().stream()
 				.sorted()
 				.forEach(group -> panel.add(new ChapterGroupButton(panel, group)));
 	}

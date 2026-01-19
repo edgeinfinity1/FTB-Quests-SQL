@@ -27,6 +27,7 @@ import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.ImageIcon;
 import dev.ftb.mods.ftblibrary.math.MathUtils;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
 import dev.ftb.mods.ftbquests.net.CopyChapterImageMessage;
 import dev.ftb.mods.ftbquests.net.CopyQuestMessage;
@@ -132,7 +133,7 @@ public class QuestPanel extends Panel {
 		}
 
 		questScreen.selectedChapter.getImages().stream()
-				.filter(image -> questScreen.file.canEdit() || image.shouldShowImage(questScreen.file.selfTeamData))
+				.filter(image -> questScreen.file.canEdit() || image.shouldShowImage(FTBQuestsClient.getClientPlayerData()))
 				.sorted(Comparator.comparingInt(ChapterImage::getOrder))
 				.forEach(image -> add(new ChapterImageButton(this, image)));
 
@@ -264,15 +265,15 @@ public class QuestPanel extends Panel {
 			return;
 		}
 
-		double sx = widget.getX() + widget.width / 2.0;
-		double sy = widget.getY() + widget.height / 2.0;
+		float sx = widget.getX() + widget.width / 2.0f;
+		float sy = widget.getY() + widget.height / 2.0f;
 
-		double ex = button.getX() + button.width / 2.0;
-		double ey = button.getY() + button.height / 2.0;
+		float ex = button.getX() + button.width / 2.0f;
+		float ey = button.getY() + button.height / 2.0f;
 		float len = (float) MathUtils.dist(sx, sy, ex, ey);
 
 		poseStack.pushMatrix();
-		poseStack.translate((float) sx, (float) sy);
+		poseStack.translate(sx, sy);
 		poseStack.rotate((float) Math.atan2(ey - sy, ex - sx));
 
 		var texture = Minecraft.getInstance().getTextureManager().getTexture(icon.texture);
@@ -291,12 +292,6 @@ public class QuestPanel extends Panel {
 				1,
 				ARGB.color(a, r, g, b)
 		);
-
-		// TODO: @since 21.11: This doesn't work :joy:
-//		buffer.addVertex(0, -s, 0).setColor(r, g, b, a).setUv(len / s / 2F + mu, 0);
-//		buffer.addVertex(0, s, 0).setColor(r, g, b, a).setUv(len / s / 2F + mu, 1);
-//		buffer.addVertex(len, s, 0).setColor(r * 3 / 4, g * 3 / 4, b * 3 / 4, a1).setUv(mu, 1);
-//		buffer.addVertex(len, -s, 0).setColor(r * 3 / 4, g * 3 / 4, b * 3 / 4, a1).setUv(mu, 0);
 
 		poseStack.popMatrix();
 	}
@@ -410,6 +405,10 @@ public class QuestPanel extends Panel {
 	}
 
 	private void drawStatusBar(GuiGraphics graphics, Theme theme, @UnknownNullability Matrix3x2fStack poseStack) {
+		if (questScreen.selectedChapter == null) {
+			return;
+		}
+
 		poseStack.pushMatrix();
 
 		int statusX = questScreen.chapterPanel.expanded ? questScreen.chapterPanel.width : questScreen.expandChaptersButton.width;
@@ -418,8 +417,8 @@ public class QuestPanel extends Panel {
 		IconHelper.renderIcon(Color4I.DARK_GRAY, graphics, statusX, height - 9, statusWidth, 1);
 		IconHelper.renderIcon(statPanelBg, graphics, statusX, height - 9, statusWidth, 10);
 
-		poseStack.translate(statusX, height - 6);//, 600);
-		poseStack.scale(0.5f, 0.5f);//;, 0.5f);
+		poseStack.translate(statusX, height - 6);
+		poseStack.scale(0.5f, 0.5f);
 
 		String curStr = String.format("Cursor: [%+.2f, %+.2f]", questX, questY);
 		int pos = theme.drawString(graphics, curStr, 6, 0, Theme.SHADOW) + 25;
@@ -550,6 +549,9 @@ public class QuestPanel extends Panel {
 	}
 
 	private void showImageCreationScreen(double qx, double qy) {
+		if (questScreen.selectedChapter == null) {
+			return;
+		}
 		EditableImageResource imageConfig = new EditableImageResource();
 		new SelectImageResourceScreen(imageConfig, accepted -> {
 			if (accepted) {
@@ -566,12 +568,13 @@ public class QuestPanel extends Panel {
 	}
 
 	private void copyAndCreateTask(Task task, double qx, double qy) {
+		if (questScreen.selectedChapter == null) {
+			return;
+		}
 		Task newTask = QuestObjectBase.copy(task,
 				() -> TaskType.createTask(0L, new Quest(0L, questScreen.selectedChapter), task.getType().getTypeId().toString()));
-		if (newTask != null) {
-			NetworkManager.sendToServer(CreateTaskAtMessage.create(questScreen.selectedChapter, qx, qy, newTask, null));
-		}
-	}
+        NetworkManager.sendToServer(CreateTaskAtMessage.create(questScreen.selectedChapter, qx, qy, newTask, null));
+    }
 
 	@Override
 	public void mouseReleased(MouseButton button) {

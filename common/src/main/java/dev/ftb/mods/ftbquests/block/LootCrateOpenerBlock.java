@@ -41,7 +41,7 @@ public class LootCrateOpenerBlock extends BaseEntityBlock {
 
     @Override
     protected MapCodec<LootCrateOpenerBlock> codec() {
-        return null;
+        return CODEC;
     }
 
     @Override

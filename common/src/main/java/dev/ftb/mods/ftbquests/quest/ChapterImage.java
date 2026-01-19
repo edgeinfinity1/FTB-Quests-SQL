@@ -42,7 +42,7 @@ public final class ChapterImage implements Movable {
         @Override
         public ChapterImage decode(FriendlyByteBuf buf) {
 			long chapterId = buf.readLong();
-            ChapterImage img = new ChapterImage(ServerQuestFile.INSTANCE.getChapter(chapterId));
+            ChapterImage img = new ChapterImage(ServerQuestFile.getInstance().getChapter(chapterId));
             img.readNetData(buf);
             return img;
         }
@@ -188,7 +188,7 @@ public final class ChapterImage implements Movable {
 		buffer.writeDouble(width);
 		buffer.writeDouble(height);
 		buffer.writeDouble(rotation);
-		NetUtils.writeIcon(buffer, image);
+		Icon.STREAM_CODEC.encode(buffer, image);
 		buffer.writeInt(color.rgb());
 		buffer.writeInt(alpha);
 		buffer.writeInt(order);
@@ -205,7 +205,7 @@ public final class ChapterImage implements Movable {
 		width = buffer.readDouble();
 		height = buffer.readDouble();
 		rotation = buffer.readDouble();
-		setImage(NetUtils.readIcon(buffer));
+		setImage(Icon.STREAM_CODEC.decode(buffer));
 		color = Color4I.rgb(buffer.readInt());
 		alpha = buffer.readInt();
 		order = buffer.readInt();
@@ -232,7 +232,7 @@ public final class ChapterImage implements Movable {
 		config.addBool("dev", editorsOnly, v -> editorsOnly = v, false);
 		config.addBool("corner", alignToCorner, v -> alignToCorner = v, false);
 
-		Predicate<QuestObjectBase> depTypes = object -> object == null || object instanceof Quest;
+		Predicate<@Nullable QuestObjectBase> depTypes = object -> object == null || object instanceof Quest;
 		config.add("dependency", new EditableQuestObject<>(depTypes), dependency, v -> dependency = v, null).setNameKey("ftbquests.dependency");
 	}
 

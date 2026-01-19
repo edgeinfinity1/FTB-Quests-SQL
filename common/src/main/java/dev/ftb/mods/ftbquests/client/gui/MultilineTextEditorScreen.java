@@ -31,6 +31,7 @@ import dev.ftb.mods.ftblibrary.client.gui.widget.PanelScrollBar;
 import dev.ftb.mods.ftblibrary.client.gui.widget.ScrollBar;
 import dev.ftb.mods.ftblibrary.client.gui.widget.SimpleTextButton;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.client.util.ImageComponent;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
@@ -118,7 +119,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 	private void onValueChanged(String newValue) {
 		// don't snapshot the text box state immediately, but note the change
 		// when no changes have happened for a few ticks, then do a snapshot (see tick() below)
-		lastChange = Minecraft.getInstance().level.getGameTime();
+		lastChange = ClientUtils.getClientLevel().getGameTime();
 	}
 
 	@Override
@@ -127,7 +128,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 
 		ticksOpen++;
 
-		if (lastChange > 0 && Minecraft.getInstance().level.getGameTime() - lastChange > 5) {
+		if (lastChange > 0 && ClientUtils.getClientLevel().getGameTime() - lastChange > 5) {
 			redoStack.addLast(new HistoryElement(textBox.getText(), textBox.cursorPos()));
 			while (redoStack.size() > MAX_UNDO) {
 				redoStack.removeFirst();
@@ -229,7 +230,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		EditableQuestObject<QuestObject> config = new EditableQuestObject<>(QuestObjectType.QUEST.or(QuestObjectType.QUEST_LINK));
 		new SelectQuestObjectScreen<>(config, accepted -> {
 			int pos = textBox.cursorPos();
-			if (accepted) {
+			if (accepted && config.getValue() != null) {
 				doLinkInsertion(config.getValue().id);
 			}
 			run();

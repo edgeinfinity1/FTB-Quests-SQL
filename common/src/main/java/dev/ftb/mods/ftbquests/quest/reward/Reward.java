@@ -74,7 +74,6 @@ public abstract class Reward extends QuestObjectBase {
 	}
 
 	@Override
-	@Nullable
 	public final Chapter getQuestChapter() {
 		return quest.getChapter();
 	}
@@ -95,7 +94,7 @@ public abstract class Reward extends QuestObjectBase {
 		}
 
 		if (autoclaim != RewardAutoClaim.DEFAULT) {
-			nbt.putString("auto", autoclaim.id);
+			nbt.putString("auto", autoclaim.getId());
 		}
 
 		if (excludeFromClaimAll) nbt.putBoolean("exclude_from_claim_all", true);

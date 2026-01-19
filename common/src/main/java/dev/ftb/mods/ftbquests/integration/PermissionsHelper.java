@@ -10,6 +10,6 @@ public class PermissionsHelper {
 
     public static boolean hasEditorPermission(ServerPlayer player, boolean def) {
         return player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
-                || PermissionHelper.INSTANCE.getProvider().getBooleanPermission(player, EDITOR_PERM, def);
+                || PermissionHelper.getProvider().getBooleanPermission(player, EDITOR_PERM, def);
     }
 }

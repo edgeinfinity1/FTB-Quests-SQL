@@ -13,7 +13,7 @@ import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.FTBQuestsNetClient;
 
-public record NotifyRewardMessage(long id, Component text, Icon icon, boolean disableBlur) implements CustomPacketPayload {
+public record NotifyRewardMessage(long id, Component text, Icon<?> icon, boolean disableBlur) implements CustomPacketPayload {
 	public static final Type<NotifyRewardMessage> TYPE = new Type<>(FTBQuestsAPI.id("notify_reward_message"));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, NotifyRewardMessage> STREAM_CODEC = StreamCodec.composite(

@@ -64,10 +64,8 @@ public class AddTaskButton extends Button {
 	private void copyAndCreateTask(Task task) {
 		Task newTask = QuestObjectBase.copy(task,
 				() -> TaskType.createTask(0L, quest, task.getType().getTypeId().toString()));
-		if (newTask != null) {
-			NetworkManager.sendToServer(CreateObjectMessage.create(newTask, newTask.getType().makeExtraNBT()));
-		}
-	}
+        NetworkManager.sendToServer(CreateObjectMessage.create(newTask, newTask.getType().makeExtraNBT()));
+    }
 
 	@Override
 	public void drawBackground(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {

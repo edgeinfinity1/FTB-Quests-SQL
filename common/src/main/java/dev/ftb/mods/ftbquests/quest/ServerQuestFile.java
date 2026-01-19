@@ -46,6 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
@@ -53,7 +54,7 @@ public class ServerQuestFile extends BaseQuestFile {
 	public static final LevelResource FTBQUESTS_DATA = new LevelResource("ftbquests");
 
 	@Nullable
-	public static ServerQuestFile INSTANCE;
+	private static ServerQuestFile INSTANCE;
 
 	public final MinecraftServer server;
 	private boolean shouldSave;
@@ -78,6 +79,12 @@ public class ServerQuestFile extends BaseQuestFile {
 		return Objects.requireNonNull(INSTANCE);
 	}
 
+	public static void ifExists(Consumer<ServerQuestFile> consumer) {
+		if (INSTANCE != null) {
+			consumer.accept(INSTANCE);
+		}
+	}
+
 	public ServerQuestFile(MinecraftServer s) {
 		server = s;
 		shouldSave = false;
@@ -96,10 +103,6 @@ public class ServerQuestFile extends BaseQuestFile {
 			type.intId = ++rewardTypeId;
 			rewardTypeIds.put(type.intId, type);
 		}
-	}
-
-	public void load() {
-		load(true, true);
 	}
 
 	public void load(boolean quests, boolean progression) {

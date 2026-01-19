@@ -170,7 +170,7 @@ public class QuestBarrierBlock extends BaseEntityBlock {
 
     @Override
     protected void entityInside(BlockState blockState, Level level, BlockPos blockPos, Entity entity, InsideBlockEffectApplier insideBlockEffectApplier, boolean bl) {
-        if (entity instanceof ServerPlayer player && player.level().getServer() != null && level.getBlockEntity(blockPos) instanceof BaseBarrierBlockEntity b) {
+        if (entity instanceof ServerPlayer player && level.getBlockEntity(blockPos) instanceof BaseBarrierBlockEntity b) {
             b.optionalTeleportData().ifPresent(teleportData -> {
                 if (teleportData.enabled() && b.isOpen(player)) {
                     TeleportTicker.addPending(player, teleportData.effectiveDest(b.getBlockPos()));
@@ -182,7 +182,7 @@ public class QuestBarrierBlock extends BaseEntityBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-		return level != null && level.isClientSide() ? BaseBarrierBlockEntity::tick : null;
+		return level.isClientSide() ? BaseBarrierBlockEntity::tick : null;
 	}
 
 	@Nullable

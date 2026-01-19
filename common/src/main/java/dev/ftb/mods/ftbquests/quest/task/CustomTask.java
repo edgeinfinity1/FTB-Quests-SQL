@@ -1,23 +1,26 @@
 package dev.ftb.mods.ftbquests.quest.task;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+
 import dev.ftb.mods.ftblibrary.util.NetworkHelper;
 import dev.ftb.mods.ftbquests.net.EditObjectResponseMessage;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Predicate;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import org.jspecify.annotations.Nullable;
 
 public class CustomTask extends Task {
 	public static final Predicate<QuestObjectBase> PREDICATE = object -> object instanceof CustomTask;
 
+	@Nullable
 	private Check check;
 	private int checkTimer;
 	private long maxProgress;
@@ -132,9 +135,9 @@ public class CustomTask extends Task {
 		private static final LongSet toSync = new LongOpenHashSet();
 
 		public static void tick(MinecraftServer server) {
-			if (!toSync.isEmpty() && ServerQuestFile.INSTANCE != null) {
+			if (!toSync.isEmpty() && ServerQuestFile.getInstance() != null) {
 				toSync.forEach(id -> {
-					if (ServerQuestFile.INSTANCE.get(id) instanceof CustomTask c) {
+					if (ServerQuestFile.getInstance().get(id) instanceof CustomTask c) {
 						NetworkHelper.sendToAll(server, new EditObjectResponseMessage(c));
 					}
                 });

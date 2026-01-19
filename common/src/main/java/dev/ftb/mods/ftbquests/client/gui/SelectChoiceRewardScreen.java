@@ -16,9 +16,11 @@ import dev.ftb.mods.ftbquests.quest.loot.WeightedReward;
 import dev.ftb.mods.ftbquests.quest.reward.ChoiceReward;
 
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 public class SelectChoiceRewardScreen extends AbstractButtonListScreen {
 	private final ChoiceReward choiceReward;
+	@Nullable
 	private WeightedReward acceptedReward;
 
 	public SelectChoiceRewardScreen(ChoiceReward choiceReward) {
@@ -51,7 +53,7 @@ public class SelectChoiceRewardScreen extends AbstractButtonListScreen {
 	@Override
 	protected void doAccept() {
 		closeGui();
-		if (choiceReward.getTable() != null) {
+		if (choiceReward.getTable() != null && acceptedReward != null) {
 			int idx = choiceReward.getTable().getWeightedRewards().indexOf(acceptedReward);
 			NetworkManager.sendToServer(new ClaimChoiceRewardMessage(choiceReward.id, idx));
 		}

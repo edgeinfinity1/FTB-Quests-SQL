@@ -13,6 +13,7 @@ import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.client.gui.layout.WidgetLayout;
 import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
@@ -45,7 +46,7 @@ public class OtherButtonsPanelBottom extends OtherButtonsPanel {
 			add(new EditSettingsButton(this));
 		}
 
-		if (FTBQuestsClient.getClientPlayer().permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) || ClientQuestFile.getInstance().hasEditorPermission()) {
+		if (ClientUtils.getClientPlayer().permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) || ClientQuestFile.getInstance().hasEditorPermission()) {
 			// note: single player owner can't use the GUI button but can use the /ftbquests editing_mode command
 			// this is intentional, since there should not be an obvious "cheat" button for single player questing
 			add(new ToggleEditModeButton(this));
@@ -77,7 +78,7 @@ public class OtherButtonsPanelBottom extends OtherButtonsPanel {
 		public void onClicked(MouseButton button) {
 			playClickSound();
 
-			if (!FTBQuestsClient.getClientPlayerData().getCanEdit(FTBQuestsClient.getClientPlayer())) {
+			if (!FTBQuestsClient.getClientPlayerData().getCanEdit(ClientUtils.getClientPlayer())) {
 				StructureTask.maybeRequestStructureSync();
 			}
 

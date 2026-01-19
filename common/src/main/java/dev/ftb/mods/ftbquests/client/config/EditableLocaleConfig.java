@@ -67,7 +67,7 @@ public class EditableLocaleConfig extends EditableConfigValue<String> {
         @Override
         public boolean onInit() {
             setWidth(widest + 25);
-            setHeight(getScreen().getGuiScaledHeight() * 4 / 5);
+            setHeight(getWindow().getGuiScaledHeight() * 4 / 5);
             return true;
         }
 

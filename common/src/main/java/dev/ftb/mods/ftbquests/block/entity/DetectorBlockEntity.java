@@ -39,7 +39,7 @@ public class DetectorBlockEntity extends BlockEntity {
 	}
 
 	public void update(String idStr) {
-		objectId = ServerQuestFile.INSTANCE.getID(idStr);
+		objectId = ServerQuestFile.getInstance().getID(idStr);
 	}
 
 	private static boolean isRealPlayer(ServerPlayer player) {
@@ -47,11 +47,11 @@ public class DetectorBlockEntity extends BlockEntity {
 	}
 
 	public void onPowered(Level level, BlockPos pos) {
-		QuestObjectBase qo = ServerQuestFile.INSTANCE.getBase(objectId);
+		QuestObjectBase qo = ServerQuestFile.getInstance().getBase(objectId);
 		if (qo != null) {
 			AABB box = new AABB(pos).inflate(radius);
 			for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, box, DetectorBlockEntity::isRealPlayer)) {
-				ServerQuestFile.INSTANCE.getTeamData(player).ifPresent(data ->
+				ServerQuestFile.getInstance().getTeamData(player).ifPresent(data ->
 						qo.forceProgressRaw(data, new ProgressChange(qo, player.getUUID()).setReset(false).withNotifications()));
 			}
 		}

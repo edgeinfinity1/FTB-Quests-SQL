@@ -13,11 +13,11 @@ import java.util.function.Supplier;
 public interface RewardTypes {
 	Map<Identifier, RewardType> TYPES = new LinkedHashMap<>();
 
-	static RewardType register(Identifier name, RewardType.Provider typeProvider, Supplier<Icon> iconSupplier, boolean availableByDefault) {
+	static RewardType register(Identifier name, RewardType.Provider typeProvider, Supplier<Icon<?>> iconSupplier, boolean availableByDefault) {
 		return TYPES.computeIfAbsent(name, id -> new RewardType(id, typeProvider, iconSupplier, availableByDefault));
 	}
 
-	static RewardType register(Identifier name, RewardType.Provider typeProvider, Supplier<Icon> iconSupplier) {
+	static RewardType register(Identifier name, RewardType.Provider typeProvider, Supplier<Icon<?>> iconSupplier) {
 		return register(name, typeProvider, iconSupplier, true);
 	}
 

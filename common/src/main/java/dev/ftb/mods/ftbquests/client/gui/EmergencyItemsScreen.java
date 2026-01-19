@@ -40,7 +40,7 @@ public class EmergencyItemsScreen extends BaseScreen {
 
 	public EmergencyItemsScreen() {
 		if (endTime < Util.getEpochMillis()) {
-			endTime = Util.getEpochMillis() + ClientQuestFile.INSTANCE.getEmergencyItemsCooldown() * 1000L;
+			endTime = Util.getEpochMillis() + ClientQuestFile.getInstance().getEmergencyItemsCooldown() * 1000L;
 		}
 
 		itemPanel = new ItemPanel();
@@ -51,7 +51,7 @@ public class EmergencyItemsScreen extends BaseScreen {
 				if (Util.getEpochMillis() >= endTime) {
 					playClickSound();
 					NetworkManager.sendToServer(GetEmergencyItemsMessage.INSTANCE);
-					endTime = Util.getEpochMillis() + ClientQuestFile.INSTANCE.getEmergencyItemsCooldown() * 1000L;
+					endTime = Util.getEpochMillis() + ClientQuestFile.getInstance().getEmergencyItemsCooldown() * 1000L;
 				}
 			}
 
@@ -153,7 +153,7 @@ public class EmergencyItemsScreen extends BaseScreen {
 
 		@Override
 		public void addWidgets() {
-			ClientQuestFile.INSTANCE.getEmergencyItems()
+			ClientQuestFile.getInstance().getEmergencyItems()
 					.forEach(stack -> add(new EmergencyItemWidget(this, stack)));
 		}
 

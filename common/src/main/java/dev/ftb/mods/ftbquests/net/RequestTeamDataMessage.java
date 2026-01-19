@@ -25,7 +25,7 @@ public record RequestTeamDataMessage() implements CustomPacketPayload {
     public static void handle(RequestTeamDataMessage ignoredMessage, NetworkManager.PacketContext context) {
         context.queue(() -> {
             if (context.getPlayer() instanceof ServerPlayer serverPlayer) {
-                ServerQuestFile.INSTANCE.getTeamData(serverPlayer)
+                ServerQuestFile.getInstance().getTeamData(serverPlayer)
                         .ifPresent(data -> NetworkManager.sendToPlayer(serverPlayer, new SyncTeamDataMessage(data)));
             }
         });

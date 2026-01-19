@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -128,7 +127,7 @@ public class TaskScreenBlock extends BaseEntityBlock {
 
         if (level.getBlockEntity(blockPos) instanceof TaskScreenBlockEntity coreScreen) {
             if (livingEntity instanceof ServerPlayer sp) {
-                ServerQuestFile.INSTANCE.getTeamData(sp).ifPresent(d -> coreScreen.setTeamId(d.getTeamId()));
+                ServerQuestFile.getInstance().getTeamData(sp).ifPresent(d -> coreScreen.setTeamId(d.getTeamId()));
             }
 
             Direction facing = blockState.getValue(FACING);

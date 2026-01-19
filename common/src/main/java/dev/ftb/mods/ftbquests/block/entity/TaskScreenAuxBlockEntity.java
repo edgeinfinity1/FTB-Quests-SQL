@@ -18,10 +18,12 @@ import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class TaskScreenAuxBlockEntity extends BlockEntity implements ITaskScreen, Nameable {
     @NotNull
     private WeakReference<TaskScreenBlockEntity> coreScreen = new WeakReference<>(null);
+    @Nullable
     private BlockPos corePosPending;  // non-null after NBT load & before querying/resolving
 
     public TaskScreenAuxBlockEntity(BlockPos blockPos, BlockState blockState) {

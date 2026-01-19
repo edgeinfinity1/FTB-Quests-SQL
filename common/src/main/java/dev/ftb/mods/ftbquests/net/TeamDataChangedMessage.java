@@ -24,6 +24,6 @@ public record TeamDataChangedMessage(TeamDataUpdate oldDataUpdate, TeamDataUpdat
 	}
 
 	public static void handle(TeamDataChangedMessage message, NetworkManager.PacketContext context) {
-		context.queue(() -> FTBQuestsNetClient.teamDataChanged(message.oldDataUpdate, message.newDataUpdate));
+		context.queue(() -> FTBQuestsNetClient.teamDataChanged(message.newDataUpdate));
 	}
 }

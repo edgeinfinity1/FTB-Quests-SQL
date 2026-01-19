@@ -25,6 +25,7 @@ import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
@@ -274,7 +275,7 @@ public class ChapterPanel extends Panel {
 			IconHelper.renderIcon(icon, graphics, x + 2, y + 3, 12, 12);
 			theme.drawString(graphics, Component.literal("").append(title).withStyle(f), x + 16, y + 5);
 
-			IconHelper.renderIcon(ThemeProperties.WIDGET_BORDER.get(ClientQuestFile.INSTANCE), graphics, x, y + h - 1, w, 1);
+			IconHelper.renderIcon(ThemeProperties.WIDGET_BORDER.get(ClientQuestFile.getInstance()), graphics, x, y + h - 1, w, 1);
 
 			boolean canEdit = chapterPanel.questScreen.file.canEdit();
 
@@ -488,7 +489,7 @@ public class ChapterPanel extends Panel {
 
 			if (!chapter.hasAnyVisibleChildren()) {
 				IconHelper.renderIcon(ThemeProperties.CLOSE_ICON.get(), graphics, x + w - 12, y + 3, 8, 8);
-			} else if (FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(FTBQuestsClient.getClientPlayer().getUUID(), chapter)) {
+			} else if (FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(ClientUtils.getClientPlayer().getUUID(), chapter)) {
 				IconHelper.renderIcon(ThemeProperties.ALERT_ICON.get(), graphics, x + w - 12, y + 3, 8, 8);
 			}
 		}
@@ -513,7 +514,7 @@ public class ChapterPanel extends Panel {
 		public int getActualWidth(QuestScreen screen) {
 			int extra = chapter.getGroup().isDefaultGroup() ? 0 : 7;
 
-			if (!chapter.hasAnyVisibleChildren() || FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(FTBQuestsClient.getClientPlayer().getUUID(), chapter)) {
+			if (!chapter.hasAnyVisibleChildren() || FTBQuestsClient.getClientPlayerData().hasUnclaimedRewards(ClientUtils.getClientPlayer().getUUID(), chapter)) {
 				// space for the "X" marker
 				extra += 16;
 			}

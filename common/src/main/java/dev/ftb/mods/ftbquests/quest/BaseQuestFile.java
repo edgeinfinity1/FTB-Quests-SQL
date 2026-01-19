@@ -42,7 +42,6 @@ import dev.ftb.mods.ftbquests.net.DeleteObjectResponseMessage;
 import dev.ftb.mods.ftbquests.quest.loot.EntityWeight;
 import dev.ftb.mods.ftbquests.quest.loot.LootCrate;
 import dev.ftb.mods.ftbquests.quest.loot.RewardTable;
-import dev.ftb.mods.ftbquests.quest.reward.CustomReward;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
 import dev.ftb.mods.ftbquests.quest.reward.RewardAutoClaim;
 import dev.ftb.mods.ftbquests.quest.reward.RewardType;
@@ -53,10 +52,8 @@ import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.quest.task.TaskType;
 import dev.ftb.mods.ftbquests.quest.task.TaskTypes;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
-import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationManager;
 import dev.ftb.mods.ftbquests.util.FileUtils;
-import dev.ftb.mods.ftbquests.util.TextUtils;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import dev.ftb.mods.ftbteams.api.client.ClientTeamManager;
@@ -71,7 +68,6 @@ import java.util.stream.Stream;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -80,17 +76,10 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 	public static int VERSION = 13;
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	public static final StreamCodec<RegistryFriendlyByteBuf,BaseQuestFile> STREAM_CODEC = new StreamCodec<>() {
-		@Override
-		public BaseQuestFile decode(RegistryFriendlyByteBuf buf) {
-			return Util.make(FTBQuestsClient.createClientQuestFile(), file -> file.readNetDataFull(buf));
-		}
-
-		@Override
-		public void encode(RegistryFriendlyByteBuf buf, BaseQuestFile file) {
-			file.writeNetDataFull(buf);
-		}
-	};
+	public static final StreamCodec<RegistryFriendlyByteBuf,BaseQuestFile> STREAM_CODEC = StreamCodec.of(
+			(buf, file) -> file.writeNetDataFull(buf),
+			buf -> Util.make(FTBQuestsClient.createClientQuestFile(), file -> file.readNetDataFull(buf))
+	);
 
 	private final DefaultChapterGroup defaultChapterGroup;
 	final List<ChapterGroup> chapterGroups;
@@ -275,7 +264,8 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		}
 
 		QuestObjectBase object = questObjectMap.get(id);
-		return object == null || object.invalid ? null : object;
+        //noinspection ConstantValue
+        return object == null || object.invalid ? null : object;
 	}
 
 	@Nullable
@@ -287,6 +277,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 	public QuestObjectBase remove(long id) {
 		QuestObjectBase object = questObjectMap.remove(id);
 
+		//noinspection ConstantValue
 		if (object != null) {
 			if (object instanceof QuestObject qo) {
 				forAllQuests(quest -> quest.removeDependency(qo));
@@ -426,9 +417,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 					return RewardTable.createRewardForTable(id, rewardType, this);
 				} else {
 					Quest quest = getQuestObjectOrThrow(parent, Quest.class);
-					Reward reward = RewardType.createReward(id, quest, rewardType);
-					Validate.isTrue(reward != null, "Unknown reward type: " + rewardType);
-					return reward;
+                    return RewardType.createReward(id, quest, rewardType);
 				}
 			}
 			case REWARD_TABLE -> {
@@ -446,7 +435,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		super.writeData(nbt, provider);
 		nbt.putBoolean("default_reward_team", defaultPerTeamReward);
 		nbt.putBoolean("default_consume_items", defaultTeamConsumeItems);
-		nbt.putString("default_autoclaim_rewards", defaultRewardAutoClaim.id);
+		nbt.putString("default_autoclaim_rewards", defaultRewardAutoClaim.getId());
 		nbt.putString("default_quest_shape", defaultQuestShape);
 		nbt.putBoolean("default_quest_disable_jei", defaultQuestDisableJEI);
 
@@ -489,9 +478,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		defaultQuestDisableJEI = nbt.getBoolean("default_quest_disable_jei").orElseThrow();
 		emergencyItems.clear();
 
-		nbt.getList("emergency_items").ifPresent(itemsTag -> {
-			emergencyItems.add(itemOrMissingFromNBT(itemsTag, provider));
-		});
+		nbt.getList("emergency_items").ifPresent(itemsTag -> emergencyItems.add(itemOrMissingFromNBT(itemsTag, provider)));
 
 		emergencyItemsCooldown = nbt.getInt("emergency_items_cooldown").orElseThrow();
 		dropLootCrates = nbt.getBoolean("drop_loot_crates").orElseThrow();
@@ -613,7 +600,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 			fileVersion = fileNBT.getInt("version").orElseThrow();
 			questObjectMap.put(1, this);
 			readData(fileNBT, provider);
-			handleLegacyFileNBT(fileNBT);
         } catch (IOException e) {
             LOGGER.error("Failed to load default data file.", e);
         }
@@ -629,9 +615,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 				for (int i = 0; i < groupListTag.size(); i++) {
 					groupListTag.getCompound(i).ifPresent(groupNBT -> {
 						ChapterGroup chapterGroup = new ChapterGroup(readID(groupNBT.get("id")), this);
-
-						handleLegacyChapterGroupNBT(groupNBT, chapterGroup);
-
 						questObjectMap.put(chapterGroup.id, chapterGroup);
 						dataCache.put(chapterGroup.id, groupNBT);
 						chapterGroups.add(chapterGroup);
@@ -657,9 +640,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 								getChapterGroup(getID(chapterNBT.get("group"))),
 								path.getFileName().toString().replace(".snbt", "")
 						);
-
-						handleLegacyChapterNBT(chapterNBT, chapter);
-
 						objectOrderMap.put(chapter.id, chapterNBT.getIntOr("order_index", 0));
 						questObjectMap.put(chapter.id, chapter);
 						dataCache.put(chapter.id, chapterNBT);
@@ -670,28 +650,16 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 						for (int i = 0; i < questList.size(); i++) {
 							questList.getCompound(i).ifPresent(questNBT -> {
 								Quest quest = new Quest(readID(questNBT.get("id")), chapter);
-
-								handleLegacyQuestNBT(quest, questNBT);
-
 								questObjectMap.put(quest.id, quest);
 								dataCache.put(quest.id, questNBT);
 								chapter.addQuest(quest);
 
 								ListTag taskList = questNBT.getList("tasks").orElse(new ListTag());
-
 								for (int j = 0; j < taskList.size(); j++) {
 									taskList.getCompound(j).ifPresent(taskNBT -> {
 										long taskId = readID(taskNBT.get("id"));
 										Task task = TaskType.createTask(taskId, quest, taskNBT.getString("type").orElseThrow());
-
-										handleLegacyTaskNBT(task, taskNBT);
-
-										if (task == null) {
-											task = new CustomTask(taskId, quest);
-											task.setRawTitle("Unknown type: " + taskNBT.getString("type"));
-										}
-
-										questObjectMap.put(task.id, task);
+                                        questObjectMap.put(task.id, task);
 										dataCache.put(task.id, taskNBT);
 										quest.addTask(task);
 									});
@@ -703,11 +671,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 									rewardList.getCompound(j).ifPresent(rewardNBT -> {
 										long rewardId = readID(rewardNBT.get("id"));
 										Reward reward = RewardType.createReward(rewardId, quest, rewardNBT.getString("type").orElseThrow());
-										if (reward == null) {
-											reward = new CustomReward(rewardId, quest);
-											reward.setRawTitle("Unknown type: " + rewardNBT.getString("type"));
-										}
-
 										questObjectMap.put(reward.id, reward);
 										dataCache.put(reward.id, rewardNBT);
 										quest.addReward(reward);
@@ -763,6 +726,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		for (QuestObjectBase object : questObjectMap.values()) {
 			CompoundTag data = dataCache.get(object.id);
 
+			//noinspection ConstantValue
 			if (data != null) {
 				object.readData(data, provider);
 			}
@@ -798,53 +762,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		}
 
 		FTBQuests.LOGGER.info("Loaded {} chapter groups, {} chapters, {} quests, {} reward tables", chapterGroups.size(), chapterCounter, questCounter, rewardTables.size());
-	}
-
-	private void handleLegacyFileNBT(CompoundTag fileNBT) {
-		if (fileNBT.contains("title")) {
-			translationManager.addTranslation(this, "en_us", TranslationKey.TITLE, fileNBT.getString("title").orElse(""));
-			markDirty();
-		}
-	}
-
-	private void handleLegacyChapterGroupNBT(CompoundTag groupNBT, ChapterGroup chapterGroup) {
-		if (groupNBT.contains("title")) {
-			translationManager.addTranslation(chapterGroup, "en_us", TranslationKey.TITLE, groupNBT.getString("title").orElse(""));
-			markDirty();
-		}
-	}
-
-	private void handleLegacyChapterNBT(CompoundTag chapterNBT, Chapter chapter) {
-		if (chapterNBT.contains("title")) {
-			translationManager.addTranslation(chapter, "en_us", TranslationKey.TITLE, chapterNBT.getString("title").orElse(""));
-			markDirty();
-		}
-		if (chapterNBT.contains("subtitle")) {
-			translationManager.addTranslation(chapter, "en_us", TranslationKey.CHAPTER_SUBTITLE, TextUtils.fromListTag(chapterNBT.getList("subtitle").orElse(new ListTag())));
-			markDirty();
-		}
-	}
-
-	private void handleLegacyQuestNBT(Quest quest, CompoundTag questNBT) {
-		if (questNBT.contains("title")) {
-			translationManager.addTranslation(quest, "en_us", TranslationKey.TITLE, questNBT.getString("title").orElse(""));
-			markDirty();
-		}
-		if (questNBT.contains("subtitle")) {
-			translationManager.addTranslation(quest, "en_us", TranslationKey.QUEST_SUBTITLE, questNBT.getString("subtitle").orElse(""));
-			markDirty();
-		}
-		if (questNBT.contains("description")) {
-			translationManager.addTranslation(quest, "en_us", TranslationKey.QUEST_DESC, TextUtils.fromListTag(questNBT.getList("description").orElse(new ListTag())));
-			markDirty();
-		}
-	}
-
-	private void handleLegacyTaskNBT(Task task, CompoundTag taskNBT) {
-		if (taskNBT.contains("title")) {
-			translationManager.addTranslation(task, "en_us", TranslationKey.TITLE, taskNBT.getString("title").orElse(""));
-			markDirty();
-		}
 	}
 
 	public void updateLootCrates() {
@@ -1233,6 +1150,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 	}
 
 	public long readID(long id) {
+		//noinspection ConstantValue
 		while (id == 0L || id == 1L || questObjectMap.get(id) != null) {
 			id = Math.abs(MathUtils.RAND.nextLong());
 			markDirty();
@@ -1375,12 +1293,14 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 	}
 
 	@Nullable
-	public Chapter getFirstVisibleChapter(TeamData data) {
-		for (ChapterGroup group : chapterGroups) {
-			Chapter c = group.getFirstVisibleChapter(data);
+	public Chapter getFirstVisibleChapter(@Nullable TeamData data) {
+		if (data != null) {
+			for (ChapterGroup group : chapterGroups) {
+				Chapter c = group.getFirstVisibleChapter(data);
 
-			if (c != null) {
-				return c;
+				if (c != null) {
+					return c;
+				}
 			}
 		}
 
@@ -1531,7 +1451,7 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 			if (table.getWeightedRewards().isEmpty()) {
 				del.increment();
 				table.invalid = true;
-				FileUtils.delete(ServerQuestFile.INSTANCE.getFolder().resolve(table.getPath().orElseThrow()).toFile());
+				FileUtils.delete(ServerQuestFile.getInstance().getFolder().resolve(table.getPath().orElseThrow()).toFile());
 				NetworkHelper.sendToAll(source.getServer(), new DeleteObjectResponseMessage(table.id));
 			}
 		}

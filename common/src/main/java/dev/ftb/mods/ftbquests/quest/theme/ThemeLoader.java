@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ThemeLoader implements ResourceManagerReloadListener {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ThemeLoader.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(ThemeLoader.class);
 	public static final String THEME_TXT = "ftb_quests_theme.txt";
 
 	@Override
@@ -59,46 +59,14 @@ public class ThemeLoader implements ResourceManagerReloadListener {
 			LOGGER.error("FTB Quests theme file is missing! Some mod has broken resource loading, inspect log for errors");
 		}
 
-		QuestTheme theme = new QuestTheme();
-		theme.defaults = map.remove(AllSelector.INSTANCE);
+		QuestTheme.setInstance(new QuestTheme(map));
 
-		if (theme.defaults == null) {
-			theme.defaults = new SelectorProperties(AllSelector.INSTANCE);
-		}
-
-		theme.selectors.addAll(map.values());
-		theme.selectors.sort(null);
-		QuestTheme.instance = theme;
-
-		LOGGER.debug("Theme:");
-		LOGGER.debug("");
-		LOGGER.debug("[*]");
-
-		for (Map.Entry<String, String> entry : theme.defaults.properties.entrySet()) {
-            LOGGER.debug("{}: {}", entry.getKey(), theme.replaceVariables(entry.getValue(), 0));
-		}
-
-		for (SelectorProperties selectorProperties : theme.selectors) {
-			LOGGER.debug("");
-            LOGGER.debug("[{}]", selectorProperties.selector);
-
-			for (Map.Entry<String, String> entry : selectorProperties.properties.entrySet()) {
-                LOGGER.debug("{}: {}", entry.getKey(), theme.replaceVariables(entry.getValue(), 0));
-			}
-		}
-
-		LinkedHashSet<String> list = new LinkedHashSet<>();
-		list.add("circle");
-		list.add("square");
-		list.add("rsquare");
-
+		LinkedHashSet<String> shapes = new LinkedHashSet<>(List.of("circle", "square", "rsquare"));
 		for (String s : ThemeProperties.EXTRA_QUEST_SHAPES.get().split(",")) {
-			list.add(s.trim());
+			shapes.add(s.trim());
 		}
-
-		list.add("none");
-
-		QuestShape.reload(new ArrayList<>(list));
+		shapes.add("none");
+		QuestShape.reload(new ArrayList<>(shapes));
 	}
 
 	private static void parse(Map<ThemeSelector, SelectorProperties> selectorPropertyMap, List<String> lines) {

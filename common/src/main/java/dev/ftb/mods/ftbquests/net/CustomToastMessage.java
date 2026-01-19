@@ -27,7 +27,7 @@ public record CustomToastMessage(long id) implements CustomPacketPayload {
 
 	public static void handle(CustomToastMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
-			if (ClientQuestFile.exists() && ClientQuestFile.INSTANCE.getBase(message.id) instanceof ToastReward toastReward) {
+			if (ClientQuestFile.exists() && ClientQuestFile.getInstance().getBase(message.id) instanceof ToastReward toastReward) {
 				FTBQuestsNetClient.displayCustomToast(toastReward);
 			}
 		});

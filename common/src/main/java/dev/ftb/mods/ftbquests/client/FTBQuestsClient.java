@@ -21,7 +21,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -40,6 +39,7 @@ import dev.ftb.mods.ftblibrary.client.config.editable.EditableResource;
 import dev.ftb.mods.ftblibrary.client.config.gui.EditConfigScreen;
 import dev.ftb.mods.ftblibrary.client.gui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftbquests.FTBQuests;
@@ -111,16 +111,16 @@ public class FTBQuestsClient {
 
 	@Nullable
 	public static BaseQuestFile getClientQuestFile() {
-		return ClientQuestFile.INSTANCE;
+		return ClientQuestFile.getInstance();
 	}
 
-	public static Player getClientPlayer() {
-		return Objects.requireNonNull(Minecraft.getInstance().player);
-	}
-
-	public static Level getClientLevel() {
-		return Objects.requireNonNull(Minecraft.getInstance().level);
-	}
+//	public static Player getClientPlayer() {
+//		return Objects.requireNonNull(Minecraft.getInstance().player);
+//	}
+//
+//	public static Level getClientLevel() {
+//		return Objects.requireNonNull(Minecraft.getInstance().level);
+//	}
 
 	public static boolean isClientDataLoaded() {
 		return ClientQuestFile.exists();
@@ -135,7 +135,7 @@ public class FTBQuestsClient {
 	}
 
 	public static HolderLookup.Provider holderLookup() {
-		return getClientLevel().registryAccess();
+		return ClientUtils.getClientLevel().registryAccess();
 	}
 
 	public static void openGui() {
@@ -151,7 +151,7 @@ public class FTBQuestsClient {
 					CustomIconItem.setIcon(player.getItemInHand(hand), editable.isEmpty() ? null : rl);
 					NetworkManager.sendToServer(new SetCustomImageMessage(hand, false, rl));
 				} else if (editable.getValue() instanceof EntityType<?> et) {
-					CustomIconItem.setFaceIcon(player.getItemInHand(hand), editable.isEmpty() ? null : et);
+					CustomIconItem.setFaceIcon(player.getItemInHand(hand), editable.isEmpty() ? EditableEntityFace.NONE : et);
 					NetworkManager.sendToServer(new SetCustomImageMessage(hand, true, RegistrarManager.getId(et, Registries.ENTITY_TYPE)));
 				}
 			}
@@ -160,8 +160,8 @@ public class FTBQuestsClient {
 	}
 
 	public static void openTaskScreenConfigGui(BlockPos pos) {
-		if (Minecraft.getInstance().level.getBlockEntity(pos) instanceof TaskScreenBlockEntity coreScreen) {
-			new EditConfigScreen(coreScreen.fillConfigGroup(ClientQuestFile.INSTANCE.getOrCreateTeamData(coreScreen.getTeamId()))).setAutoclose(true).openGui();
+		if (ClientUtils.getClientLevel().getBlockEntity(pos) instanceof TaskScreenBlockEntity coreScreen) {
+			new EditConfigScreen(coreScreen.fillConfigGroup(ClientQuestFile.getInstance().getOrCreateTeamData(coreScreen.getTeamId()))).setAutoclose(true).openGui();
 		}
 	}
 
@@ -224,7 +224,7 @@ public class FTBQuestsClient {
 		Minecraft.getInstance().getToastManager().addToast(new ToastQuestObject(qo));
 	}
 
-	static void showRewardToast(Component text, Icon icon) {
+	static void showRewardToast(Component text, Icon<?> icon) {
 		Minecraft.getInstance().getToastManager().addToast(new RewardToast(text, icon));
 	}
 }

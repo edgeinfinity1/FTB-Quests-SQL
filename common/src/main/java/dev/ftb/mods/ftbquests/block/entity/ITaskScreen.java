@@ -4,7 +4,6 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
 
 public interface ITaskScreen extends IEditable {
     Optional<TaskScreenBlockEntity> getCoreScreen();

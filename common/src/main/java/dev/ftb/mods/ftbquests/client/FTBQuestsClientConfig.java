@@ -54,7 +54,7 @@ public interface FTBQuestsClientConfig {
     }
 
     static void onEdited(boolean ignoredClientSide) {
-        ClientQuestFile.INSTANCE.clearCachedData();
+        ClientQuestFile.getInstance().clearCachedData();
     }
 
 }

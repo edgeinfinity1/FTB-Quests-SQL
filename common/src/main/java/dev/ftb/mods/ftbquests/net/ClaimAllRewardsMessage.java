@@ -25,7 +25,7 @@ public class ClaimAllRewardsMessage implements CustomPacketPayload {
 	public static void handle(ClaimAllRewardsMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
 			ServerPlayer player = (ServerPlayer) context.getPlayer();
-			ServerQuestFile.INSTANCE.getTeamData(player).ifPresent(data -> {
+			ServerQuestFile.getInstance().getTeamData(player).ifPresent(data -> {
 				data.getFile().forAllQuests(quest -> {
 					if (data.isCompleted(quest)) {
 						quest.getRewards().stream()

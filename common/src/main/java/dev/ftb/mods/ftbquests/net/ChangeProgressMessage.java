@@ -7,8 +7,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import dev.architectury.networking.NetworkManager;
 
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.util.NetUtils;
@@ -33,7 +33,7 @@ public record ChangeProgressMessage(UUID teamId, ProgressChange progressChange) 
 
 	public static void sendToServer(TeamData team, QuestObjectBase object, Consumer<ProgressChange> changeConsumer) {
 		if (!team.isLocked()) {
-			ProgressChange change = new ProgressChange(object, FTBQuestsClient.getClientPlayer().getUUID());
+			ProgressChange change = new ProgressChange(object, ClientUtils.getClientPlayer().getUUID());
 			changeConsumer.accept(change);
 			NetworkManager.sendToServer(new ChangeProgressMessage(team.getTeamId(), change));
 		}

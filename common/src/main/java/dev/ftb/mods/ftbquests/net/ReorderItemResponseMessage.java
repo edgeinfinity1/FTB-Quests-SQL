@@ -36,7 +36,7 @@ public record ReorderItemResponseMessage(long questId, List<Long> itemIds, boole
 
     public static void handle(ReorderItemResponseMessage message, NetworkManager.PacketContext context) {
         context.queue(() -> {
-            ClientQuestFile file = ClientQuestFile.INSTANCE;
+            ClientQuestFile file = ClientQuestFile.getInstance();
             Quest q = file.getQuest(message.questId);
             if (q != null) {
                 if (message.task) {

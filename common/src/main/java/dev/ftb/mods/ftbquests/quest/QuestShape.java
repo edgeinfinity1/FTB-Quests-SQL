@@ -8,6 +8,7 @@ import dev.ftb.mods.ftblibrary.client.icon.IconRenderer;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.ImageIcon;
 import dev.ftb.mods.ftblibrary.math.PixelBuffer;
+import dev.ftb.mods.ftblibrary.util.Lazy;
 import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.QuestShapeRenderer;
@@ -17,21 +18,19 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class QuestShape extends Icon<QuestShape> {
 	private static final Map<String, QuestShape> MAP = new LinkedHashMap<>();
-	private static QuestShape defaultShape;
+	private static final String DEF_SHAPE = "circle";
+	private static QuestShape defaultShape = new QuestShape(DEF_SHAPE);
 
-	public static NameMap<String> idMap;
-	public static NameMap<String> idMapWithDefault;
+	public static NameMap<String> idMap = NameMap.of(DEF_SHAPE, List.of(DEF_SHAPE)).create();
+	public static NameMap<String> idMapWithDefault = NameMap.of(DEF_SHAPE, List.of(DEF_SHAPE, "default")).create();
 
 	private final String id;
 	private final ImageIcon background, outline, shape;
 	private final boolean shouldDraw;
-	@Nullable
-	private PixelBuffer shapePixels;
+	private final Lazy<PixelBuffer> shapePixels = Lazy.of(this::makeShapePixels);
 
 	public QuestShape(String id) {
 		this.id = id;
@@ -81,25 +80,12 @@ public final class QuestShape extends Icon<QuestShape> {
 	}
 
 	@Override
-	public @NonNull IconRenderer<QuestShape> getRenderer() {
+	public IconRenderer<QuestShape> getRenderer() {
 		return QuestShapeRenderer.INSTANCE;
 	}
 
 	public PixelBuffer getShapePixels() {
-		if (shapePixels == null) {
-			try {
-				Identifier shapeLoc = FTBQuestsAPI.id("textures/shapes/" + id + "/shape.png");
-				Resource resource = Minecraft.getInstance().getResourceManager().getResource(shapeLoc).get();
-				try (InputStream stream = resource.open()) {
-					shapePixels = PixelBuffer.from(stream);
-				}
-			} catch (Exception ex) {
-				shapePixels = new PixelBuffer(1, 1);
-				shapePixels.setRGB(0, 0, 0xFFFFFFFF);
-			}
-		}
-
-		return shapePixels;
+		return shapePixels.get();
 	}
 
 	public boolean shouldDraw() {
@@ -108,5 +94,19 @@ public final class QuestShape extends Icon<QuestShape> {
 
 	public static Map<String,QuestShape> map() {
 		return Collections.unmodifiableMap(MAP);
+	}
+
+	private PixelBuffer makeShapePixels() {
+		try {
+			Identifier shapeLoc = FTBQuestsAPI.id("textures/shapes/" + id + "/shape.png");
+			Resource resource = Minecraft.getInstance().getResourceManager().getResource(shapeLoc).get();
+			try (InputStream stream = resource.open()) {
+				return PixelBuffer.from(stream);
+			}
+		} catch (Exception ex) {
+			PixelBuffer res = new PixelBuffer(1, 1);
+			res.setRGB(0, 0, 0xFFFFFFFF);
+			return res;
+		}
 	}
 }

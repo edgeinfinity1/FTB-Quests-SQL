@@ -13,6 +13,8 @@ import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.integration.item_filtering.DisplayStacksCache;
 
+import org.jspecify.annotations.Nullable;
+
 public class ClearDisplayCacheMessage implements CustomPacketPayload {
     public static final Type<ClearDisplayCacheMessage> TYPE = new Type<>(FTBQuestsAPI.id("clear_display_cache_message"));
 
@@ -34,7 +36,7 @@ public class ClearDisplayCacheMessage implements CustomPacketPayload {
         }
     }
 
-    public static void clearForAll(MinecraftServer server) {
+    public static void clearForAll(@Nullable MinecraftServer server) {
         if (server != null) {
             NetworkHelper.sendToAll(server, ClearDisplayCacheMessage.INSTANCE);
         }

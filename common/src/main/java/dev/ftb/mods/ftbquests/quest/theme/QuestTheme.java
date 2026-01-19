@@ -2,50 +2,46 @@ package dev.ftb.mods.ftbquests.quest.theme;
 
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperty;
+import dev.ftb.mods.ftbquests.quest.theme.selector.AllSelector;
+import dev.ftb.mods.ftbquests.quest.theme.selector.ThemeSelector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
+import static dev.ftb.mods.ftbquests.quest.theme.ThemeLoader.LOGGER;
+
 public class QuestTheme {
-	public static QuestTheme instance;
+	@Nullable
+	private static QuestTheme instance;
+	@Nullable
 	public static QuestObjectBase currentObject;
 
-	private static class QuestObjectPropertyKey {
-		private final String property;
-		private final long object;
-
-		private QuestObjectPropertyKey(String p, long o) {
-			property = p;
-			object = o;
-		}
-
-		@Override
-		public int hashCode() {
-			return Long.hashCode(property.hashCode() * 31L + object);
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o instanceof QuestObjectPropertyKey key) {
-				return object == key.object && property.equals(key.property);
-			}
-
-			return false;
-		}
-	}
-
-	public final List<SelectorProperties> selectors;
+	private final List<SelectorProperties> selectors;
 	private final Map<QuestObjectPropertyKey, Object> cache;
 	private final Map<String, Object> defaultCache;
-	public SelectorProperties defaults;
+	private final SelectorProperties defaults;
 
-	public QuestTheme() {
-		selectors = new ArrayList<>();
+	public QuestTheme(Map<ThemeSelector, SelectorProperties> map) {
 		cache = new HashMap<>();
 		defaultCache = new HashMap<>();
+
+		var def = map.remove(AllSelector.INSTANCE);
+		defaults = Objects.requireNonNullElse(def, new SelectorProperties(AllSelector.INSTANCE));
+
+		selectors = new ArrayList<>(map.values().stream().sorted().toList());
+	}
+
+	public static @Nullable QuestTheme getInstance() {
+		return instance;
+	}
+
+	static void setInstance(QuestTheme instance) {
+		QuestTheme.instance = instance;
+		instance.dumpDebugInfo();
 	}
 
 	public void clearCache() {
@@ -127,5 +123,27 @@ public class QuestTheme {
 		}
 
 		return original.equals(value) ? value : replaceVariables(value, iteration + 1);
+	}
+
+	public void dumpDebugInfo() {
+		LOGGER.debug("Theme:");
+		LOGGER.debug("");
+		LOGGER.debug("[*]");
+
+		for (Map.Entry<String, String> entry : defaults.properties.entrySet()) {
+			LOGGER.debug("{}: {}", entry.getKey(), replaceVariables(entry.getValue(), 0));
+		}
+
+		for (SelectorProperties selectorProperties : selectors) {
+			LOGGER.debug("");
+			LOGGER.debug("[{}]", selectorProperties.selector);
+
+			for (Map.Entry<String, String> entry : selectorProperties.properties.entrySet()) {
+				LOGGER.debug("{}: {}", entry.getKey(), replaceVariables(entry.getValue(), 0));
+			}
+		}
+	}
+
+	private record QuestObjectPropertyKey(String property, long object) {
 	}
 }

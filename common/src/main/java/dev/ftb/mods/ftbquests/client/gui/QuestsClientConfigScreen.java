@@ -23,8 +23,8 @@ public class QuestsClientConfigScreen extends EditConfigScreen {
         super(group);
 
         this.pause = pause;
-        this.prevLocale = ClientQuestFile.INSTANCE.getLocale();
-        this.prevFallback = ClientQuestFile.INSTANCE.getFallbackLocale();
+        this.prevLocale = ClientQuestFile.getInstance().getLocale();
+        this.prevFallback = ClientQuestFile.getInstance().getFallbackLocale();
 
         setAutoclose(true);
     }
@@ -43,7 +43,7 @@ public class QuestsClientConfigScreen extends EditConfigScreen {
     protected void doAccept() {
         super.doAccept();
 
-        ClientQuestFile file = ClientQuestFile.INSTANCE;
+        ClientQuestFile file = ClientQuestFile.getInstance();
 
         if (file != null) {
             List<CustomPacketPayload> toSend = new ArrayList<>();

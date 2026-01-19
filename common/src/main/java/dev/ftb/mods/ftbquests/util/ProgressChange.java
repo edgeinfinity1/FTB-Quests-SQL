@@ -39,7 +39,7 @@ public class ProgressChange {
 	}
 
 	public static ProgressChange createServerSide(long origin, boolean reset, UUID playerId, boolean notifications) {
-		ProgressChange pc = new ProgressChange(ServerQuestFile.INSTANCE.getBase(origin), playerId);
+		ProgressChange pc = new ProgressChange(ServerQuestFile.getInstance().getBase(origin), playerId);
 		pc.reset = reset;
 		pc.notifications = notifications;
 		return pc;
@@ -47,7 +47,7 @@ public class ProgressChange {
 
 	public void maybeForceProgress(UUID teamId) {
 		if (origin != null) {
-			TeamData data = ServerQuestFile.INSTANCE.getOrCreateTeamData(teamId);
+			TeamData data = ServerQuestFile.getInstance().getOrCreateTeamData(teamId);
 			origin.forceProgressRaw(data, this);
 			if (origin instanceof Quest quest && reset) {
 				data.clearRepeatCooldown(quest);

@@ -66,8 +66,8 @@ public record CreateObjectMessage(long parent, QuestObjectType questObjectType, 
 			if (NetUtils.canEdit(context) && context.getPlayer() instanceof ServerPlayer sp) {
 				CompoundTag extra = message.extra.orElse(new CompoundTag());
 
-				QuestObjectBase object = ServerQuestFile.INSTANCE.create(
-						ServerQuestFile.INSTANCE.newID(), message.questObjectType, message.parent, extra
+				QuestObjectBase object = ServerQuestFile.getInstance().create(
+						ServerQuestFile.getInstance().newID(), message.questObjectType, message.parent, extra
 				);
 				object.readData(message.nbt, context.registryAccess());
 

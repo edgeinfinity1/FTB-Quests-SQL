@@ -36,8 +36,8 @@ public record GetEmergencyItemsMessage() implements CustomPacketPayload {
 			long now = Util.getEpochMillis();
 			long delta = now - lastItemsGot.getOrDefault(player.getUUID(), 0L);
 
-			if (delta >= ServerQuestFile.INSTANCE.getEmergencyItemsCooldown() * 1000L) {
-				ServerQuestFile.INSTANCE.getEmergencyItems()
+			if (delta >= ServerQuestFile.getInstance().getEmergencyItemsCooldown() * 1000L) {
+				ServerQuestFile.getInstance().getEmergencyItems()
 						.forEach(stack -> ItemStackHooks.giveItem(player, stack.copy()));
 				lastItemsGot.put(player.getUUID(), now);
 			}

@@ -14,9 +14,13 @@ public enum RewardAutoClaim {
 	public static final NameMap<RewardAutoClaim> NAME_MAP = NameMap.of(DEFAULT, values()).baseNameKey("ftbquests.reward.autoclaim").create();
 	public static final NameMap<RewardAutoClaim> NAME_MAP_NO_DEFAULT = NameMap.of(DISABLED, Arrays.asList(DISABLED, ENABLED, NO_TOAST, INVISIBLE)).baseNameKey("ftbquests.reward.autoclaim").create();
 
-	public String id;
+	private final String id;
 
 	RewardAutoClaim(String s) {
 		id = s;
+	}
+
+	public String getId() {
+		return id;
 	}
 }

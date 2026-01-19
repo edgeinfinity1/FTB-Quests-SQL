@@ -62,11 +62,11 @@ public class FTBQuestsNeoForge {
 		if (living.level().isClientSide() || living instanceof Player || living.getType().is(FTBQuestsTags.EntityTypes.NO_LOOT_CRATES)) {
 			return;
 		}
-		if (ServerQuestFile.INSTANCE == null || !ServerQuestFile.INSTANCE.isDropLootCrates()) {
+		if (ServerQuestFile.getInstance() == null || !ServerQuestFile.getInstance().isDropLootCrates()) {
 			return;
 		}
 
-		ServerQuestFile.INSTANCE.makeRandomLootCrate(living, living.level().random).ifPresent(crate -> {
+		ServerQuestFile.getInstance().makeRandomLootCrate(living, living.level().random).ifPresent(crate -> {
 			ItemEntity itemEntity = new ItemEntity(living.level(), living.getX(), living.getY(), living.getZ(), crate.createStack());
 			itemEntity.setPickUpDelay(10);
 			event.getDrops().add(itemEntity);
@@ -77,7 +77,7 @@ public class FTBQuestsNeoForge {
 		if (!(event.getEntity() instanceof ServerPlayer player)
 				|| player instanceof FakePlayer
 				|| player.level().getGameRules().get(GameRules.KEEP_INVENTORY)
-				|| ServerQuestFile.INSTANCE.dropBookOnDeath()) {
+				|| ServerQuestFile.getInstance().dropBookOnDeath()) {
 			return;
 		}
 

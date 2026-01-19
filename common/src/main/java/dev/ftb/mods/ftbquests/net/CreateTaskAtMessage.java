@@ -20,6 +20,7 @@ import dev.ftb.mods.ftbquests.quest.task.TaskType;
 import dev.ftb.mods.ftbquests.util.NetUtils;
 
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 public record CreateTaskAtMessage(long chapterId, double x, double y, int taskTypeId, CompoundTag nbt, Optional<CompoundTag> extra) implements CustomPacketPayload {
 	public static final Type<CreateTaskAtMessage> TYPE = new Type<>(FTBQuestsAPI.id("create_task_at_message"));
@@ -34,7 +35,7 @@ public record CreateTaskAtMessage(long chapterId, double x, double y, int taskTy
 			CreateTaskAtMessage::new
 	);
 
-	public static CreateTaskAtMessage create(Chapter chapter, double x, double y, Task task, CompoundTag extra) {
+	public static CreateTaskAtMessage create(Chapter chapter, double x, double y, Task task, @Nullable CompoundTag extra) {
 		return new CreateTaskAtMessage(chapter.id, x, y, task.getType().internalId,
 				Util.make(new CompoundTag(), nbt1 -> task.writeData(nbt1, chapter.getQuestFile().holderLookup())),
                 Optional.ofNullable(extra)
@@ -49,11 +50,11 @@ public record CreateTaskAtMessage(long chapterId, double x, double y, int taskTy
 	public static void handle(CreateTaskAtMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
 			if (NetUtils.canEdit(context) && context.getPlayer() instanceof ServerPlayer sp) {
-				ServerQuestFile file = ServerQuestFile.INSTANCE;
+				ServerQuestFile file = ServerQuestFile.getInstance();
 				Chapter chapter = file.getChapter(message.chapterId);
-				TaskType taskType = ServerQuestFile.INSTANCE.getTaskType(message.taskTypeId);
+				TaskType taskType = ServerQuestFile.getInstance().getTaskType(message.taskTypeId);
 
-				if (chapter != null && taskType != null) {
+				if (chapter != null) {
 					Quest quest = new Quest(file.newID(), chapter);
 					quest.setX(message.x);
 					quest.setY(message.y);

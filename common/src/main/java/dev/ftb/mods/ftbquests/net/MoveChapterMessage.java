@@ -30,11 +30,11 @@ public record MoveChapterMessage(long id, boolean movingUp) implements CustomPac
 	public static void handle(MoveChapterMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
 			if (NetUtils.canEdit(context)) {
-				Chapter chapter = ServerQuestFile.INSTANCE.getChapter(message.id);
+				Chapter chapter = ServerQuestFile.getInstance().getChapter(message.id);
 
 				if (chapter != null && chapter.getGroup().moveChapterWithinGroup(chapter, message.movingUp)) {
 					chapter.file.clearCachedData();
-					NetworkHelper.sendToAll(ServerQuestFile.INSTANCE.server, new MoveChapterResponseMessage(message.id, message.movingUp));
+					NetworkHelper.sendToAll(ServerQuestFile.getInstance().server, new MoveChapterResponseMessage(message.id, message.movingUp));
 					chapter.file.markDirty();
 				}
 			}

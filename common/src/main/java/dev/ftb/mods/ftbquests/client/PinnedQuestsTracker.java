@@ -11,6 +11,7 @@ import net.minecraft.util.FormattedCharSequence;
 
 import dev.ftb.mods.ftblibrary.client.gui.GuiHelper;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.quest.Quest;
@@ -48,7 +49,7 @@ public enum PinnedQuestsTracker {
 
         showChapterTitle = false;
         List<Quest> pinnedQuests = new ArrayList<>();
-        LongSet pinnedIds = data.getPinnedQuestIds(FTBQuestsClient.getClientPlayer());
+        LongSet pinnedIds = data.getPinnedQuestIds(ClientUtils.getClientPlayer());
         if (!pinnedIds.isEmpty()) {
             if (pinnedIds.contains(TeamData.AUTO_PIN_ID)) {
                 // special auto-pin value: collect all quests which can be done now

@@ -48,7 +48,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
@@ -426,7 +426,7 @@ public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
 	}
 
 	public void editedFromGUI() {
-		ClientQuestFile.INSTANCE.refreshGui();
+		ClientQuestFile.getInstance().refreshGui();
 	}
 
 	public void editedFromGUIOnServer() {
@@ -481,11 +481,8 @@ public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
 		return EnumSet.noneOf(RecipeModHelper.Components.class);
 	}
 
-	public static <T extends QuestObjectBase> T copy(T orig, Supplier<T> factory) {
+	public static <T extends QuestObjectBase> T copy(T orig, Supplier<@NonNull T> factory) {
 		T copied = factory.get();
-		if (copied == null) {
-			return null;
-		}
 		CompoundTag tag = new CompoundTag();
 		orig.writeData(tag, orig.holderLookup());
 		copied.readData(tag, orig.holderLookup());
@@ -493,7 +490,7 @@ public abstract class QuestObjectBase implements Comparable<QuestObjectBase> {
 	}
 
 	@Override
-	public int compareTo(@NotNull QuestObjectBase other) {
+	public int compareTo(QuestObjectBase other) {
 		int typeCmp = Integer.compare(getObjectType().ordinal(), other.getObjectType().ordinal());
 		return typeCmp == 0 ?
 				getTitle().getString().toLowerCase().compareTo(other.getTitle().getString().toLowerCase()) :

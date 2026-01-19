@@ -18,7 +18,6 @@ import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.util.StringUtils;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.events.CustomTaskEvent;
 import dev.ftb.mods.ftbquests.events.ObjectCompletedEvent;
@@ -332,7 +331,7 @@ public abstract class Task extends QuestObject {
 		if (getQuestFile().isServerSide()) {
 			FTBQuests.LOGGER.warn("Ignoring bad resource location '{}' for task {}", str, id);
 		} else {
-			FTBQuestsClient.getClientPlayer().displayClientMessage(
+			ClientUtils.getClientPlayer().displayClientMessage(
 					Component.literal("Bad resource location: " + str).withStyle(ChatFormatting.RED), false);
 		}
 

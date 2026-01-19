@@ -33,8 +33,8 @@ public record RequestTranslationTableMessage(String locale) implements CustomPac
 
     public static void handle(RequestTranslationTableMessage message, NetworkManager.PacketContext context) {
         context.queue(() -> {
-            if (ServerQuestFile.INSTANCE != null && context.getPlayer() instanceof ServerPlayer sp) {
-                ServerQuestFile.INSTANCE.getTranslationManager().sendTableToPlayer(sp, message.locale);
+            if (ServerQuestFile.getInstance() != null && context.getPlayer() instanceof ServerPlayer sp) {
+                ServerQuestFile.getInstance().getTranslationManager().sendTableToPlayer(sp, message.locale);
             }
         });
     }

@@ -35,9 +35,9 @@ public record SyncTranslationTableMessage(String locale, TranslationTable table)
 
     public static void handle(SyncTranslationTableMessage message, NetworkManager.PacketContext context) {
         context.queue(() -> {
-            ClientQuestFile.INSTANCE.getTranslationManager().syncTableFromServer(message.locale, message.table);
-            ClientQuestFile.INSTANCE.clearCachedData();
-            ClientQuestFile.INSTANCE.refreshGui();
+            ClientQuestFile.getInstance().getTranslationManager().syncTableFromServer(message.locale, message.table);
+            ClientQuestFile.getInstance().clearCachedData();
+            ClientQuestFile.getInstance().refreshGui();
             FTBQuests.LOGGER.info("received translation table {} (with {} entries) from server", message.locale, message.table.size());
         });
     }

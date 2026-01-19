@@ -19,12 +19,14 @@ import dev.ftb.mods.ftblibrary.client.gui.widget.ContextMenuItem;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Panel;
 import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.client.icon.IconHelper;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.client.util.PositionedIngredient;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.math.PixelBuffer;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
 import dev.ftb.mods.ftbquests.client.gui.ContextMenuBuilder;
 import dev.ftb.mods.ftbquests.client.gui.CustomToast;
@@ -65,12 +67,12 @@ public class QuestButton extends Button implements QuestPositionableButton {
 
 	@Override
 	public boolean isEnabled() {
-		return questScreen.file.canEdit() || quest.isVisible(questScreen.file.selfTeamData);
+		return questScreen.file.canEdit() || quest.isVisible(FTBQuestsClient.getClientPlayerData());
 	}
 
 	@Override
 	public boolean shouldDraw() {
-		return questScreen.file.canEdit() || quest.isVisible(questScreen.file.selfTeamData);
+		return questScreen.file.canEdit() || quest.isVisible(FTBQuestsClient.getClientPlayerData());
 	}
 
 	@Override
@@ -214,7 +216,7 @@ public class QuestButton extends Button implements QuestPositionableButton {
 						Icons.INFO, Component.literal(moveAndDeleteFocus().getTitle().getString())));
 			} else if (!quest.getGuidePage().isEmpty() && quest.getTasks().isEmpty() && quest.getRewards().isEmpty() && quest.getDescription().isEmpty()) {
 				handleClick("guide", quest.getGuidePage());
-			} else if (canEdit || !quest.hideDetailsUntilStartable() || questScreen.file.selfTeamData.canStartTasks(quest)) {
+			} else if (canEdit || !quest.hideDetailsUntilStartable() || FTBQuestsClient.getClientPlayerData().canStartTasks(quest)) {
 				questScreen.open(theQuestObject(), false);
 			}
 		} else if (canEdit && button.isMiddle()) {
@@ -244,8 +246,10 @@ public class QuestButton extends Button implements QuestPositionableButton {
 		EditStringConfigOverlay<Double> overlay = new EditStringConfigOverlay<>(getGui(), editable, accepted -> {
 			if (accepted) {
 				quests.forEach(q -> {
-					q.setSize(editable.getValue());
-					NetworkManager.sendToServer(EditObjectMessage.forQuestObject(q));
+					if (editable.getValue() != null) {
+						q.setSize(editable.getValue());
+						NetworkManager.sendToServer(EditObjectMessage.forQuestObject(q));
+					}
 				});
 			}
 			run();
@@ -263,12 +267,10 @@ public class QuestButton extends Button implements QuestPositionableButton {
 					playClickSound();
 					type.getGuiProvider().openCreationGui(parent, quest, reward -> questScreen.getSelectedQuests().forEach(quest -> {
 						Reward newReward = QuestObjectBase.copy(reward, () -> type.createReward(0L, quest));
-						if (newReward != null) {
-							CompoundTag extra = new CompoundTag();
-							extra.putString("type", type.getTypeForNBT());
-							NetworkManager.sendToServer(CreateObjectMessage.create(newReward, extra));
-						}
-					}));
+                        CompoundTag extra = new CompoundTag();
+                        extra.putString("type", type.getTypeForNBT());
+                        NetworkManager.sendToServer(CreateObjectMessage.create(newReward, extra));
+                    }));
 				}));
 			}
 		}
@@ -367,11 +369,11 @@ public class QuestButton extends Button implements QuestPositionableButton {
 		Icon<?> hiddenIcon = Color4I.empty();
 		Icon<?> lockIcon = Color4I.empty();
 
-		TeamData teamData = questScreen.file.selfTeamData;
+		TeamData teamData = FTBQuestsClient.getClientPlayerData();
 		boolean isCompleted = teamData.isCompleted(quest);
 		boolean isStarted = isCompleted || teamData.isStarted(quest);
 		boolean canStart = teamData.canStartTasks(quest);
-		Player player = Minecraft.getInstance().player;
+		Player player = ClientUtils.getClientPlayer();
 
 		if (canStart) {
 			if (isCompleted) {

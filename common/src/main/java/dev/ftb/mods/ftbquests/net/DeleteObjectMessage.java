@@ -32,7 +32,7 @@ public record DeleteObjectMessage(long id) implements CustomPacketPayload {
 	public static void handle(DeleteObjectMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
 			if (NetUtils.canEdit(context)) {
-				ServerQuestFile.INSTANCE.deleteObject(message.id);
+				ServerQuestFile.getInstance().deleteObject(message.id);
 			}
 		});
 	}

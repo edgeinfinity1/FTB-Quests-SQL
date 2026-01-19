@@ -24,6 +24,7 @@ import net.minecraft.world.item.SpawnEggItem;
 import dev.architectury.registry.registries.RegistrarManager;
 
 import dev.ftb.mods.ftblibrary.client.config.EditableConfigGroup;
+import dev.ftb.mods.ftblibrary.client.util.ClientUtils;
 import dev.ftb.mods.ftblibrary.icon.AnimatedIcon;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
@@ -31,7 +32,6 @@ import dev.ftb.mods.ftblibrary.icon.ItemIcon;
 import dev.ftb.mods.ftblibrary.util.Lazy;
 import dev.ftb.mods.ftblibrary.util.NameMap;
 import dev.ftb.mods.ftbquests.FTBQuests;
-import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 
@@ -148,7 +148,7 @@ public class KillTask extends Task {
 
 			Item item = SpawnEggItem.byId(entityType);
 			if (item == null) {
-				Entity e = entityType.create(FTBQuestsClient.getClientLevel(), EntitySpawnReason.TRIGGERED);
+				Entity e = entityType.create(ClientUtils.getClientLevel(), EntitySpawnReason.TRIGGERED);
 				if (e != null) {
 					ItemStack stack = e.getPickResult();
 					if (stack != null) item = stack.getItem();
@@ -218,7 +218,7 @@ public class KillTask extends Task {
 		List<Identifier> ids = new ArrayList<>();
 		BuiltInRegistries.ENTITY_TYPE.forEach(type -> {
 			try {
-				if (type.create(FTBQuestsClient.getClientLevel(), EntitySpawnReason.TRIGGERED) instanceof LivingEntity) {
+				if (type.create(ClientUtils.getClientLevel(), EntitySpawnReason.TRIGGERED) instanceof LivingEntity) {
 					ids.add(type.arch$registryName());
 				}
 			} catch (Exception e) {

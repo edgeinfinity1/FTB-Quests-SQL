@@ -142,7 +142,7 @@ public class ValidItemsScreen extends BaseScreen {
 
 	@Override
 	public boolean doesGuiPauseGame() {
-		return ClientQuestFile.exists() && ClientQuestFile.INSTANCE.isPauseGame();
+		return ClientQuestFile.exists() && ClientQuestFile.getInstance().isPauseGame();
 	}
 
 	@Override

@@ -28,10 +28,10 @@ public record ClaimRewardMessage(long id, boolean shouldNotify) implements Custo
 
 	public static void handle(ClaimRewardMessage message, NetworkManager.PacketContext context) {
 		context.queue(() -> {
-			Reward reward = ServerQuestFile.INSTANCE.getReward(message.id);
+			Reward reward = ServerQuestFile.getInstance().getReward(message.id);
 
 			if (reward != null && context.getPlayer() instanceof ServerPlayer player) {
-				ServerQuestFile.INSTANCE.getTeamData(player).ifPresent(teamData -> {
+				ServerQuestFile.getInstance().getTeamData(player).ifPresent(teamData -> {
 					if (teamData.isCompleted(reward.getQuest())) {
 						teamData.claimReward(player, reward, message.shouldNotify);
 					}

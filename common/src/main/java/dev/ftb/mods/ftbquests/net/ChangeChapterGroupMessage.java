@@ -30,10 +30,10 @@ public record ChangeChapterGroupMessage(long chapterId, long groupId) implements
 
 	public static void handle(ChangeChapterGroupMessage message, NetworkManager.PacketContext context) {
 		if (NetUtils.canEdit(context)) {
-			Chapter chapter = ServerQuestFile.INSTANCE.getChapter(message.chapterId);
+			Chapter chapter = ServerQuestFile.getInstance().getChapter(message.chapterId);
 
 			if (chapter != null) {
-				ChapterGroup group = ServerQuestFile.INSTANCE.getChapterGroup(message.groupId);
+				ChapterGroup group = ServerQuestFile.getInstance().getChapterGroup(message.groupId);
 				if (chapter.getGroup() != group) {
 					chapter.getGroup().removeChapter(chapter);
 					group.addChapter(chapter);

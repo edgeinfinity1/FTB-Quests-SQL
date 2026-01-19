@@ -41,7 +41,7 @@ public abstract class ThemeProperty<T> {
 	}
 
 	public T get(@Nullable QuestObjectBase object) {
-		return QuestTheme.instance.get(this, object);
+		return QuestTheme.getInstance().get(this, object);
 	}
 
 	public T get() {

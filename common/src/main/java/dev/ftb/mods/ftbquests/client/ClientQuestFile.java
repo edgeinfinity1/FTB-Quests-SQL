@@ -44,7 +44,7 @@ public class ClientQuestFile extends BaseQuestFile {
 	);
 
 	@Nullable
-	public static ClientQuestFile INSTANCE;
+	private static ClientQuestFile INSTANCE;
 
 	@Nullable
 	public TeamData selfTeamData;  // TeamData for the player on this client
@@ -170,7 +170,7 @@ public class ClientQuestFile extends BaseQuestFile {
 	public void clearCachedData() {
 		super.clearCachedData();
 
-		QuestTheme.instance.clearCache();
+		QuestTheme.getInstance().clearCache();
 	}
 	
 	@Override
@@ -186,11 +186,11 @@ public class ClientQuestFile extends BaseQuestFile {
 	}
 
 	public static boolean canClientPlayerEdit() {
-		return exists() && INSTANCE.selfTeamData.getCanEdit(FTBQuestsClient.getClientPlayer());
+		return exists() && INSTANCE.selfTeamData.getCanEdit(ClientUtils.getClientPlayer());
 	}
 
 	public static boolean isQuestPinned(long id) {
-		return exists() && INSTANCE.selfTeamData.isQuestPinned(FTBQuestsClient.getClientPlayer(), id);
+		return exists() && INSTANCE.selfTeamData.isQuestPinned(ClientUtils.getClientPlayer(), id);
 	}
 
 	@Override
@@ -235,9 +235,9 @@ public class ClientQuestFile extends BaseQuestFile {
 
 	public static void openBookToQuestObject(long id) {
 		if (exists()) {
-			ClientQuestFile file = ClientQuestFile.INSTANCE;
+			ClientQuestFile file = ClientQuestFile.getInstance();
 			if (file.questScreen == null) {
-				ClientQuestFile.INSTANCE.openQuestGui();
+				ClientQuestFile.getInstance().openQuestGui();
 			}
 			if (file.questScreen != null) {
 				if (id != 0L) {
@@ -255,7 +255,7 @@ public class ClientQuestFile extends BaseQuestFile {
 	public static void addTranslationWarning(TooltipList list, TranslationKey key) {
 		list.add(Component.translatable("ftbquests.message.missing_xlate_1",
 						Component.translatable(key.getTranslationKey()),
-						ClientQuestFile.INSTANCE.getLocale())
+						ClientQuestFile.getInstance().getLocale())
 				.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)
 		);
 		list.add(Component.translatable("ftbquests.message.missing_xlate_2", INSTANCE.getFallbackLocale())

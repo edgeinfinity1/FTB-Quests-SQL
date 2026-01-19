@@ -34,6 +34,7 @@ import dev.ftb.mods.ftblibrary.icon.ItemIcon;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClientConfig;
 import dev.ftb.mods.ftbquests.client.gui.ImageComponentWidget;
 import dev.ftb.mods.ftbquests.client.gui.MultilineTextEditorScreen;
@@ -107,7 +108,7 @@ public class ViewQuestPanel extends ModalPanel {
 		return quest;
 	}
 
-	public void setViewedQuest(Quest newQuest) {
+	public void setViewedQuest(@Nullable Quest newQuest) {
 		if (quest != newQuest) {
 			quest = newQuest;
 			refreshWidgets();
@@ -115,7 +116,7 @@ public class ViewQuestPanel extends ModalPanel {
 	}
 
 	public boolean canEdit() {
-		return quest.getQuestFile().canEdit();
+		return quest != null && quest.getQuestFile().canEdit();
 	}
 
 	private void buildPageIndices() {
@@ -188,7 +189,7 @@ public class ViewQuestPanel extends ModalPanel {
 			TaskButton taskButton = new TaskButton(panelTasks, task);
 			panelTasks.add(taskButton);
 			taskButton.setSize(bsize, bsize);
-			if (!canEdit && seq && !questScreen.file.selfTeamData.isCompleted(task)) {
+			if (!canEdit && seq && !FTBQuestsClient.getClientPlayerData().isCompleted(task)) {
 				break;
 			}
 		}
@@ -201,7 +202,7 @@ public class ViewQuestPanel extends ModalPanel {
 		}
 
 		for (Reward reward : quest.getRewards()) {
-			if (canEdit || !questScreen.file.selfTeamData.isRewardBlocked(reward) && reward.getAutoClaimType() != RewardAutoClaim.INVISIBLE) {
+			if (canEdit || !FTBQuestsClient.getClientPlayerData().isRewardBlocked(reward) && reward.getAutoClaimType() != RewardAutoClaim.INVISIBLE) {
 				RewardButton b = new RewardButton(panelRewards, reward);
 				panelRewards.add(b);
 				b.setSize(bsize, bsize);
@@ -256,7 +257,7 @@ public class ViewQuestPanel extends ModalPanel {
 		add(buttonPin = new PinViewQuestButton());
 		buttonPin.setPosAndSize(w - iconSize * 2 - 4, 4, iconSize, iconSize);
 
-		if (questScreen.selectedChapter.id != quest.getChapter().id) {
+		if (questScreen.selectedChapter != null && questScreen.selectedChapter.id != quest.getChapter().id) {
 			GotoLinkedQuestButton b = new GotoLinkedQuestButton();
 			add(b);
 			b.setPosAndSize(iconSize + 4, 0, iconSize, iconSize);
@@ -408,6 +409,9 @@ public class ViewQuestPanel extends ModalPanel {
 	}
 
 	private void addDescriptionText(boolean canEdit, Component subtitle) {
+		if (quest == null) {
+			return;
+		}
 		Pair<Integer,Integer> pageSpan = pageIndices.get(getCurrentPage());
 		if (!TextUtils.isComponentEmpty(subtitle)) {
 			panelText.add(new VerticalSpaceWidget(panelText, 7));
@@ -676,7 +680,7 @@ public class ViewQuestPanel extends ModalPanel {
 				syncQuestToServer();
 			}
 		}, Component.translatable("ftbquests.chapter.subtitle"));
-		overlay.setWidth(Mth.clamp(overlay.getWidth(), 150, getScreen().getGuiScaledWidth() - 20));
+		overlay.setWidth(Mth.clamp(overlay.getWidth(), 150, getWindow().getGuiScaledWidth() - 20));
 		overlay.setPos(panelText.getX() + (panelText.width - overlay.width) / 2, panelText.getY() - 14);
 		getGui().pushModalPanel(overlay);
 	}

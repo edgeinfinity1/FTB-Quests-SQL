@@ -58,7 +58,7 @@ public record SyncTranslationMessageToServer(long id, String locale, Translation
     public static void handle(SyncTranslationMessageToServer message, NetworkManager.PacketContext context) {
         context.queue(() -> {
             if (NetUtils.canEdit(context)) {
-                ServerQuestFile file = ServerQuestFile.INSTANCE;
+                ServerQuestFile file = ServerQuestFile.getInstance();
                 if (file.isValid()) {
                     QuestObjectBase object = file.getBase(message.id);
                     if (object != null) {

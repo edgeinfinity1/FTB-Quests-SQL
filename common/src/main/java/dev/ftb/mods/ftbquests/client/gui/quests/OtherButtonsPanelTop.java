@@ -89,7 +89,7 @@ public class OtherButtonsPanelTop extends OtherButtonsPanel {
 		public void onClicked(MouseButton button) {
 			playClickSound();
 
-			if (ClientQuestFile.INSTANCE.canEdit()) {
+			if (ClientQuestFile.getInstance().canEdit()) {
 				new QuestKeyReferenceScreen("ftbquests.gui.key_reference.player", "ftbquests.gui.key_reference.editor").openGui();
 			} else {
 				new QuestKeyReferenceScreen("ftbquests.gui.key_reference.player").openGui();

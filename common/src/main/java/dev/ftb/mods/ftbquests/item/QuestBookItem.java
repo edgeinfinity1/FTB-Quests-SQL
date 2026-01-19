@@ -31,13 +31,12 @@ public class QuestBookItem extends Item {
 			FTBQuestsClient.openGui();
 		}
 
-//        return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
 		return InteractionResult.SUCCESS;
 	}
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> consumer, TooltipFlag flagIn) {
-        if (ClientQuestFile.exists() && ClientQuestFile.INSTANCE.isDisableGui() && !ClientQuestFile.INSTANCE.canEdit()) {
+        if (ClientQuestFile.exists() && ClientQuestFile.getInstance().isDisableGui() && !ClientQuestFile.getInstance().canEdit()) {
             consumer.accept(Component.translatable("item.ftbquests.book.disabled").withStyle(ChatFormatting.RED));
         } else {
             consumer.accept(Component.translatable("item.ftbquests.book.tooltip").withStyle(ChatFormatting.GRAY));

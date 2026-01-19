@@ -30,7 +30,7 @@ public record ToggleEditingModeMessage() implements CustomPacketPayload {
                     || player.level().getServer() != null && player.level().getServer().isSingleplayerOwner(player.nameAndId()))
             {
                 // will send a response to the client, causing GUI refresh
-                ServerQuestFile.INSTANCE.getTeamData(player)
+                ServerQuestFile.getInstance().getTeamData(player)
                         .ifPresent(data -> data.setCanEdit(player, !data.getCanEdit(player)));
             }
         });
