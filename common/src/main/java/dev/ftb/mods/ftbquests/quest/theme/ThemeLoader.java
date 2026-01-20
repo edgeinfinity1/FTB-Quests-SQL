@@ -17,15 +17,17 @@ import dev.ftb.mods.ftbquests.quest.theme.selector.NotSelector;
 import dev.ftb.mods.ftbquests.quest.theme.selector.TagSelector;
 import dev.ftb.mods.ftbquests.quest.theme.selector.ThemeSelector;
 import dev.ftb.mods.ftbquests.quest.theme.selector.TypeSelector;
-import dev.ftb.mods.ftbquests.util.FileUtils;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +48,11 @@ public class ThemeLoader implements ResourceManagerReloadListener {
 			Identifier rl = FTBQuestsAPI.id(THEME_TXT);
 			for (Resource resource : resourceManager.getResourceStack(rl)) {
 				try (InputStream in = resource.open()) {
-					parse(map, FileUtils.read(in));
-				} catch (Exception ex) {
-                    LOGGER.error("Failed to load FTB Quests theme file from {}", rl, ex);
+					parse(map, IOUtils.readLines(in, StandardCharsets.UTF_8));
 				}
 			}
 		} catch (Exception ex) {
-			LOGGER.error("Failed to load FTB Quests theme file", ex);
+			LOGGER.error("Failed to load/parse FTB Quests theme file {} from resources: {}", THEME_TXT, ex);
 		}
 
 		if (map.isEmpty()) {
@@ -62,7 +62,7 @@ public class ThemeLoader implements ResourceManagerReloadListener {
 		QuestTheme.setInstance(new QuestTheme(map));
 
 		LinkedHashSet<String> shapes = new LinkedHashSet<>(List.of("circle", "square", "rsquare"));
-		for (String s : ThemeProperties.EXTRA_QUEST_SHAPES.get().split(",")) {
+		for (String s : ThemeProperties.EXTRA_QUEST_SHAPES.get().split(",\\s*")) {
 			shapes.add(s.trim());
 		}
 		shapes.add("none");
@@ -82,57 +82,35 @@ public class ThemeLoader implements ResourceManagerReloadListener {
 			int si, ei;
 
 			if (line.length() > 2 && ((si = line.indexOf('[')) < (ei = line.indexOf(']')))) {
+				// starting a new section
 				current.clear();
 
 				for (String sel : line.substring(si + 1, ei).split("\\|")) {
 					AndSelector andSelector = new AndSelector();
-
 					for (String sel1 : sel.trim().split("&")) {
-						ThemeSelector themeSelector = parse(Pattern.compile("\\s").matcher(sel1).replaceAll(""));
-
-						if (themeSelector != null) {
-							andSelector.selectors.add(themeSelector);
-						}
+						ThemeSelector.parseSelector(StringUtils.deleteWhitespace(sel1))
+								.ifPresent(andSelector.selectors::add);
 					}
-
 					if (!andSelector.selectors.isEmpty()) {
 						ThemeSelector selector = andSelector.selectors.size() == 1 ? andSelector.selectors.getFirst() : andSelector;
 						current.add(selectorPropertyMap.computeIfAbsent(selector, SelectorProperties::new));
 					}
 				}
 			} else if (!current.isEmpty()) {
+				// a key/value pair within a section
 				String[] s1 = line.split(":", 2);
 
 				if (s1.length == 2) {
-					String k = s1[0].trim();
-					String v = s1[1].trim();
+					String key = s1[0].trim();
+					String val = s1[1].trim();
 
-					if (!k.isEmpty() && !v.isEmpty()) {
+					if (!key.isEmpty() && !val.isEmpty()) {
 						for (SelectorProperties selectorProperties : current) {
-							selectorProperties.properties.put(k, v);
+							selectorProperties.properties.put(key, val);
 						}
 					}
 				}
 			}
-		}
-	}
-
-	@Nullable
-	private static ThemeSelector parse(String sel) {
-		if (sel.isEmpty()) {
-			return null;
-		} else if (sel.equals("*")) {
-			return AllSelector.INSTANCE;
-		} else if (sel.startsWith("!")) {
-			ThemeSelector s = parse(sel.substring(1));
-			return s == null ? null : new NotSelector(s);
-		} else if (QuestObjectType.NAME_MAP.map.containsKey(sel)) {
-			return new TypeSelector(QuestObjectType.NAME_MAP.get(sel));
-		} else if (sel.startsWith("#")) {
-			String s = sel.substring(1);
-			return s.isEmpty() ? null : new TagSelector(s);
-		} else {
-			return QuestObjectBase.parseHexId(sel).map(IDSelector::new).orElse(null);
 		}
 	}
 }

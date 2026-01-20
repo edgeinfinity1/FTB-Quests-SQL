@@ -1,5 +1,7 @@
 package dev.ftb.mods.ftbquests.quest.theme;
 
+import dev.ftb.mods.ftbquests.FTBQuests;
+import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperty;
 import dev.ftb.mods.ftbquests.quest.theme.selector.AllSelector;
@@ -18,12 +20,16 @@ public class QuestTheme {
 	@Nullable
 	private static QuestTheme instance;
 	@Nullable
-	public static QuestObjectBase currentObject;
+	private static QuestObjectBase fallbackQuestObject;
 
-	private final List<SelectorProperties> selectors;
-	private final Map<QuestObjectPropertyKey, Object> cache;
-	private final Map<String, Object> defaultCache;
+	// the default all-selector properties
 	private final SelectorProperties defaults;
+	// all selectors other than the default all-selector
+	private final List<SelectorProperties> selectors;
+	// simple prop-name -> value cache
+	private final Map<String, Object> defaultCache;
+	// per-quest-object prop-name -> value cache
+	private final Map<QuestObjectPropertyKey, Object> cache;
 
 	public QuestTheme(Map<ThemeSelector, SelectorProperties> map) {
 		cache = new HashMap<>();
@@ -35,13 +41,24 @@ public class QuestTheme {
 		selectors = new ArrayList<>(map.values().stream().sorted().toList());
 	}
 
-	public static @Nullable QuestTheme getInstance() {
-		return instance;
-	}
-
 	static void setInstance(QuestTheme instance) {
 		QuestTheme.instance = instance;
 		instance.dumpDebugInfo();
+	}
+
+	public static QuestTheme getInstance() {
+		return Objects.requireNonNull(instance);
+	}
+
+	public static @Nullable QuestObjectBase getFallbackQuestObject() {
+		return fallbackQuestObject;
+	}
+
+	@Nullable
+	public static QuestObjectBase setFallbackQuestObject(@Nullable QuestObjectBase fallbackQuestObject) {
+		QuestObjectBase prev = QuestTheme.fallbackQuestObject;
+		QuestTheme.fallbackQuestObject = fallbackQuestObject;
+		return prev;
 	}
 
 	public void clearCache() {
@@ -51,7 +68,6 @@ public class QuestTheme {
 
 	public <T> T get(ThemeProperty<T> property) {
 		@SuppressWarnings("unchecked") T cachedValue = (T) defaultCache.get(property.getName());
-
 		if (cachedValue != null) {
 			return cachedValue;
 		}
@@ -60,7 +76,6 @@ public class QuestTheme {
 
 		if (value != null) {
 			cachedValue = property.parse(replaceVariables(value, 0));
-
 			if (cachedValue != null) {
 				defaultCache.put(property.getName(), cachedValue);
 				return cachedValue;
@@ -72,7 +87,7 @@ public class QuestTheme {
 
 	public <T> T get(ThemeProperty<T> property, @Nullable QuestObjectBase object) {
 		if (object == null) {
-			object = currentObject;
+			object = fallbackQuestObject;
 		}
 
 		if (object == null) {
@@ -95,7 +110,6 @@ public class QuestTheme {
 
 					if (value != null) {
 						cachedValue = property.parse(replaceVariables(value, 0));
-
 						if (cachedValue != null) {
 							cache.put(key, cachedValue);
 							return cachedValue;
@@ -111,8 +125,9 @@ public class QuestTheme {
 		return get(property);
 	}
 
-	public String replaceVariables(String value, int iteration) {
+	private String replaceVariables(String value, int iteration) {
 		if (iteration >= 30) {
+			FTBQuests.LOGGER.error("quest theme parser bailed replacing value {} after 30 iterations - reference loop?", value);
 			return value;
 		}
 

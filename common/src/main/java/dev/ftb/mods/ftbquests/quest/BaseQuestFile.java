@@ -53,7 +53,6 @@ import dev.ftb.mods.ftbquests.quest.task.TaskType;
 import dev.ftb.mods.ftbquests.quest.task.TaskTypes;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationManager;
-import dev.ftb.mods.ftbquests.util.FileUtils;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import dev.ftb.mods.ftbteams.api.client.ClientTeamManager;
@@ -193,7 +192,6 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 		return false;
 	}
 
-	@Nullable
 	public Path getFolder() {
 		throw new IllegalStateException("This quest file doesn't have a folder!");
 	}
@@ -1449,10 +1447,15 @@ public abstract class BaseQuestFile extends QuestObject implements QuestFile {
 
 		for (RewardTable table : rewardTables) {
 			if (table.getWeightedRewards().isEmpty()) {
-				del.increment();
-				table.invalid = true;
-				FileUtils.delete(ServerQuestFile.getInstance().getFolder().resolve(table.getPath().orElseThrow()).toFile());
-				NetworkHelper.sendToAll(source.getServer(), new DeleteObjectResponseMessage(table.id));
+				Path path = ServerQuestFile.getInstance().getFolder().resolve(table.getPath().orElseThrow());
+				try {
+					Files.delete(path);
+					del.increment();
+					table.invalid = true;
+					NetworkHelper.sendToAll(source.getServer(), new DeleteObjectResponseMessage(table.id));
+				} catch (IOException e) {
+					FTBQuests.LOGGER.error("can't delete file {}: {}", path, e.getMessage());
+				}
 			}
 		}
 

@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.Nullable;
 
 public class FTBQuests {
 	public static final Logger LOGGER = LogManager.getLogger(FTBQuestsAPI.MOD_NAME);
@@ -34,6 +35,7 @@ public class FTBQuests {
 
 	public static IQuestProxy PROXY;
 
+	@Nullable
 	private static RecipeModHelper recipeModHelper;
 	private static final RecipeModHelper NO_OP_HELPER = new RecipeModHelper.NoOp();
 

@@ -59,7 +59,7 @@ public class TaskScreenRenderer implements BlockEntityRenderer<TaskScreenBlockEn
     public void extractRenderState(TaskScreenBlockEntity blockEntity, TaskScreenRenderState renderState, float f, Vec3 vec3, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, renderState, f, vec3, crumblingOverlay);
 
-        TeamData data = ClientQuestFile.getInstance() == null ? null : ClientQuestFile.getInstance().getNullableTeamData(blockEntity.getTeamId());
+        TeamData data = ClientQuestFile.getInstance().getNullableTeamData(blockEntity.getTeamId());
         Task task = blockEntity.getTask();
 
         if (task == null || data == null) {

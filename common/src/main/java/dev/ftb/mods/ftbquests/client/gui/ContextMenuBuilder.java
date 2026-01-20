@@ -12,10 +12,12 @@ import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public class ContextMenuBuilder {
     private final QuestObjectBase object;
     private final QuestScreen screen;
+    @Nullable
     private Movable deletionFocus = null;
     private final List<ContextMenuItem> atTop = new ArrayList<>();
     private final List<ContextMenuItem> atBottom = new ArrayList<>();

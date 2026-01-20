@@ -30,7 +30,6 @@ import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.quest.task.TaskType;
 import dev.ftb.mods.ftbquests.quest.task.TaskTypes;
 import dev.ftb.mods.ftbquests.util.FTBQuestsInventoryListener;
-import dev.ftb.mods.ftbquests.util.FileUtils;
 import dev.ftb.mods.ftbquests.util.PlayerInventorySummary;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
@@ -59,8 +58,7 @@ public class ServerQuestFile extends BaseQuestFile {
 	public final MinecraftServer server;
 	private boolean shouldSave;
 	private boolean isLoading;
-	@Nullable
-	private Path folder;
+	private final Path folder;
 	@Nullable
 	private ServerPlayer currentPlayer = null;
 
@@ -90,6 +88,8 @@ public class ServerQuestFile extends BaseQuestFile {
 		shouldSave = false;
 		isLoading = false;
 
+		folder = Platform.getConfigFolder().resolve("ftbquests/quests");
+
 		int taskTypeId = 0;
 
 		for (TaskType type : TaskTypes.TYPES.values()) {
@@ -106,7 +106,6 @@ public class ServerQuestFile extends BaseQuestFile {
 	}
 
 	public void load(boolean quests, boolean progression) {
-		folder = Platform.getConfigFolder().resolve("ftbquests/quests");
 
 		if (quests) {
 			if (Files.exists(folder)) {
@@ -123,8 +122,8 @@ public class ServerQuestFile extends BaseQuestFile {
 			if (Files.exists(path)) {
 				try (Stream<Path> s = Files.list(path)) {
 					s.filter(p -> p.getFileName().toString().contains("-") && p.getFileName().toString().endsWith(".snbt")).forEach(path1 -> {
-                        try {
-                            var nbt = SNBT.tryRead(path1);
+						try {
+							var nbt = SNBT.tryRead(path1);
 
 							try {
 								UUID uuid = UndashedUuid.fromString(nbt.getString("uuid").orElseThrow());
@@ -134,9 +133,9 @@ public class ServerQuestFile extends BaseQuestFile {
 							} catch (Exception ex) {
 								FTBQuests.LOGGER.error("can't parse progression data for {}: {}", path1, ex.getMessage());
 							}
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
 					});
 				} catch (Exception ex) {
 					FTBQuests.LOGGER.error("can't read directory {}: {}", path, ex.getMessage());
@@ -161,7 +160,6 @@ public class ServerQuestFile extends BaseQuestFile {
 	}
 
 	@Override
-	@Nullable
 	public Path getFolder() {
 		return folder;
 	}
@@ -171,14 +169,18 @@ public class ServerQuestFile extends BaseQuestFile {
 		QuestObjectBase object = getBase(id);
 
 		if (object != null) {
-			getTranslationManager().removeAllTranslations(object);
-			object.deleteChildren();
-			object.deleteSelf();
-			refreshIDMap();
-			markDirty();
-			if (getFolder() != null) {
-				object.getPath().ifPresent(path -> FileUtils.delete(getFolder().resolve(path).toFile()));
-			}
+			object.getPath().ifPresent(path -> {
+                try {
+                    Files.delete(getFolder().resolve(path));
+					getTranslationManager().removeAllTranslations(object);
+					object.deleteChildren();
+					object.deleteSelf();
+					refreshIDMap();
+					markDirty();
+                } catch (IOException e) {
+					FTBQuests.LOGGER.error("can't delete {}: {}", getFolder().resolve(path), e.getMessage());
+                }
+			});
 		}
 
 		NetworkHelper.sendToAll(server, new DeleteObjectResponseMessage(id));
@@ -190,16 +192,14 @@ public class ServerQuestFile extends BaseQuestFile {
 	}
 
 	public void saveNow() {
-		if (getFolder() != null) {
-			if (shouldSave) {
-				writeDataFull(getFolder(), server.registryAccess());
-				shouldSave = false;
-			}
-
-			getTranslationManager().saveToNBT(getFolder().resolve("lang"), false);
-
-			getAllTeamData().forEach(TeamData::saveIfChanged);
+		if (shouldSave) {
+			writeDataFull(getFolder(), server.registryAccess());
+			shouldSave = false;
 		}
+
+		getTranslationManager().saveToNBT(getFolder().resolve("lang"), false);
+
+		getAllTeamData().forEach(TeamData::saveIfChanged);
 	}
 
 	public void unload() {

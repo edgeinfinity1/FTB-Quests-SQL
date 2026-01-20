@@ -128,7 +128,6 @@ public class RewardNotificationsScreen extends BaseScreen implements IRewardList
 
 		@Override
 		public void draw(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
-//			GuiHelper.setupDrawing();
 			IconHelper.renderIcon(QuestShape.get("rsquare").getOutline(), graphics, x, y, w, h);
 			IconHelper.renderIcon(key.getIcon(), graphics, x + 3, y + 3, 16, 16);
 
@@ -145,7 +144,10 @@ public class RewardNotificationsScreen extends BaseScreen implements IRewardList
 
 		@Override
 		public Optional<PositionedIngredient> getIngredientUnderMouse() {
-			return PositionedIngredient.of(key.getIcon().getIngredient(), this, true);
+			Object ingredient = key.getIcon().getIngredient();
+			return ingredient == null ?
+					Optional.empty() :
+					PositionedIngredient.of(ingredient, this, true);
 		}
 	}
 }

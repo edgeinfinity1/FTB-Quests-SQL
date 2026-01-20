@@ -27,11 +27,11 @@ public class ModBlockEntityTypes {
 	public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(FTBQuestsAPI.MOD_ID, Registries.BLOCK_ENTITY_TYPE);
 
 	public static <T extends BlockEntity> RegistrySupplier<BlockEntityType<T>> register(String id, BlockEntityType.BlockEntitySupplier<T> factory, Collection<RegistrySupplier<Block>> blocks) {
-		return BLOCK_ENTITIES.register(id, () -> new BlockEntityType<T>(factory, blocks.stream().map(Supplier::get).collect(Collectors.toSet())));
+		return BLOCK_ENTITIES.register(id, () -> new BlockEntityType<>(factory, blocks.stream().map(Supplier::get).collect(Collectors.toSet())));
 	}
 
 	public static <T extends BlockEntity> RegistrySupplier<BlockEntityType<T>> register(String id, BlockEntityType.BlockEntitySupplier<T> factory, Supplier<Block> block) {
-		return BLOCK_ENTITIES.register(id, () -> new BlockEntityType<T>(factory, Set.of(block.get())));
+		return BLOCK_ENTITIES.register(id, () -> new BlockEntityType<>(factory, Set.of(block.get())));
 	}
 
 	public static final RegistrySupplier<BlockEntityType<QuestBarrierBlockEntity>> BARRIER

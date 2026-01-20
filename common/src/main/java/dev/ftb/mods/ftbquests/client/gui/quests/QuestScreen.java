@@ -153,7 +153,7 @@ public class QuestScreen extends BaseScreen {
 
 	@Override
 	public void addWidgets() {
-		QuestTheme.currentObject = selectedChapter;
+		QuestTheme.setFallbackQuestObject(selectedChapter);
 		add(questPanel);
 		add(chapterPanel);
 		add(expandChaptersButton);
@@ -163,7 +163,7 @@ public class QuestScreen extends BaseScreen {
 
 	@Override
 	public void alignWidgets() {
-		QuestTheme.currentObject = selectedChapter;
+		QuestTheme.setFallbackQuestObject(selectedChapter);
 		otherButtonsBottomPanel.alignWidgets();
 		otherButtonsTopPanel.alignWidgets();
 		chapterPanel.alignWidgets();
@@ -260,7 +260,7 @@ public class QuestScreen extends BaseScreen {
 	 * @param object the quest object to add menu operations for
 	 * @param deletionFocus the object to be deleted by the delete operation (which could be different from the quest object...)
 	 */
-	public void addObjectMenuItems(List<ContextMenuItem> contextMenu, Runnable gui, QuestObjectBase object, Movable deletionFocus) {
+	public void addObjectMenuItems(List<ContextMenuItem> contextMenu, Runnable gui, QuestObjectBase object, @Nullable Movable deletionFocus) {
 		EditableConfigGroup group = new EditableConfigGroup(FTBQuestsAPI.MOD_ID);
 		EditableConfigGroup subGroup = object.createSubGroup(group);
 		object.fillConfigGroup(subGroup);
@@ -305,12 +305,12 @@ public class QuestScreen extends BaseScreen {
 
 		contextMenu.add(new ContextMenuItem(Component.translatable("ftbquests.gui.reset_progress"),
 				ThemeProperties.RELOAD_ICON.get(),
-				b -> ChangeProgressMessage.sendToServer(file.selfTeamData, object, progressChange -> progressChange.setReset(true))
+				b -> ChangeProgressMessage.sendToServer(FTBQuestsClient.getClientPlayerData(), object, progressChange -> progressChange.setReset(true))
 		).setYesNoText(Component.translatable("ftbquests.gui.reset_progress_q")));
 
 		contextMenu.add(new ContextMenuItem(Component.translatable("ftbquests.gui.complete_instantly"),
 				ThemeProperties.CHECK_ICON.get(),
-				b -> ChangeProgressMessage.sendToServer(file.selfTeamData, object, progressChange -> progressChange.setReset(false))
+				b -> ChangeProgressMessage.sendToServer(FTBQuestsClient.getClientPlayerData(), object, progressChange -> progressChange.setReset(false))
 		).setYesNoText(Component.translatable("ftbquests.gui.complete_instantly_q")));
 
 		Component[] tooltip = object instanceof Quest ?
@@ -675,7 +675,8 @@ public class QuestScreen extends BaseScreen {
 
 	@Override
 	public void drawBackground(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
-		QuestTheme.currentObject = selectedChapter;
+		QuestTheme.setFallbackQuestObject(selectedChapter);
+
 		super.drawBackground(graphics, theme, x, y, w, h);
 
 		int pw = 20;

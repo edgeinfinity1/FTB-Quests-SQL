@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Whence;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -60,12 +61,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MultilineTextEditorScreen extends BaseScreen {
-    public static final Icon<?> LINK_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/chain_link.png")).withPadding(2);
-    public static final Icon<?> CLEAR_FORMATTING_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/eraser.png")).withPadding(2);
+	public static final Icon<?> LINK_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/chain_link.png")).withPadding(2);
+	public static final Icon<?> CLEAR_FORMATTING_ICON = Icon.getIcon(FTBQuestsAPI.id("textures/gui/eraser.png")).withPadding(2);
 
 	private static final Pattern STRIP_FORMATTING_PATTERN = Pattern.compile("(?i)([&\\u00A7])([0-9A-FK-ORZ]|#[0-9A-Fa-f]{6})");
 	private static final int MAX_UNDO = 10;
-	protected static final String LINK_TEXT_TEMPLATE = "{ \"text\": \"%s\", \"underlined\": true, \"clickEvent\": { \"action\": \"change_page\", \"value\": \"%016X\" } }";
+	public static final Identifier QUEST_LINK_ACTION = FTBQuestsAPI.id("link");
+	protected static final String LINK_TEXT_TEMPLATE = """
+					{ "text": "%s", "underlined": true, "click_event": { "action": "custom", "id": "%s", "payload": { "quest_id": "%016X", "page": 1 } } }""";
 
 	private final Component title;
 	private final EditableList<String, EditableString> config;
@@ -103,7 +106,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		textBoxPanel = new TextBoxPanel(outerPanel);
 
 		textBox = new MultilineTextBox(textBoxPanel);
-		textBox.setText(String.join("\n", config.getValue()));
+		textBox.setText(String.join("\n", Objects.requireNonNull(config.getValue())));
 		textBox.setFocused(true);
 		textBox.setValueListener(this::onValueChanged);
 		textBox.seekCursor(Whence.ABSOLUTE, 0);
@@ -263,7 +266,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 
 			StringBuilder builder = new StringBuilder("[ ");
 			if (!parts.get(0).isEmpty()) builder.append("\"").append(parts.get(0)).append("\", ");
-			builder.append(String.format(LINK_TEXT_TEMPLATE, parts.get(1).isEmpty() ? "EDIT HERE" : parts.get(1), questID));
+			builder.append(String.format(LINK_TEXT_TEMPLATE, parts.get(1).isEmpty() ? "EDIT HERE" : parts.get(1), QUEST_LINK_ACTION, questID));
 			if (!parts.get(2).isEmpty()) builder.append(", ").append("\"").append(parts.get(2)).append("\"");
 			builder.append(" ]");
 
@@ -496,14 +499,14 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		}
 
 		private boolean isOkForLinkInsertion() {
-            return textBox.hasSelection() && !textBox.getSelectedText().contains("\n");
-        }
+			return textBox.hasSelection() && !textBox.getSelectedText().contains("\n");
+		}
 
 		private static Component hotkey(String key, @Nullable String modifier) {
-            boolean isMac = Util.getPlatform() == Util.OS.OSX;
+			boolean isMac = Util.getPlatform() == Util.OS.OSX;
 
-            String adaptedModifier = modifier != null && modifier.equalsIgnoreCase("alt") ? (isMac ? "Ctrl" : "Alt") : modifier;
-            String modifierDisplay = modifier == null ? "" : (adaptedModifier + " + ");
+			String adaptedModifier = modifier != null && modifier.equalsIgnoreCase("alt") ? (isMac ? "Ctrl" : "Alt") : modifier;
+			String modifierDisplay = modifier == null ? "" : (adaptedModifier + " + ");
 
 			return Component.literal("[" + modifierDisplay + key + "]").withStyle(ChatFormatting.DARK_GRAY);
 		}
@@ -524,7 +527,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 				}
 			})));
 
-            items.add(new ContextMenuItem(Component.empty(), new RainbowIcon(), btn -> insertFormatting("z")));
+			items.add(new ContextMenuItem(Component.empty(), new RainbowIcon(), btn -> insertFormatting("z")));
 
 			ContextMenu cMenu = new ContextMenu(MultilineTextEditorScreen.this, items);
 			cMenu.setMaxRows(4);

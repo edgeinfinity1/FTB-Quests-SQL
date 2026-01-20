@@ -81,7 +81,8 @@ public class SelectQuestObjectScreen<T extends QuestObjectBase> extends Abstract
 		for (QuestObjectBase objectBase : file.getAllObjects()) {
 			if (config.predicate.test(objectBase) &&
 					(file.canEdit() || (!(objectBase instanceof QuestObject qo) || qo.isSearchable(file.selfTeamData)))) {
-				list.add((T) objectBase);
+                //noinspection unchecked
+                list.add((T) objectBase);
 			}
 		}
 
@@ -119,6 +120,7 @@ public class SelectQuestObjectScreen<T extends QuestObjectBase> extends Abstract
 	}
 
 	private class QuestObjectButton extends SimpleTextButton {
+		@Nullable
 		public final T object;
 
 		public QuestObjectButton(Panel panel, @Nullable T questObject) {

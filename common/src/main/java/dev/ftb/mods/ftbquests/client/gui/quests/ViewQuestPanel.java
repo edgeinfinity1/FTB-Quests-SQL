@@ -3,11 +3,18 @@ package dev.ftb.mods.ftbquests.client.gui.quests;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import com.mojang.datafixers.util.Pair;
 
 import dev.architectury.networking.NetworkManager;
@@ -31,6 +38,7 @@ import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.icon.Icon;
 import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.icon.ItemIcon;
+import dev.ftb.mods.ftblibrary.util.Lazy;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
@@ -53,13 +61,16 @@ import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
 import dev.ftb.mods.ftbquests.quest.translation.TranslationKey;
 import dev.ftb.mods.ftbquests.util.TextUtils;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -86,10 +97,6 @@ public class ViewQuestPanel extends ModalPanel {
 		setPosAndSize(-1, -1, 0, 0);
 		setOnlyRenderWidgetsInside(true);
 		setOnlyInteractWithWidgetsInside(true);
-		// Vanilla applies a +Z translation of 150 for item rendering
-		// Supported quest size is up to 8x, so we need to translate at least 8*150 along the +Z axis,
-		//   to ensure the panel renders above any item icons
-		setExtraZlevel(1250);
 	}
 
 	@Override
@@ -106,6 +113,10 @@ public class ViewQuestPanel extends ModalPanel {
 	@Nullable
 	public Quest getViewedQuest() {
 		return quest;
+	}
+
+	private Quest requireQuest() {
+		return Objects.requireNonNull(quest);
 	}
 
 	public void setViewedQuest(@Nullable Quest newQuest) {
@@ -152,8 +163,7 @@ public class ViewQuestPanel extends ModalPanel {
 			return;
 		}
 
-		QuestObjectBase prev = QuestTheme.currentObject;
-		QuestTheme.currentObject = quest;
+		QuestObjectBase prev = QuestTheme.setFallbackQuestObject(quest);
 
 		setScrollX(0);
 		setScrollY(0);
@@ -170,7 +180,7 @@ public class ViewQuestPanel extends ModalPanel {
 
 		if (quest.getMinWidth() > 0) {
 			w = Math.max(quest.getMinWidth(), w);
-		} else if (questScreen.selectedChapter.getDefaultMinWidth() > 0) {
+		} else if (questScreen.selectedChapter != null && questScreen.selectedChapter.getDefaultMinWidth() > 0) {
 			w = Math.max(questScreen.selectedChapter.getDefaultMinWidth(), w);
 		}
 
@@ -405,7 +415,7 @@ public class ViewQuestPanel extends ModalPanel {
 		setPos((parent.width - width) / 2, (parent.height - height) / 2);
 		panelContent.setHeight(height - 17);
 
-		QuestTheme.currentObject = prev;
+		QuestTheme.setFallbackQuestObject(prev);
 	}
 
 	private void addDescriptionText(boolean canEdit, Component subtitle) {
@@ -433,7 +443,7 @@ public class ViewQuestPanel extends ModalPanel {
 		}
 	}
 
-	private @NotNull ImageComponentWidget makeImageComponentWidget(ImageComponent img, int idx) {
+	private ImageComponentWidget makeImageComponentWidget(ImageComponent img, int idx) {
 		ImageComponentWidget cw = new ImageComponentWidget(this, panelText, img, idx);
 
 		if (cw.getComponent().isFit()) {
@@ -490,7 +500,6 @@ public class ViewQuestPanel extends ModalPanel {
 		}
 	}
 
-	@NotNull
 	private SimpleTextButton makeNextPageButton(Panel buttonPanel, int currentPage) {
 		SimpleTextButton nextPage = new SimpleTextButton(buttonPanel, Component.empty(), ThemeProperties.RIGHT_ARROW.get()) {
 			@Override
@@ -509,7 +518,6 @@ public class ViewQuestPanel extends ModalPanel {
 		return nextPage;
 	}
 
-	@NotNull
 	private SimpleTextButton makePrevPageButton(Panel buttonPanel, int currentPage, int labelWidth) {
 		SimpleTextButton prevPage = new SimpleTextButton(buttonPanel, Component.empty(), ThemeProperties.LEFT_ARROW.get()) {
 			@Override
@@ -552,7 +560,7 @@ public class ViewQuestPanel extends ModalPanel {
 	public void tick() {
 		super.tick();
 
-		if (quest != null && quest.hasDependencies() && !questScreen.file.selfTeamData.canStartTasks(quest) && buttonOpenDependencies != null) {
+		if (quest != null && quest.hasDependencies() && !FTBQuestsClient.getClientPlayerData().canStartTasks(quest)) {
 			float red = Mth.sin((System.currentTimeMillis() % 1200) * (3.1415927f / 1200f));
 			Color4I col = Color4I.rgb((int) (red * 127 + 63), 0, 0);
 			buttonOpenDependencies.setIcon(Icon.getIcon(FTBQuestsAPI.MOD_ID + ":textures/gui/arrow_left.png").withTint(col));
@@ -575,7 +583,7 @@ public class ViewQuestPanel extends ModalPanel {
 		}
 
 		for (QuestObject object : c) {
-			if (questScreen.file.canEdit() || object.isSearchable(questScreen.file.selfTeamData)) {
+			if (questScreen.file.canEdit() || object.isSearchable(FTBQuestsClient.getClientPlayerData())) {
 				MutableComponent title = object.getMutableTitle();
 				if (object.getQuestChapter() != null && object.getQuestChapter() != quest.getQuestChapter()) {
 					Component suffix = Component.literal(" [").append(object.getQuestChapter().getTitle()).append("]").withStyle(ChatFormatting.GRAY);
@@ -830,10 +838,9 @@ public class ViewQuestPanel extends ModalPanel {
 	@Override
 	public void draw(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
 		if (quest != null) {
-			QuestObjectBase prev = QuestTheme.currentObject;
-			QuestTheme.currentObject = quest;
+			QuestObjectBase prev = QuestTheme.setFallbackQuestObject(quest);
 			super.draw(graphics, theme, x, y, w, h);
-			QuestTheme.currentObject = prev;
+			QuestTheme.setFallbackQuestObject(prev);
 		}
 	}
 
@@ -841,13 +848,11 @@ public class ViewQuestPanel extends ModalPanel {
 	public void drawBackground(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
 		IconHelper.renderIcon(ThemeProperties.QUEST_VIEW_BACKGROUND.get(), graphics, x, y, w, h);
 
-		if (titleField != null && panelContent != null) {
-			int iconSize = Math.min(16, titleField.height + 2);
-			IconHelper.renderIcon(icon, graphics, x + 4, y + 4, iconSize, iconSize);
-			IconHelper.renderIcon(ThemeProperties.QUEST_VIEW_BORDER.get(), graphics, x + 1, panelContent.getY(), w - 2, 1);
-			if (questScreen.file.selfTeamData.getMilliSecondsUntilRepeatable(quest) > 0L) {
-				IconHelper.renderIcon(Icons.TIME, graphics,x + 6 + iconSize, y + 4, iconSize, iconSize);
-			}
+		int iconSize = Math.min(16, titleField.height + 2);
+		IconHelper.renderIcon(icon, graphics, x + 4, y + 4, iconSize, iconSize);
+		IconHelper.renderIcon(ThemeProperties.QUEST_VIEW_BORDER.get(), graphics, x + 1, panelContent.getY(), w - 2, 1);
+		if (FTBQuestsClient.getClientPlayerData().getMilliSecondsUntilRepeatable(quest) > 0L) {
+			IconHelper.renderIcon(Icons.TIME, graphics,x + 6 + iconSize, y + 4, iconSize, iconSize);
 		}
 	}
 
@@ -884,7 +889,7 @@ public class ViewQuestPanel extends ModalPanel {
 
 	private class QuestDescriptionField extends TextField {
 		private final boolean canEdit;
-		private final boolean xlateWarning;
+		private final Lazy<Boolean> xlateWarning = Lazy.of(this::shouldWarnXlate);
 		private final BiConsumer<Boolean,Widget> editCallback;
 		private final TranslationKey key;
 
@@ -893,14 +898,16 @@ public class ViewQuestPanel extends ModalPanel {
 			this.canEdit = canEdit;
 			this.editCallback = editCallback;
 			this.key = key;
+		}
 
-			xlateWarning = FTBQuestsClientConfig.HILITE_MISSING.get()
-					&& quest.getQuestFile().getTranslationManager().hasMissingTranslation(quest, key);
+		private boolean shouldWarnXlate() {
+			return FTBQuestsClientConfig.HILITE_MISSING.get()
+					&& (quest == null || quest.getQuestFile().getTranslationManager().hasMissingTranslation(quest, key));
 		}
 
 		@Override
 		public void draw(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
-			if (xlateWarning) {
+			if (xlateWarning.get()) {
 				IconHelper.renderIcon(Color4I.RED.withAlpha(40), graphics, x, y, w, h);
 			}
 			super.draw(graphics, theme, x, y, w, h);
@@ -912,11 +919,9 @@ public class ViewQuestPanel extends ModalPanel {
 				if (canEdit && button.isRight()) {
 					editCallback.accept(true, this);
 					return true;
-				} else if (button.isLeft() && Minecraft.getInstance().screen != null) {
-//					Optional<Style> style = getComponentStyleAt(questScreen.getTheme(), getMouseX(), getMouseY());
-//					if (style.isPresent()) {
-//						return handleCustomClickEvent(style.get()) || Minecraft.getInstance().screen.handleComponentClicked(style.get());
-//					}
+				} else if (button.isLeft()) {
+					return getClickableStyleAt(questScreen.getTheme(), getMouseX(), getMouseY())
+							.map(this::handleCustomClickEvent).orElse(false);
 				}
 			}
 
@@ -924,50 +929,57 @@ public class ViewQuestPanel extends ModalPanel {
 		}
 
 		private boolean handleCustomClickEvent(Style style) {
-//			if (style == null) return false;
-//
-//			ClickEvent clickEvent = style.getClickEvent();
-//			if (clickEvent == null) return false;
-//
-//			if (clickEvent.action() == ClickEvent.Action.CHANGE_PAGE) {
-//				String[] fields = clickEvent.getValue().split("/");
-//				QuestObjectBase.parseHexId(fields[0]).ifPresentOrElse(questId -> {
-//					QuestObject qo = quest.getQuestFile().get(questId);
-//					if (qo != null) {
-//						if (qo instanceof Quest && fields.length >= 2 && StringUtils.isNumeric(fields[1])) {
-//							currentPages.put(questId.longValue(), Integer.parseInt(fields[1]) - 1);
-//						}
-//						questScreen.open(qo, false);
-//					} else {
-//						errorToPlayer("Unknown quest object id: %s", clickEvent.getValue());
-//					}
-//				}, () -> errorToPlayer("Invalid quest object id: %s", clickEvent.getValue()));
-//				return true;
-//			} else if (clickEvent.getAction() == ClickEvent.Action.OPEN_URL) {
-//				try {
-//					URI uri = new URI(clickEvent.getValue());
-//					String scheme = uri.getScheme();
-//					if (scheme == null) {
-//						throw new URISyntaxException(clickEvent.getValue(), "Missing protocol");
-//					}
-//					if (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")) {
-//						throw new URISyntaxException(clickEvent.getValue(), "Unsupported protocol: " + scheme.toLowerCase(Locale.ROOT));
-//					}
-//
-//					final Screen curScreen = Minecraft.getInstance().screen;
-//					Minecraft.getInstance().setScreen(new ConfirmLinkScreen(accepted -> {
-//						if (accepted) {
-//							Util.getPlatform().openUri(uri);
-//						}
-//						Minecraft.getInstance().setScreen(curScreen);
-//					}, clickEvent.getValue(), false));
-//					return true;
-//				} catch (URISyntaxException e) {
-//					errorToPlayer("Can't open url for %s (%s)", clickEvent.getValue(), e.getMessage());
-//				}
-//				return true;
-//			}
-			return false;
+			switch (style.getClickEvent()) {
+				case ClickEvent.Custom changePage when quest != null -> {
+					return changePage.payload().map(tag -> {
+						if (changePage.id().equals(MultilineTextEditorScreen.QUEST_LINK_ACTION)) {
+							tag.asCompound().ifPresent(compoundTag -> {
+								String idStr = compoundTag.getStringOr("quest_id", "0");
+								QuestObjectBase.parseHexId(idStr).ifPresentOrElse(questId -> {
+									QuestObject qo = quest.getQuestFile().get(questId);
+									if (qo != null) {
+										if (qo instanceof Quest) {
+											currentPages.put(questId.longValue(), compoundTag.getIntOr("page", 1) - 1);
+										}
+										playClickSound();
+										questScreen.open(qo, false);
+									} else {
+										errorToPlayer("Unknown quest object id: %s", idStr);
+									}
+								}, () -> errorToPlayer("Invalid quest object id: %s", idStr));
+							});
+						}
+						return true;
+					}).orElse(false);
+				}
+				case ClickEvent.OpenUrl openUrl -> {
+					try {
+						URI uri = openUrl.uri();
+						String scheme = uri.getScheme();
+						if (scheme == null) {
+							throw new URISyntaxException(uri.toString(), "Missing protocol");
+						}
+						if (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")) {
+							throw new URISyntaxException(uri.toString(), "Unsupported protocol: " + scheme.toLowerCase(Locale.ROOT));
+						}
+
+						final Screen curScreen = Minecraft.getInstance().screen;
+						Minecraft.getInstance().setScreen(new ConfirmLinkScreen(accepted -> {
+							if (accepted) {
+								Util.getPlatform().openUri(uri);
+							}
+							Minecraft.getInstance().setScreen(curScreen);
+						}, uri.toString(), false));
+						return true;
+					} catch (URISyntaxException e) {
+						errorToPlayer("Can't open url for %s (%s)", openUrl.uri(), e.getMessage());
+					}
+					return true;
+				}
+				case null, default -> {
+					return false;
+				}
+			}
 		}
 
 		private void errorToPlayer(String msg, Object... args) {
@@ -996,31 +1008,21 @@ public class ViewQuestPanel extends ModalPanel {
 
 			super.addMouseOverText(list);
 
-//			getComponentStyleAt(questScreen.getTheme(), getMouseX(), getMouseY()).ifPresent(style -> {
-//				if (style.getHoverEvent() != null) {
-//					HoverEvent hoverevent = style.getHoverEvent();
-//					HoverEvent.ItemStackInfo stackInfo = hoverevent.getValue(HoverEvent.Action.SHOW_ITEM);
-//					Minecraft mc = Minecraft.getInstance();
-//					TooltipFlag flag = mc.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
-//					if (stackInfo != null) {
-//						stackInfo.getItemStack().getTooltipLines(Item.TooltipContext.of(mc.level), mc.player, flag).forEach(list::add);
-//					} else {
-//						HoverEvent.EntityTooltipInfo entityInfo = hoverevent.getValue(HoverEvent.Action.SHOW_ENTITY);
-//						if (entityInfo != null) {
-//							if (flag.isAdvanced()) {
-//								entityInfo.getTooltipLines().forEach(list::add);
-//							}
-//						} else {
-//							Component component = hoverevent.getValue(HoverEvent.Action.SHOW_TEXT);
-//							if (component != null) {
-//								list.add(component);
-//							}
-//						}
-//					}
-//				}
-//			});
+			getClickableStyleAt(questScreen.getTheme(), getMouseX(), getMouseY()).ifPresent(style -> {
+				Minecraft mc = Minecraft.getInstance();
+				TooltipFlag flag = mc.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
+				switch (style.getHoverEvent()) {
+					case HoverEvent.ShowItem showItem ->
+							showItem.item().getTooltipLines(Item.TooltipContext.of(mc.level), mc.player, flag).forEach(list::add);
+					case HoverEvent.ShowEntity showEntity when flag.isAdvanced() ->
+							showEntity.entity().getTooltipLines().forEach(list::add);
+					case HoverEvent.ShowText showText ->
+							list.add(showText.value());
+					case null, default -> {}
+				}
+			});
 
-			if (xlateWarning) {
+			if (xlateWarning.get()) {
 				ClientQuestFile.addTranslationWarning(list, key);
 			}
 		}

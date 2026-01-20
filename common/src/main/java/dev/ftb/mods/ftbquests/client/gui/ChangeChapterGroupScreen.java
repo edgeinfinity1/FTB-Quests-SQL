@@ -18,9 +18,12 @@ import dev.ftb.mods.ftbquests.net.ChangeChapterGroupMessage;
 import dev.ftb.mods.ftbquests.quest.Chapter;
 import dev.ftb.mods.ftbquests.quest.ChapterGroup;
 
+import org.jspecify.annotations.Nullable;
+
 public class ChangeChapterGroupScreen extends AbstractButtonListScreen {
 	private final Chapter chapter;
 	private final QuestScreen questScreen;
+	@Nullable
 	private ChapterGroup newGroup;
 
 	public ChangeChapterGroupScreen(Chapter chapter, QuestScreen questScreen) {
