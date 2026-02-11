@@ -73,6 +73,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 	private double iconScale;
 	private int maxCompletableDeps;
 	private boolean hideLockIcon;
+	private int repeatCooldown; // seconds
 
 	private Component cachedSubtitle = null;
 	private List<Component> cachedDescription = null;
@@ -116,6 +117,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		iconScale = 1d;
 		maxCompletableDeps = 0;
 		hideLockIcon = false;
+		repeatCooldown = 0;
 	}
 
 	@Override
@@ -215,8 +217,8 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 	}
 
 	@Override
-	public boolean isOptionalForProgression() {
-		return isOptional();
+	public boolean isOptionalForProgression(TeamData teamData) {
+		return isOptional() || canBeRepeated() || teamData.isExcludedByOtherQuestline(this);
 	}
 
 	public boolean getRequireSequentialTasks() {
@@ -322,6 +324,9 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		if (hideLockIcon) {
 			nbt.putBoolean("hide_lock_icon", true);
 		}
+		if (repeatCooldown > 0) {
+			nbt.putInt("repeat_cooldown", repeatCooldown);
+		}
 	}
 
 	@Override
@@ -394,6 +399,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		requireSequentialTasks = Tristate.read(nbt, "require_sequential_tasks");
 		maxCompletableDeps = nbt.getInt("max_completable_dependents");
 		hideLockIcon = nbt.getBoolean("hide_lock_icon");
+		repeatCooldown = nbt.getInt("repeat_cooldown");
 	}
 
 	@Override
@@ -470,6 +476,9 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		ProgressionMode.NAME_MAP.write(buffer, progressionMode);
 
 		buffer.writeVarInt(maxCompletableDeps);
+		if (canRepeat.isTrue()) {
+			buffer.writeInt(repeatCooldown);
+		}
 	}
 
 	@Override
@@ -521,14 +530,14 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		hideLockIcon = Bits.getFlag(flags, 0x40000);
 		progressionMode = ProgressionMode.NAME_MAP.read(buffer);
 		maxCompletableDeps = buffer.readVarInt();
+		repeatCooldown = canRepeat.isTrue() ? buffer.readInt() : 0;
 	}
 
 	@Override
 	public int getRelativeProgressFromChildren(TeamData data) {
-        /*if (data.getTimesCompleted(this) > 0)
-		{
+		if (data.getCompletionCount(this) > 0) {
 			return 100;
-		}*/
+		}
 
 		if (tasks.isEmpty()) {
 			return data.areDependenciesComplete(this) ? 100 : 0;
@@ -708,7 +717,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		visibility.addTristate("hide_text_until_complete", hideTextUntilComplete, v -> hideTextUntilComplete = v);
 		visibility.addBool("hide_lock_icon", hideLockIcon, v -> hideLockIcon = v, false);
 
-		Predicate<QuestObjectBase> depTypes = object -> object != chapter.file && object != chapter && object instanceof QuestObject;// && !(object instanceof Task);
+		Predicate<QuestObjectBase> depTypes = object -> object != chapter.file && object != chapter && object instanceof QuestObject;
 		removeInvalidDependencies();
 		ConfigGroup deps = config.getOrCreateSubgroup("dependencies");
 		deps.addList("dependencies", dependencies, new ConfigQuestObject<>(depTypes), null).setNameKey("ftbquests.dependencies");
@@ -722,6 +731,7 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		misc.addString("guide_page", guidePage, v -> guidePage = v, "");
 		misc.addEnum("disable_jei", disableJEI, v -> disableJEI = v, Tristate.NAME_MAP);
 		misc.addTristate("can_repeat", canRepeat, v -> canRepeat = v);
+		misc.addInt("repeat_cooldown", repeatCooldown, v -> repeatCooldown = v, 0, 0, Integer.MAX_VALUE);
 		misc.addBool("optional", optional, v -> optional = v, false);
 		misc.addBool("ignore_reward_blocking", ignoreRewardBlocking, v -> ignoreRewardBlocking = v, false);
 		misc.addEnum("progression_mode", progressionMode, v -> progressionMode = v, ProgressionMode.NAME_MAP);
@@ -951,9 +961,9 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		FTBQuestsClient.copyToClipboard(this);
 	}
 
-	public boolean isProgressionIgnored(TeamData data) {
-		return canBeRepeated() || optional || data.isExcludedByOtherQuestline(this);
-	}
+//	public boolean isProgressionIgnored(TeamData data) {
+//		return canBeRepeated() || optional || data.isExcludedByOtherQuestline(this);
+//	}
 
 	/**
 	 * Get a collection of dependent quest ID's; quests which can't be progressed until this quest is completed.
@@ -966,10 +976,12 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 				.toList();
 	}
 
-	public void checkRepeatable(TeamData data, UUID player) {
+	public boolean checkRepeatable(TeamData data, UUID player) {
 		if (canBeRepeated() && rewards.stream().allMatch(r -> data.isRewardClaimed(player, r))) {
 			forceProgress(data, new ProgressChange(data.getFile(), this, player));
+			return true;
 		}
+		return false;
 	}
 
 	@Override
@@ -1101,6 +1113,23 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 		rewards.remove(reward);
 	}
 
+	public void setTaskList(List<Task> tasks) {
+		this.tasks.clear();
+		this.tasks.addAll(tasks);
+	}
+
+	public void setRewardList(List<Reward> rewards) {
+		this.rewards.clear();
+		this.rewards.addAll(rewards);
+	}
+
+	/**
+	 * {@return the number of seconds until the quest can be repeated, counting from when all rewards have been claimed}
+	 */
+	public int getRepeatCooldown() {
+		return repeatCooldown;
+	}
+
 	@FunctionalInterface
 	private interface DependencyChecker {
 		default boolean check(QuestObject questObject) {
@@ -1174,5 +1203,34 @@ public final class Quest extends QuestObject implements Movable, Excludable {
 
 	public boolean isExclusiveQuest() {
 		return dependencies.stream().anyMatch(qo -> qo instanceof Quest q && q.maxCompletableDeps > 0);
+	}
+
+	private <T> void moveItem(List<T> list, T item, int direction) {
+		int currentIndex = list.indexOf(item);
+		int targetIndex = currentIndex + direction;
+
+		if (currentIndex >= 0 && targetIndex >= 0 && targetIndex < list.size()) {
+			T targetItem = list.get(targetIndex);
+			list.set(targetIndex, item);
+			list.set(currentIndex, targetItem);
+		}
+
+		getQuestFile().markDirty();
+	}
+
+	public void moveTaskLeft(Task task) {
+		moveItem(tasks, task, -1);
+	}
+
+	public void moveTaskRight(Task task) {
+		moveItem(tasks, task, 1);
+	}
+
+	public void moveRewardLeft(Reward reward) {
+		moveItem(rewards, reward, -1);
+	}
+
+	public void moveRewardRight(Reward reward) {
+		moveItem(rewards, reward, 1);
 	}
 }

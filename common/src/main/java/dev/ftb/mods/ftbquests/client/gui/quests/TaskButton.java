@@ -14,6 +14,9 @@ import dev.ftb.mods.ftbquests.api.ItemFilterAdapter;
 import dev.ftb.mods.ftbquests.client.gui.ContextMenuBuilder;
 import dev.ftb.mods.ftbquests.integration.item_filtering.ItemMatchingSystem;
 import dev.ftb.mods.ftbquests.net.EditObjectMessage;
+import dev.ftb.mods.ftbquests.net.GiveItemToPlayerMessage;
+import dev.ftb.mods.ftbquests.net.ReorderItemMessage;
+import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.task.ItemTask;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
@@ -68,7 +71,14 @@ public class TaskButton extends Button {
 
 			ContextMenuBuilder builder = ContextMenuBuilder.create(task, questScreen);
 
-			if (task instanceof ItemTask itemTask) {
+			builder.insertAtTop(List.of(new ContextMenuItem(Component.translatable("ftbquests.gui.move_left"), Icons.LEFT,
+					b -> new ReorderItemMessage(task.getId(), false).sendToServer()
+			)));
+			builder.insertAtTop(List.of(new ContextMenuItem(Component.translatable("ftbquests.gui.move_right"), Icons.RIGHT,
+					b -> new ReorderItemMessage(task.getId(), true).sendToServer()
+			)));
+
+			if (task instanceof ItemTask itemTask && !itemTask.getItemStack().isEmpty()) {
 				var tags = itemTask.getItemStack().getItem().builtInRegistryHolder().tags().toList();
 				if (!tags.isEmpty() && !ItemMatchingSystem.INSTANCE.isItemFilter(itemTask.getItemStack())) {
 					for (ItemFilterAdapter adapter : ItemMatchingSystem.INSTANCE.adapters()) {
@@ -86,6 +96,9 @@ public class TaskButton extends Button {
 						}
 					}
 				}
+				builder.insertAtTop(List.of(new ContextMenuItem(Component.translatable("ftbquests.task.grab_item"), Icons.ADD_GRAY,
+						b -> new GiveItemToPlayerMessage(itemTask.getItemStack()).sendToServer()))
+				);
 			}
 			if (task.getIcon() instanceof ItemIcon itemIcon) {
 				builder.insertAtTop(List.of(new ContextMenuItem(Component.translatable("ftbquests.gui.use_as_quest_icon"),
@@ -122,34 +135,36 @@ public class TaskButton extends Button {
 	public void addMouseOverText(TooltipList list) {
 		questScreen.addInfoTooltip(list, task);
 
-		task.addMouseOverHeader(list, questScreen.file.selfTeamData, Minecraft.getInstance().options.advancedItemTooltips);
+		TeamData teamData = questScreen.file.selfTeamData;
 
-		if (questScreen.file.selfTeamData.canStartTasks(task.getQuest())) {
+		task.addMouseOverHeader(list, teamData, Minecraft.getInstance().options.advancedItemTooltips);
+
+		if (teamData.canStartTasks(task.getQuest())) {
 			long maxp = task.getMaxProgress();
-			long progress = questScreen.file.selfTeamData.getProgress(task);
+			long progress = teamData.getProgress(task);
 
 			if (maxp > 1L) {
 				if (task.hideProgressNumbers()) {
-					list.add(Component.literal("[" + task.getRelativeProgressFromChildren(questScreen.file.selfTeamData) + "%]").withStyle(ChatFormatting.DARK_GREEN));
+					list.add(Component.literal("[" + task.getRelativeProgressFromChildren(teamData) + "%]").withStyle(ChatFormatting.DARK_GREEN));
 				} else {
 					String max = isShiftKeyDown() ? Long.toUnsignedString(maxp) : task.formatMaxProgress();
-					String prog = isShiftKeyDown() ? Long.toUnsignedString(progress) : task.formatProgress(questScreen.file.selfTeamData, progress);
+					String prog = isShiftKeyDown() ? Long.toUnsignedString(progress) : task.formatProgress(teamData, progress);
 
 					String s = (progress > maxp ? max : prog) + " / " + max;
 					if (maxp < 100L) {
 						list.add(Component.literal(s).withStyle(ChatFormatting.DARK_GREEN));
 					} else {
-						list.add(Component.literal(s).withStyle(ChatFormatting.DARK_GREEN).append(Component.literal(" [" + task.getRelativeProgressFromChildren(questScreen.file.selfTeamData) + "%]").withStyle(ChatFormatting.DARK_GRAY)));
+						list.add(Component.literal(s).withStyle(ChatFormatting.DARK_GREEN).append(Component.literal(" [" + task.getRelativeProgressFromChildren(teamData) + "%]").withStyle(ChatFormatting.DARK_GRAY)));
 					}
 				}
 			}
 		}
 
-		if (task.isOptionalForProgression()) {
+		if (task.isOptionalForProgression(teamData)) {
 			list.add(Component.translatable("ftbquests.quest.misc.optional_task").withStyle(ChatFormatting.GRAY));
 		}
 
-		task.addMouseOverText(list, questScreen.file.selfTeamData);
+		task.addMouseOverText(list, teamData);
 	}
 
 	@Override

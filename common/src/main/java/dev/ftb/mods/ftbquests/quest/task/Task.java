@@ -117,7 +117,7 @@ public abstract class Task extends QuestObject {
 	}
 
 	@Override
-	public boolean isOptionalForProgression() {
+	public boolean isOptionalForProgression(TeamData teamData) {
 		return optionalTask;
 	}
 

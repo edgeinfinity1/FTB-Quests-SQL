@@ -330,8 +330,13 @@ public class FTBQuestsCommands {
 	private static int changeProgress(CommandSourceStack source, Collection<ServerPlayer> players, boolean reset, String idStr) throws CommandSyntaxException {
 		QuestObjectBase questObject = getQuestObjectForString(idStr);
 		for (ServerPlayer player : players) {
+			TeamData data = ServerQuestFile.INSTANCE.getOrCreateTeamData(player);
 			ProgressChange progressChange = new ProgressChange(ServerQuestFile.INSTANCE, questObject, player.getUUID()).setReset(reset);
-			questObject.forceProgress(ServerQuestFile.INSTANCE.getOrCreateTeamData(player), progressChange);
+			questObject.forceProgress(data, progressChange);
+			if (questObject instanceof Quest quest && reset) {
+				data.clearRepeatCooldown(quest);
+				ClearRepeatCooldownMessage.sendToAll(source.getServer(), quest);
+			}
 		}
 
 		source.sendSuccess(() -> Component.translatable("commands.ftbquests.change_progress.text"), false);

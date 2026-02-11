@@ -2,7 +2,9 @@ package dev.ftb.mods.ftbquests.client.gui.quests;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.architectury.networking.NetworkManager;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
+import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftblibrary.ui.*;
 import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
@@ -10,6 +12,7 @@ import dev.ftb.mods.ftblibrary.util.client.PositionedIngredient;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.gui.ContextMenuBuilder;
+import dev.ftb.mods.ftbquests.net.ReorderItemMessage;
 import dev.ftb.mods.ftbquests.quest.reward.ItemReward;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
 import dev.ftb.mods.ftbquests.quest.theme.property.ThemeProperties;
@@ -26,7 +29,7 @@ import java.util.Optional;
 
 public class RewardButton extends Button {
 	private final QuestScreen questScreen;
-	private final Reward reward;
+	public final Reward reward;
 
 	public RewardButton(Panel panel, Reward reward) {
 		super(panel, reward.getTitle(), reward.getIcon());
@@ -97,23 +100,26 @@ public class RewardButton extends Button {
 	}
 
 	@Override
-	public WidgetType getWidgetType() {
-		if (!ClientQuestFile.exists() || !ClientQuestFile.INSTANCE.selfTeamData.isCompleted(reward.getQuest())) {
-			return WidgetType.DISABLED;
-		}
-
-		return super.getWidgetType();
-	}
-
-	@Override
 	public void onClicked(MouseButton button) {
 		if (button.isLeft()) {
-			if (ClientQuestFile.exists()) {
-				reward.onButtonClicked(this, ClientQuestFile.INSTANCE.selfTeamData.getClaimType(Minecraft.getInstance().player.getUUID(), reward).canClaim());
-			}
+			if (reward.getQuestFile().canEdit() && ScreenWrapper.hasAltDown()) {
+				reward.onEditButtonClicked(this);
+			} else if (ClientQuestFile.exists()) {
+				boolean canClick = questScreen.file.selfTeamData.getClaimType(FTBQuestsClient.getClientPlayer().getUUID(), reward).canClaim();
+				reward.onButtonClicked(this, canClick);
+            }
 		} else if (button.isRight() && ClientQuestFile.exists() && ClientQuestFile.INSTANCE.canEdit()) {
 			playClickSound();
-			ContextMenuBuilder.create(reward, questScreen).openContextMenu(getGui());
+
+			ContextMenuBuilder builder = ContextMenuBuilder.create(reward, questScreen);
+			builder.insertAtTop(List.of(new ContextMenuItem(Component.translatable("ftbquests.gui.move_left"), Icons.LEFT,
+					b -> new ReorderItemMessage(reward.getId(), false).sendToServer()
+			)));
+			builder.insertAtTop(List.of(new ContextMenuItem(Component.translatable("ftbquests.gui.move_right"), Icons.RIGHT,
+					b -> new ReorderItemMessage(reward.getId(), true).sendToServer()
+			)));
+
+			builder.openContextMenu(getGui());
 		}
 	}
 

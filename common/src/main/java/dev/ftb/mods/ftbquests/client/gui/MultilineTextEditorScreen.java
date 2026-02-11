@@ -1,6 +1,11 @@
 package dev.ftb.mods.ftbquests.client.gui;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.serialization.JsonOps;
 import dev.ftb.mods.ftblibrary.config.*;
 import dev.ftb.mods.ftblibrary.config.ui.EditConfigScreen;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
@@ -15,13 +20,16 @@ import dev.ftb.mods.ftblibrary.ui.misc.NordColors;
 import dev.ftb.mods.ftblibrary.util.TooltipList;
 import dev.ftb.mods.ftblibrary.util.client.ImageComponent;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
+import dev.ftb.mods.ftbquests.client.FTBQuestsClient;
 import dev.ftb.mods.ftbquests.client.gui.quests.QuestScreen;
 import dev.ftb.mods.ftbquests.client.gui.quests.ViewQuestPanel;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.QuestObjectType;
 import dev.ftb.mods.ftbquests.util.ConfigQuestObject;
+import dev.ftb.mods.ftbquests.util.TextUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Whence;
@@ -61,7 +69,8 @@ public class MultilineTextEditorScreen extends BaseScreen {
 			InputConstants.KEY_P, () -> insertAtEndOfLine("\n" + Quest.PAGEBREAK_CODE),
 			InputConstants.KEY_M, this::openImageSelector,
 			InputConstants.KEY_Z, this::undoLast,
-			InputConstants.KEY_L, this::openLinkInsert
+			InputConstants.KEY_L, this::openLinkInsert,
+			InputConstants.KEY_J, this::convertToJson
 	);
 
 	public MultilineTextEditorScreen(Component title, ListConfig<String, StringConfig> config, ConfigCallback callback) {
@@ -194,6 +203,58 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		return FTBQuestsTheme.INSTANCE;
 	}
 
+	private void replaceText(StringExtents extents, String replacement) {
+		textBox.setSelecting(false);
+		textBox.seekCursor(Whence.ABSOLUTE, extents.start());
+		textBox.setSelecting(true);
+		textBox.seekCursor(Whence.ABSOLUTE, extents.end());
+		textBox.insertText(replacement);
+		textBox.setSelecting(false);
+	}
+
+	private void convertToJson() {
+		if (Screen.hasShiftDown()) {
+			// convert all lines which are not already json
+			List<String> newDoc = new ArrayList<>();
+			for (String line : textBox.getText().split("\\n")) {
+				if (line.startsWith("{")) {
+					newDoc.add(line);
+				} else {
+					Component parsed = TextUtils.parseRawText(line);
+					newDoc.add(canonicalizeJson(Component.Serializer.toJsonTree(parsed)).toString());
+				}
+			}
+			textBox.setText(String.join("\n", newDoc));
+		} else {
+			// just the current line (where the cursor is)
+			StringExtents lineExtents = getPhysicalLineExtents();
+			if (lineExtents.start() > textBox.getText().length() || lineExtents.start() >= lineExtents.end()) {
+				return;
+			}
+			String thisLine = textBox.getText().substring(lineExtents.start(), lineExtents.end());
+			if (!thisLine.startsWith("{")) {
+				Component parsed = TextUtils.parseRawText(thisLine);
+				replaceText(lineExtents, canonicalizeJson(Component.Serializer.toJsonTree(parsed)).toString());
+			}
+		}
+	}
+
+	private JsonElement canonicalizeJson(JsonElement json) {
+        return json instanceof JsonPrimitive p ?
+				Util.make(new JsonObject(), o -> {
+					o.addProperty("text", "");
+					o.add("extra", Util.make(new JsonArray(), a -> a.add(p.getAsString())));
+				}) :
+				json;
+	}
+
+	private boolean looksLikeJsonText(String line) {
+		return (line.startsWith("{") || line.startsWith("["))
+				&& (line.endsWith("}") || line.endsWith("]"))
+				&& !line.startsWith("{image")
+				&& !line.startsWith("{@");
+	}
+
 	private void openLinkInsert() {
 		ConfigQuestObject<QuestObject> config = new ConfigQuestObject<>(QuestObjectType.QUEST.or(QuestObjectType.QUEST_LINK));
 		new SelectQuestObjectScreen<>(config, accepted -> {
@@ -235,11 +296,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 			if (!parts.get(2).isEmpty()) builder.append(", ").append("\"").append(parts.get(2)).append("\"");
 			builder.append(" ]");
 
-			textBox.setSelecting(false);
-			textBox.seekCursor(Whence.ABSOLUTE, lineExtents.start());
-			textBox.setSelecting(true);
-			textBox.seekCursor(Whence.ABSOLUTE, lineExtents.end());
-			textBox.insertText(builder.toString());
+			replaceText(lineExtents, builder.toString());
 		} else {
 			errorToPlayer("ftbquests.gui.error.selection_multiple_lines");
 		}
@@ -348,7 +405,6 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		}
 	}
 
-
 	private class OuterPanel extends Panel {
 		public OuterPanel(MultilineTextEditorScreen screen) {
 			super(screen);
@@ -413,6 +469,7 @@ public class MultilineTextEditorScreen extends BaseScreen {
 		private final ToolbarButton imageButton;
 		private final ToolbarButton undoButton;
 		private final ToolbarButton linkButton;
+		private final ToolbarButton convertButton;
 
 		public ToolbarPanel(Panel outerPanel) {
 			super(outerPanel);
@@ -454,6 +511,13 @@ public class MultilineTextEditorScreen extends BaseScreen {
 			undoButton = new ToolbarButton(this, Component.empty(), Icons.REFRESH,
 					() -> executeHotkey(InputConstants.KEY_Z, false))
 					.withTooltip(Component.translatable("ftbquests.gui.undo"), hotkey("Ctrl + Z"));
+			convertButton = new ToolbarButton(this, Component.literal("{}"), Icon.empty(),
+					() -> executeHotkey(InputConstants.KEY_J, false))
+					.withTooltip(
+							Component.translatable("ftbquests.gui.convert_json"),
+							Component.translatable("ftbquests.gui.convert_json.2"),
+							hotkey("Alt + J")
+					);
 		}
 
 		private boolean isOkForLinkInsertion() {
@@ -505,7 +569,8 @@ public class MultilineTextEditorScreen extends BaseScreen {
 					resetButton,
 					pageBreakButton,
 					imageButton,
-					undoButton
+					undoButton,
+					convertButton
 			));
 		}
 
@@ -520,9 +585,12 @@ public class MultilineTextEditorScreen extends BaseScreen {
 			colorButton.setPosAndSize(91, 1, 16, 16);
 			linkButton.setPosAndSize(107, 1, 16, 16);
 			resetButton.setPosAndSize(123, 1, 16, 16);
+
 			pageBreakButton.setPosAndSize(149, 1, 16, 16);
 			imageButton.setPosAndSize(165, 1, 16, 16);
-			undoButton.setPosAndSize(191, 1, 16, 16);
+			convertButton.setPosAndSize(181, 1, 16, 16);
+
+			undoButton.setPosAndSize(207, 1, 16, 16);
 
 			cancelButton.setPosAndSize(width - 17, 1, 16, 16);
 		}
