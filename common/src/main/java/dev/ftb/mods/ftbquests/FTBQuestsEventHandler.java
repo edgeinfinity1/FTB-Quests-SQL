@@ -12,6 +12,7 @@ import dev.ftb.mods.ftbquests.item.FTBQuestsItems;
 import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbquests.quest.sync.TeamDataSqlSyncManager;
 import dev.ftb.mods.ftbquests.quest.task.CustomTask;
 import dev.ftb.mods.ftbquests.quest.task.DimensionTask;
 import dev.ftb.mods.ftbquests.quest.task.KillTask;
@@ -69,6 +70,7 @@ public enum FTBQuestsEventHandler {
 		PlayerEvent.OPEN_MENU.register(this::containerOpened);
 		TickEvent.SERVER_POST.register(DeferredInventoryDetection::tick);
 		TickEvent.SERVER_POST.register(CustomTask.TaskSync::tick);
+		TickEvent.SERVER_POST.register(this::serverTick);
 	}
 
 	private void serverAboutToStart(MinecraftServer server) {
@@ -81,10 +83,12 @@ public enum FTBQuestsEventHandler {
 
 	private void serverStarted(MinecraftServer server) {
 		ServerQuestFile.INSTANCE.load();
+		TeamDataSqlSyncManager.INSTANCE.start(ServerQuestFile.INSTANCE);
 	}
 
 	private void serverStopped(MinecraftServer server) {
 		clearCachedData();
+		TeamDataSqlSyncManager.INSTANCE.stop();
 
 		ServerQuestFile.INSTANCE.saveNow();
 		ServerQuestFile.INSTANCE.unload();
@@ -94,6 +98,12 @@ public enum FTBQuestsEventHandler {
 	private void worldSaved(ServerLevel level) {
 		if (ServerQuestFile.INSTANCE != null) {
 			ServerQuestFile.INSTANCE.saveNow();
+		}
+	}
+
+	private void serverTick(MinecraftServer server) {
+		if (ServerQuestFile.INSTANCE != null) {
+			TeamDataSqlSyncManager.INSTANCE.tick(ServerQuestFile.INSTANCE);
 		}
 	}
 
