@@ -12,6 +12,7 @@ import dev.ftb.mods.ftbquests.net.*;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
 import dev.ftb.mods.ftbquests.quest.reward.RewardAutoClaim;
 import dev.ftb.mods.ftbquests.quest.reward.RewardClaimType;
+import dev.ftb.mods.ftbquests.quest.sync.TeamDataSqlSyncManager;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.util.FTBQuestsInventoryListener;
 import dev.ftb.mods.ftbquests.util.QuestKey;
@@ -127,6 +128,9 @@ public class TeamData {
 
 	public void markDirty() {
 		shouldSave = true;
+		if (file instanceof ServerQuestFile sqf) {
+			TeamDataSqlSyncManager.INSTANCE.onTeamDataDirty(sqf, this);
+		}
 	}
 
 	public String getName() {
@@ -384,6 +388,10 @@ public class TeamData {
 	}
 
 	public void deserializeNBT(SNBTCompoundTag nbt) {
+		deserializeNBT((CompoundTag) nbt);
+	}
+
+	public void deserializeNBT(CompoundTag nbt) {
 		int fileVersion = nbt.getInt("version");
 
 		if (fileVersion != VERSION) {
