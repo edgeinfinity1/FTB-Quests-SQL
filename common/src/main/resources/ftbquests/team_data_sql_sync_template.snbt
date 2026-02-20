@@ -1,0 +1,11 @@
+{
+	mysql_sync: {
+		enabled: false
+		url: "jdbc:mysql://127.0.0.1:3306/ftbquests"
+		user: "root"
+		password: ""
+		table: "ftbq_team_data_sync"
+		server_id: ""
+		poll_interval_ticks: 40
+	}
+}
