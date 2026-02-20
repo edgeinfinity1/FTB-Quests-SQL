@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbquests.quest.sync;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.util.UndashedUuid;
+// import com.mojang.util.UndashedUuid;
+import dev.ftb.mods.ftbquests.quest.sync.UndashedUuidCompat;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
@@ -229,7 +230,7 @@ public enum TeamDataSqlSyncManager {
 				""".formatted(tableName);
 
 		try (Connection c = openConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-			ps.setString(1, UndashedUuid.toString(teamId));
+			ps.setString(1, UndashedUuidCompat.toString(teamId));
 			ps.setString(2, snapshot);
 			ps.setLong(3, now);
 			ps.setString(4, serverId);
@@ -262,7 +263,7 @@ public enum TeamDataSqlSyncManager {
 						continue;
 					}
 
-					UUID teamId = UndashedUuid.fromString(rs.getString("team_id"));
+					UUID teamId = UndashedUuidCompat.fromString(rs.getString("team_id"));
 					String payload = rs.getString("payload");
 					String existing = snapshotCache.get(teamId);
 					if (!payload.equals(existing)) {
