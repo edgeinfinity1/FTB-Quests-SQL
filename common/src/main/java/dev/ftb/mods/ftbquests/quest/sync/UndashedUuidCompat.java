@@ -1,3 +1,5 @@
+package dev.ftb.mods.ftbquests.quest.sync;
+
 import java.util.UUID;
 
 public class UndashedUuidCompat {
