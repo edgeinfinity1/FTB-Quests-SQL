@@ -127,6 +127,9 @@ public class TeamData {
 
 	public void markDirty() {
 		shouldSave = true;
+		if (file instanceof ServerQuestFile sqf) {
+			sqf.onTeamDataMarkedDirty(this);
+		}
 	}
 
 	public String getName() {

@@ -48,11 +48,13 @@ public class ServerQuestFile extends BaseQuestFile {
 	private boolean isLoading;
 	private Path folder;
 	private ServerPlayer currentPlayer = null;
+	private final TeamDataSqlSync sqlSync;
 
 	public ServerQuestFile(MinecraftServer s) {
 		server = s;
 		shouldSave = false;
 		isLoading = false;
+		sqlSync = new TeamDataSqlSync(this);
 
 		int taskTypeId = 0;
 
@@ -86,25 +88,27 @@ public class ServerQuestFile extends BaseQuestFile {
 		}
 
 		if (progression) {
-			Path path = server.getWorldPath(FTBQUESTS_DATA);
+			if (!sqlSync.loadFromSql()) {
+				Path path = server.getWorldPath(FTBQUESTS_DATA);
 
-			if (Files.exists(path)) {
-				try (Stream<Path> s = Files.list(path)) {
-					s.filter(p -> p.getFileName().toString().contains("-") && p.getFileName().toString().endsWith(".snbt")).forEach(path1 -> {
-						SNBTCompoundTag nbt = SNBT.read(path1);
-						if (nbt != null) {
-							try {
-								UUID uuid = UndashedUuid.fromString(nbt.getString("uuid"));
-								TeamData data = new TeamData(uuid, this);
-								addData(data, true);
-								data.deserializeNBT(nbt);
-							} catch (Exception ex) {
-								FTBQuests.LOGGER.error("can't parse progression data for {}: {}", path1, ex.getMessage());
+				if (Files.exists(path)) {
+					try (Stream<Path> s = Files.list(path)) {
+						s.filter(p -> p.getFileName().toString().contains("-") && p.getFileName().toString().endsWith(".snbt")).forEach(path1 -> {
+							SNBTCompoundTag nbt = SNBT.read(path1);
+							if (nbt != null) {
+								try {
+									UUID uuid = UndashedUuid.fromString(nbt.getString("uuid"));
+									TeamData data = new TeamData(uuid, this);
+									addData(data, true);
+									data.deserializeNBT(nbt);
+								} catch (Exception ex) {
+									FTBQuests.LOGGER.error("can't parse progression data for {}: {}", path1, ex.getMessage());
+								}
 							}
-						}
-					});
-				} catch (Exception ex) {
-					FTBQuests.LOGGER.error("can't read directory {}: {}", path, ex.getMessage());
+						});
+					} catch (Exception ex) {
+						FTBQuests.LOGGER.error("can't read directory {}: {}", path, ex.getMessage());
+					}
 				}
 			}
 		}
@@ -166,8 +170,17 @@ public class ServerQuestFile extends BaseQuestFile {
 
 	public void unload() {
 		saveNow();
+		sqlSync.shutdown();
 		deleteChildren();
 		deleteSelf();
+	}
+
+	public void onTeamDataMarkedDirty(TeamData data) {
+		sqlSync.pushSnapshot(data);
+	}
+
+	public void tickSqlSync() {
+		sqlSync.tick();
 	}
 
 	public ServerPlayer getCurrentPlayer() {

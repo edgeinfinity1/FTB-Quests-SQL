@@ -72,6 +72,11 @@ public enum FTBQuestsEventHandler {
 		TickEvent.SERVER_POST.register(DeferredInventoryDetection::tick);
 		TickEvent.SERVER_POST.register(QuestBarrierBlock.TeleportTicker::tick);
 		TickEvent.SERVER_POST.register(CustomTask.TaskSync::tick);
+		TickEvent.SERVER_POST.register(server -> {
+			if (ServerQuestFile.INSTANCE != null) {
+				ServerQuestFile.INSTANCE.tickSqlSync();
+			}
+		});
 	}
 
 	private void serverAboutToStart(MinecraftServer server) {
