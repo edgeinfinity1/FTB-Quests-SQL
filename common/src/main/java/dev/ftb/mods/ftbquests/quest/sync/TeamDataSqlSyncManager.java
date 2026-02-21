@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -273,6 +274,7 @@ public enum TeamDataSqlSyncManager {
 
 		try (Connection c = openConnection()) {
 			c.setAutoCommit(false);
+			c.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 
 			String payloadToStore = snapshot;
 			boolean exists = false;
@@ -307,6 +309,15 @@ public enum TeamDataSqlSyncManager {
 					insert.setLong(3, now);
 					insert.setString(4, serverId);
 					insert.executeUpdate();
+				} catch (SQLIntegrityConstraintViolationException ignored) {
+					// concurrent first-writer raced us; apply merged payload via update instead
+					try (PreparedStatement update = c.prepareStatement(updateSql)) {
+						update.setString(1, payloadToStore);
+						update.setLong(2, now);
+						update.setString(3, serverId);
+						update.setString(4, teamKey);
+						update.executeUpdate();
+					}
 				}
 			}
 
