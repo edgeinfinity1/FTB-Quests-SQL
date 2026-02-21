@@ -3,7 +3,7 @@ package dev.ftb.mods.ftbquests.quest.sync;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 // import com.mojang.util.UndashedUuid;
 import dev.ftb.mods.ftbquests.quest.sync.UndashedUuidCompat;
-import dev.architectury.networking.NetworkManager;
+// import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
 import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
@@ -289,7 +289,7 @@ public enum TeamDataSqlSyncManager {
 			snapshotCache.put(update.teamId(), update.payload());
 
 			if (!teamData.getOnlineMembers().isEmpty()) {
-				NetworkManager.sendToPlayers(teamData.getOnlineMembers(), new SyncTeamDataMessage(teamData));
+				new SyncTeamDataMessage(teamData, true).sendTo(teamData.getOnlineMembers());
 			}
 		} catch (CommandSyntaxException ex) {
 			FTBQuests.LOGGER.error("TeamData MySQL payload parse failed for {}: {}", update.teamId(), ex.getMessage());
