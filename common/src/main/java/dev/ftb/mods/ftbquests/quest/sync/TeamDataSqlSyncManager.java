@@ -168,6 +168,41 @@ public enum TeamDataSqlSyncManager {
 		for (TeamData data : file.getAllTeamData()) {
 			snapshotCache.put(data.getTeamId(), data.serializeNBT().toString());
 		}
+
+		primeFromDatabase();
+	}
+
+	private void primeFromDatabase() {
+		String sql = """
+				SELECT team_id, payload, updated_at
+				FROM %s
+				ORDER BY updated_at ASC
+				""".formatted(tableName);
+
+		long maxSeen = lastPollTimeMillis;
+		int queued = 0;
+		try (Connection c = openConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				long updatedAt = rs.getLong("updated_at");
+				if (updatedAt > maxSeen) {
+					maxSeen = updatedAt;
+				}
+
+				UUID teamId = UndashedUuidCompat.fromString(rs.getString("team_id"));
+				String payload = rs.getString("payload");
+				String existing = snapshotCache.get(teamId);
+				if (!payload.equals(existing)) {
+					pendingRemoteUpdates.add(new RemoteTeamDataUpdate(teamId, payload));
+					queued++;
+				}
+			}
+			lastPollTimeMillis = maxSeen;
+			if (queued > 0) {
+				FTBQuests.LOGGER.info("Queued {} TeamData update(s) from SQL during startup prime", queued);
+			}
+		} catch (Exception ex) {
+			FTBQuests.LOGGER.error("TeamData MySQL startup prime failed: {}", ex.getMessage());
+		}
 	}
 
 	private Config loadConfig(ServerQuestFile ignoredFile) {
