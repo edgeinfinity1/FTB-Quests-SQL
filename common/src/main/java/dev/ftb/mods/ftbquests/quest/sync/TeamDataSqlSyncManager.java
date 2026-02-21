@@ -2,7 +2,7 @@ package dev.ftb.mods.ftbquests.quest.sync;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 // import com.mojang.util.UndashedUuid;
-import dev.ftb.mods.ftbquests.quest.sync.UndashedUuidCompat;
+// import dev.ftb.mods.ftbquests.quest.sync.UndashedUuidCompat;
 // import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.ftb.mods.ftblibrary.snbt.SNBT;
@@ -35,7 +35,7 @@ import java.util.concurrent.*;
 /**
  * Optional MySQL synchronization for TeamData between multiple server instances.
  *
- * Configure with config/team_data_sql_sync.snbt (generated from template on first start).
+ * Configure with config/ftb_quests_sql.snbt (generated from template on first start).
  * JVM properties are still supported as overrides.
  */
 public enum TeamDataSqlSyncManager {
@@ -51,7 +51,7 @@ public enum TeamDataSqlSyncManager {
 
 	private static final String DEFAULT_TABLE = "ftbq_team_data_sync";
 	private static final int DEFAULT_POLL_TICKS = 40;
-	private static final String CONFIG_FILE_NAME = "team_data_sql_sync.snbt";
+	private static final String CONFIG_FILE_NAME = "ftb_quests_sql.snbt";
 
 	private ExecutorService executor;
 	private final Queue<RemoteTeamDataUpdate> pendingRemoteUpdates = new ConcurrentLinkedQueue<>();
