@@ -12,6 +12,8 @@ import dev.ftb.mods.ftbquests.net.SyncTeamDataMessage;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 
 import java.nio.file.Files;
@@ -20,8 +22,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
 
@@ -139,8 +146,9 @@ public enum TeamDataSqlSyncManager {
 			return;
 		}
 
+		TeamDataDelta delta = buildDelta(previous, snapshot);
 		UUID teamId = teamData.getTeamId();
-		enqueue(() -> pushSnapshot(teamId, snapshot));
+		enqueue(() -> pushSnapshot(teamId, snapshot, delta));
 	}
 
 	private void initializeSchemaAndPrimeCache(ServerQuestFile file) {
@@ -160,6 +168,41 @@ public enum TeamDataSqlSyncManager {
 
 		for (TeamData data : file.getAllTeamData()) {
 			snapshotCache.put(data.getTeamId(), data.serializeNBT().toString());
+		}
+
+		primeFromDatabase();
+	}
+
+	private void primeFromDatabase() {
+		String sql = """
+				SELECT team_id, payload, updated_at
+				FROM %s
+				ORDER BY updated_at ASC
+				""".formatted(tableName);
+
+		long maxSeen = lastPollTimeMillis;
+		int queued = 0;
+		try (Connection c = openConnection(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				long updatedAt = rs.getLong("updated_at");
+				if (updatedAt > maxSeen) {
+					maxSeen = updatedAt;
+				}
+
+				UUID teamId = UndashedUuidCompat.fromString(rs.getString("team_id"));
+				String payload = rs.getString("payload");
+				String existing = snapshotCache.get(teamId);
+				if (!payload.equals(existing)) {
+					pendingRemoteUpdates.add(new RemoteTeamDataUpdate(teamId, payload));
+					queued++;
+				}
+			}
+			lastPollTimeMillis = maxSeen;
+			if (queued > 0) {
+				FTBQuests.LOGGER.info("Queued {} TeamData update(s) from SQL during startup prime", queued);
+			}
+		} catch (Exception ex) {
+			FTBQuests.LOGGER.error("TeamData MySQL startup prime failed: {}", ex.getMessage());
 		}
 	}
 
@@ -221,23 +264,234 @@ public enum TeamDataSqlSyncManager {
 		}
 	}
 
-	private void pushSnapshot(UUID teamId, String snapshot) {
+	private void pushSnapshot(UUID teamId, String snapshot, TeamDataDelta delta) {
 		long now = System.currentTimeMillis();
-		String sql = """
-				INSERT INTO %s (team_id, payload, updated_at, source_server)
-				VALUES (?, ?, ?, ?)
-				ON DUPLICATE KEY UPDATE payload=VALUES(payload), updated_at=VALUES(updated_at), source_server=VALUES(source_server)
-				""".formatted(tableName);
+		String teamKey = UndashedUuidCompat.toString(teamId);
 
-		try (Connection c = openConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-			ps.setString(1, UndashedUuidCompat.toString(teamId));
-			ps.setString(2, snapshot);
-			ps.setLong(3, now);
-			ps.setString(4, serverId);
-			ps.executeUpdate();
+		String selectSql = "SELECT payload FROM %s WHERE team_id = ? FOR UPDATE".formatted(tableName);
+		String insertSql = "INSERT INTO %s (team_id, payload, updated_at, source_server) VALUES (?, ?, ?, ?)".formatted(tableName);
+		String updateSql = "UPDATE %s SET payload = ?, updated_at = ?, source_server = ? WHERE team_id = ?".formatted(tableName);
+
+		try (Connection c = openConnection()) {
+			c.setAutoCommit(false);
+			c.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+
+			String payloadToStore = snapshot;
+			boolean exists = false;
+			try (PreparedStatement select = c.prepareStatement(selectSql)) {
+				select.setString(1, teamKey);
+				try (ResultSet rs = select.executeQuery()) {
+					if (rs.next()) {
+						exists = true;
+						String dbPayload = rs.getString("payload");
+						if (delta != null && dbPayload != null && !dbPayload.isEmpty()) {
+							String merged = applyDelta(dbPayload, delta);
+							if (merged != null) {
+								payloadToStore = merged;
+							}
+						}
+					}
+				}
+			}
+
+			if (exists) {
+				try (PreparedStatement update = c.prepareStatement(updateSql)) {
+					update.setString(1, payloadToStore);
+					update.setLong(2, now);
+					update.setString(3, serverId);
+					update.setString(4, teamKey);
+					update.executeUpdate();
+				}
+			} else {
+				try (PreparedStatement insert = c.prepareStatement(insertSql)) {
+					insert.setString(1, teamKey);
+					insert.setString(2, payloadToStore);
+					insert.setLong(3, now);
+					insert.setString(4, serverId);
+					insert.executeUpdate();
+				} catch (SQLIntegrityConstraintViolationException ignored) {
+					// concurrent first-writer raced us; apply merged payload via update instead
+					try (PreparedStatement update = c.prepareStatement(updateSql)) {
+						update.setString(1, payloadToStore);
+						update.setLong(2, now);
+						update.setString(3, serverId);
+						update.setString(4, teamKey);
+						update.executeUpdate();
+					}
+				}
+			}
+
+			c.commit();
 		} catch (Exception ex) {
 			FTBQuests.LOGGER.error("TeamData MySQL push failed for {}: {}", teamId, ex.getMessage());
 		}
+	}
+
+	private TeamDataDelta buildDelta(String previousSnapshot, String currentSnapshot) {
+		if (previousSnapshot == null || previousSnapshot.isEmpty()) {
+			return null;
+		}
+
+		try {
+			Tag previousTag = TagParser.parseTag(previousSnapshot);
+			Tag currentTag = TagParser.parseTag(currentSnapshot);
+			if (!(previousTag instanceof CompoundTag previous) || !(currentTag instanceof CompoundTag current)) {
+				return null;
+			}
+
+			List<DeltaOperation> operations = new ArrayList<>();
+			if (!appendCompoundDiff(previous, current, new ArrayList<>(), operations)) {
+				return null;
+			}
+
+			return operations.isEmpty() ? null : new TeamDataDelta(operations);
+		} catch (CommandSyntaxException ex) {
+			return null;
+		}
+	}
+
+	private String applyDelta(String payload, TeamDataDelta delta) {
+		try {
+			Tag parsed = TagParser.parseTag(payload);
+			if (!(parsed instanceof CompoundTag target)) {
+				return null;
+			}
+
+			for (DeltaOperation operation : delta.operations()) {
+				if (!applyOperation(target, operation)) {
+					return null;
+				}
+			}
+
+			return target.toString();
+		} catch (CommandSyntaxException ex) {
+			return null;
+		}
+	}
+
+	private boolean appendCompoundDiff(CompoundTag previous, CompoundTag current, List<String> path, List<DeltaOperation> out) {
+		Set<String> keys = new LinkedHashSet<>(previous.getAllKeys());
+		keys.addAll(current.getAllKeys());
+
+		for (String key : keys) {
+			boolean hadPrevious = previous.contains(key);
+			boolean hasCurrent = current.contains(key);
+			List<String> nextPath = appendPath(path, key);
+
+			if (!hadPrevious) {
+				out.add(DeltaOperation.put(nextPath, current.get(key).copy()));
+				continue;
+			}
+
+			if (!hasCurrent) {
+				out.add(DeltaOperation.remove(nextPath));
+				continue;
+			}
+
+			Tag prevValue = previous.get(key);
+			Tag currValue = current.get(key);
+			if (prevValue.equals(currValue)) {
+				continue;
+			}
+
+			if (prevValue instanceof CompoundTag prevCompound && currValue instanceof CompoundTag currCompound) {
+				if (!appendCompoundDiff(prevCompound, currCompound, nextPath, out)) {
+					return false;
+				}
+				continue;
+			}
+
+			if (isBooleanLike(prevValue) && isBooleanLike(currValue)) {
+				out.add(DeltaOperation.boolSet(nextPath, ((NumericTag) currValue).getAsByte() != 0));
+				continue;
+			}
+
+			if (prevValue instanceof NumericTag prevNumber && currValue instanceof NumericTag currNumber) {
+				if (isFloatingType(prevValue) || isFloatingType(currValue)) {
+					double delta = currNumber.getAsDouble() - prevNumber.getAsDouble();
+					out.add(DeltaOperation.addDouble(nextPath, delta));
+				} else {
+					long delta = currNumber.getAsLong() - prevNumber.getAsLong();
+					out.add(DeltaOperation.addLong(nextPath, delta));
+				}
+				continue;
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean applyOperation(CompoundTag root, DeltaOperation op) {
+		List<String> path = op.path();
+		if (path.isEmpty()) {
+			return false;
+		}
+
+		CompoundTag parent = getOrCreateParent(root, path, op.kind() == DeltaKind.PUT || op.kind() == DeltaKind.BOOL_SET);
+		if (parent == null) {
+			return false;
+		}
+
+		String key = path.get(path.size() - 1);
+		switch (op.kind()) {
+			case PUT -> parent.put(key, op.value().copy());
+			case REMOVE -> parent.remove(key);
+			case BOOL_SET -> parent.putBoolean(key, op.boolValue());
+			case ADD_LONG -> {
+				Tag existing = parent.get(key);
+				if (!(existing instanceof NumericTag number) || isFloatingType(existing)) {
+					return false;
+				}
+				parent.putLong(key, number.getAsLong() + op.longDelta());
+			}
+			case ADD_DOUBLE -> {
+				Tag existing = parent.get(key);
+				if (!(existing instanceof NumericTag number)) {
+					return false;
+				}
+				parent.putDouble(key, number.getAsDouble() + op.doubleDelta());
+			}
+		}
+
+		return true;
+	}
+
+	private CompoundTag getOrCreateParent(CompoundTag root, List<String> path, boolean create) {
+		CompoundTag cursor = root;
+		for (int i = 0; i < path.size() - 1; i++) {
+			String step = path.get(i);
+			Tag current = cursor.get(step);
+			if (current instanceof CompoundTag compound) {
+				cursor = compound;
+				continue;
+			}
+
+			if (!create) {
+				return null;
+			}
+
+			CompoundTag next = new CompoundTag();
+			cursor.put(step, next);
+			cursor = next;
+		}
+
+		return cursor;
+	}
+
+	private List<String> appendPath(List<String> basePath, String key) {
+		List<String> path = new ArrayList<>(basePath);
+		path.add(key);
+		return path;
+	}
+
+	private boolean isBooleanLike(Tag value) {
+		return value instanceof NumericTag number && value.getId() == Tag.TAG_BYTE && (number.getAsByte() == 0 || number.getAsByte() == 1);
+	}
+
+	private boolean isFloatingType(Tag value) {
+		return value.getId() == Tag.TAG_FLOAT || value.getId() == Tag.TAG_DOUBLE;
 	}
 
 	private void pollRemoteUpdates() {
@@ -311,6 +565,39 @@ public enum TeamDataSqlSyncManager {
 	}
 
 	private record RemoteTeamDataUpdate(UUID teamId, String payload) {
+	}
+
+	private record TeamDataDelta(List<DeltaOperation> operations) {
+	}
+
+	private enum DeltaKind {
+		PUT,
+		REMOVE,
+		BOOL_SET,
+		ADD_LONG,
+		ADD_DOUBLE
+	}
+
+	private record DeltaOperation(DeltaKind kind, List<String> path, Tag value, boolean boolValue, long longDelta, double doubleDelta) {
+		private static DeltaOperation put(List<String> path, Tag value) {
+			return new DeltaOperation(DeltaKind.PUT, path, value, false, 0L, 0D);
+		}
+
+		private static DeltaOperation remove(List<String> path) {
+			return new DeltaOperation(DeltaKind.REMOVE, path, null, false, 0L, 0D);
+		}
+
+		private static DeltaOperation boolSet(List<String> path, boolean value) {
+			return new DeltaOperation(DeltaKind.BOOL_SET, path, null, value, 0L, 0D);
+		}
+
+		private static DeltaOperation addLong(List<String> path, long delta) {
+			return new DeltaOperation(DeltaKind.ADD_LONG, path, null, false, delta, 0D);
+		}
+
+		private static DeltaOperation addDouble(List<String> path, double delta) {
+			return new DeltaOperation(DeltaKind.ADD_DOUBLE, path, null, false, 0L, delta);
+		}
 	}
 
 	private record Config(boolean enabled, String jdbcUrl, String user, String password, String tableName, String serverId, int pollIntervalTicks) {
