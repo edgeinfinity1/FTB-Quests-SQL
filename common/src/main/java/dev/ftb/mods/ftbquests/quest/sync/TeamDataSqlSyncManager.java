@@ -11,6 +11,7 @@ import dev.ftb.mods.ftbquests.FTBQuests;
 import dev.ftb.mods.ftbquests.net.SyncTeamDataMessage;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
@@ -535,6 +536,12 @@ public enum TeamDataSqlSyncManager {
 	}
 
 	private void applyRemoteUpdate(ServerQuestFile file, RemoteTeamDataUpdate update) {
+		if (FTBTeamsAPI.api().getManager().getTeamByID(update.teamId()).isEmpty()) {
+			// Team IDs can arrive from other instances before this server has seen any member.
+			// Avoid creating orphan TeamData entries; we'll pick this update up once the team exists here.
+			return;
+		}
+
 		try {
 			CompoundTag tag = TagParser.parseTag(update.payload());
 			TeamData teamData = file.getOrCreateTeamData(update.teamId());
@@ -547,6 +554,8 @@ public enum TeamDataSqlSyncManager {
 			}
 		} catch (CommandSyntaxException ex) {
 			FTBQuests.LOGGER.error("TeamData MySQL payload parse failed for {}: {}", update.teamId(), ex.getMessage());
+		} catch (Exception ex) {
+			FTBQuests.LOGGER.error("TeamData MySQL apply failed for {}: {}", update.teamId(), ex.getMessage());
 		}
 	}
 
