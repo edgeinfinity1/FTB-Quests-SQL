@@ -191,6 +191,11 @@ public enum TeamDataSqlSyncManager {
 				}
 
 				UUID teamId = UndashedUuidCompat.fromString(rs.getString("team_id"));
+				if (teamId == null) {
+					FTBQuests.LOGGER.warn("TeamData MySQL prime skipped malformed team_id row");
+					continue;
+				}
+
 				String payload = rs.getString("payload");
 				String existing = snapshotCache.get(teamId);
 				if (!payload.equals(existing)) {
@@ -519,6 +524,11 @@ public enum TeamDataSqlSyncManager {
 					}
 
 					UUID teamId = UndashedUuidCompat.fromString(rs.getString("team_id"));
+					if (teamId == null) {
+						FTBQuests.LOGGER.warn("TeamData MySQL poll skipped malformed team_id row");
+						continue;
+					}
+
 					String payload = rs.getString("payload");
 					String existing = snapshotCache.get(teamId);
 					if (!payload.equals(existing)) {
@@ -536,26 +546,32 @@ public enum TeamDataSqlSyncManager {
 	}
 
 	private void applyRemoteUpdate(ServerQuestFile file, RemoteTeamDataUpdate update) {
-		if (FTBTeamsAPI.api().getManager().getTeamByID(update.teamId()).isEmpty()) {
-			// Team IDs can arrive from other instances before this server has seen any member.
-			// Avoid creating orphan TeamData entries; we'll pick this update up once the team exists here.
+		UUID teamId = update.teamId();
+		if (teamId == null) {
+			FTBQuests.LOGGER.warn("TeamData MySQL update skipped: missing/invalid team_id in polled payload");
+			return;
+		}
+
+		TeamData teamData = file.getNullableTeamData(teamId);
+		if (teamData == null) {
+			// This server has not created local TeamData for the team yet (e.g. no member joined here).
+			// Skip to avoid creating orphan TeamData entries via remote-only sync.
 			return;
 		}
 
 		try {
 			CompoundTag tag = TagParser.parseTag(update.payload());
-			TeamData teamData = file.getOrCreateTeamData(update.teamId());
 			teamData.deserializeNBT(tag);
 			teamData.clearCachedProgress();
-			snapshotCache.put(update.teamId(), update.payload());
+			snapshotCache.put(teamId, update.payload());
 
 			if (!teamData.getOnlineMembers().isEmpty()) {
 				new SyncTeamDataMessage(teamData, true).sendTo(teamData.getOnlineMembers());
 			}
 		} catch (CommandSyntaxException ex) {
-			FTBQuests.LOGGER.error("TeamData MySQL payload parse failed for {}: {}", update.teamId(), ex.getMessage());
+			FTBQuests.LOGGER.error("TeamData MySQL payload parse failed for {}: {}", teamId, ex.getMessage());
 		} catch (Exception ex) {
-			FTBQuests.LOGGER.error("TeamData MySQL apply failed for {}: {}", update.teamId(), ex.getMessage());
+			FTBQuests.LOGGER.error("TeamData MySQL apply failed for {}: {}", teamId, ex.getMessage());
 		}
 	}
 
