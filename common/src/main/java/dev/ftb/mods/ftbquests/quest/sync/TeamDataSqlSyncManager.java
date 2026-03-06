@@ -28,10 +28,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Optional MySQL synchronization for TeamData between multiple server instances.
@@ -57,6 +59,8 @@ public enum TeamDataSqlSyncManager {
 	private ExecutorService executor;
 	private final Queue<RemoteTeamDataUpdate> pendingRemoteUpdates = new ConcurrentLinkedQueue<>();
 	private final ConcurrentMap<UUID, String> snapshotCache = new ConcurrentHashMap<>();
+	private final ConcurrentMap<UUID, PendingTeamSnapshot> pendingUploads = new ConcurrentHashMap<>();
+	private final AtomicBoolean uploadFlushScheduled = new AtomicBoolean(false);
 
 	private volatile boolean enabled;
 	private volatile String jdbcUrl;
@@ -103,6 +107,8 @@ public enum TeamDataSqlSyncManager {
 		lastPollTimeMillis = System.currentTimeMillis();
 		snapshotCache.clear();
 		pendingRemoteUpdates.clear();
+		pendingUploads.clear();
+		uploadFlushScheduled.set(false);
 		pollInFlight = false;
 
 		enqueue(() -> initializeSchemaAndPrimeCache(file));
@@ -115,6 +121,8 @@ public enum TeamDataSqlSyncManager {
 		pollInFlight = false;
 		pendingRemoteUpdates.clear();
 		snapshotCache.clear();
+		pendingUploads.clear();
+		uploadFlushScheduled.set(false);
 		if (executor != null) {
 			executor.shutdownNow();
 			executor = null;
@@ -149,7 +157,41 @@ public enum TeamDataSqlSyncManager {
 
 		TeamDataDelta delta = buildDelta(previous, snapshot);
 		UUID teamId = teamData.getTeamId();
-		enqueue(() -> pushSnapshot(teamId, snapshot, delta));
+		pendingUploads.put(teamId, new PendingTeamSnapshot(snapshot, delta));
+		scheduleUploadFlush();
+	}
+
+	private void scheduleUploadFlush() {
+		if (!enabled) {
+			return;
+		}
+
+		if (uploadFlushScheduled.compareAndSet(false, true)) {
+			enqueue(this::flushPendingUploads);
+		}
+	}
+
+	private void flushPendingUploads() {
+		try {
+			while (enabled) {
+				List<Map.Entry<UUID, PendingTeamSnapshot>> batch = new ArrayList<>(pendingUploads.entrySet());
+				if (batch.isEmpty()) {
+					return;
+				}
+
+				for (Map.Entry<UUID, PendingTeamSnapshot> entry : batch) {
+					PendingTeamSnapshot pending = pendingUploads.remove(entry.getKey());
+					if (pending != null) {
+						pushSnapshot(entry.getKey(), pending.snapshot(), pending.delta());
+					}
+				}
+			}
+		} finally {
+			uploadFlushScheduled.set(false);
+			if (enabled && !pendingUploads.isEmpty()) {
+				scheduleUploadFlush();
+			}
+		}
 	}
 
 	private void initializeSchemaAndPrimeCache(ServerQuestFile file) {
@@ -590,6 +632,9 @@ public enum TeamDataSqlSyncManager {
 	}
 
 	private record RemoteTeamDataUpdate(UUID teamId, String payload) {
+	}
+
+	private record PendingTeamSnapshot(String snapshot, TeamDataDelta delta) {
 	}
 
 	private record TeamDataDelta(List<DeltaOperation> operations) {
